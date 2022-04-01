@@ -1,0 +1,6 @@
+ARG IMAGE_NAME
+ARG IMAGE_VERSION
+ARG IMAGE_TAG
+FROM ${IMAGE_NAME}:${IMAGE_VERSION}-${IMAGE_TAG}
+
+COPY ./default.conf /etc/nginx/conf.d/default.conf

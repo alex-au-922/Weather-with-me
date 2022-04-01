@@ -1,0 +1,87 @@
+version: "3.7"
+services:
+  frontend:
+    image: react-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - IMAGE_NAME=${FRONTEND_IMAGE}
+        - IMAGE_VERSION=${FRONTEND_NODE_VERSION}
+        - IMAGE_TAG=${FRONTEND_NODE_TAG}
+        - HOME=${HOME}
+        - NPM_VERSION=${FRONTEND_NPM_VERSION}
+    container_name: react-frontend
+    volumes:
+      - ./frontend/public:${HOME}/public
+      - ./frontend/src:${HOME}/src
+      - ./frontend/build:${HOME}/build
+    restart: ${RESTART_POLICY}
+    command: npm start
+
+  backend:
+    image: node-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - IMAGE_NAME=${BACKEND_IMAGE}
+        - IMAGE_VERSION=${BACKEND_NODE_VERSION}
+        - IMAGE_TAG=${BACKEND_NODE_TAG}
+        - HOME=${HOME}
+        - NPM_VERSION=${BACKEND_NPM_VERSION}
+    container_name: node-backend
+    restart: ${RESTART_POLICY}
+    command: npm run start
+
+  database:
+    image: mongodb-database
+    build:
+      context: ./database
+      dockerfile: database.Dockerfile
+      args:
+        - IMAGE_NAME=${DATABASE_IMAGE}
+        - IMAGE_VERSION=${DATABASE_VERSION}
+        - IMAGE_TAG=${DATABASE_TAG}
+    restart: ${RESTART_POLICY}
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DATABASE_ADMIN_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_ADMIN_PASSWORD}
+    volumes:
+      - ./database/data:/data/db
+    container_name: mongodb-database
+
+  database-client:
+    image: mongodb-database-client
+    build:
+      context: ./database
+      dockerfile: database.client.Dockerfile
+      args:
+        - IMAGE_NAME=${DATABASE_CLIENT_IMAGE}
+        - IMAGE_VERSION=${DATABASE_CLIENT_VERSION}
+        - IMAGE_TAG=${DATABASE_CLIENT_TAG}
+    container_name: mongodb-database-client
+    restart: ${RESTART_POLICY}
+    depends_on:
+      - database
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DATABASE_ADMIN_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${DATABASE_ADMIN_PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${DATABASE_CLIENT_URL}
+
+  webserver:
+    image: webserver
+    build:
+      context: ./webserver
+      dockerfile: Dockerfile
+      args:
+        - IMAGE_NAME=${WEBSERVER_IMAGE}
+        - IMAGE_VERSION=${WEBSERVER_VERSION}
+        - IMAGE_TAG=${WEBSERVER_TAG}
+    container_name: webserver
+    restart: ${RESTART_POLICY}
+    depends_on:
+      - frontend
+    ports:
+      - ${WEBSERVER_FRONTEND_REAL_HOST_PORT}:${WEBSERVER_FRONTEND_VIRTUAL_HOST_PORT}
+      - ${WEBSERVER_DBCLIENT_REAL_HOST_PORT}:${WEBSERVER_DBCLIENT_VIRTUAL_HOST_PORT}
