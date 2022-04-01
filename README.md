@@ -6,6 +6,7 @@
 3. Install `make`
 4. Install `docker` and `docker-compose`
 5. Run `make npm-install` to install the packages for this project
+6. Download the `.env` file from reliable source
 
 # Am I getting right?
 
