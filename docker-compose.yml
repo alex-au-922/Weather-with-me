@@ -31,6 +31,14 @@ services:
         - HOME=${HOME}
         - NPM_VERSION=${BACKEND_NPM_VERSION}
     container_name: node-backend
+    environment:
+      - DATABASE_ACCESS_URL=${DATABASE_CLIENT_URL}
+      - APP_PORT=${BACKEND_VIRTUAL_HOST_PORT}
+    volumes:
+      - ./index.js:${HOME}/index.js
+      - ./utils:${HOME}/utils
+      - ./fetcher:${HOME}/fetcher
+      - ./backendInit:${HOME}/backendInit
     restart: ${RESTART_POLICY}
     command: npm run start
 
@@ -47,6 +55,7 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DATABASE_ADMIN_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_ADMIN_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DATABASE_NAME}
     volumes:
       - ./database/data:/data/db
     container_name: mongodb-database
