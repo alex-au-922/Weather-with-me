@@ -1,11 +1,6 @@
-// import connectDB from "./backendInit/connectDB";
-// import createExpressApp from "./backendInit/createExpressApp";
-// import getLogger from "./backendInit/getLogger";
+const app = require("./backendInit/createExpressApp").createExpressApp();
+const logger = require("./generalUtils/getLogger").getLogger();
 
-// const db = connectDB();
-// const app = createExpressApp();
-// const logger = getLogger();
-
-// const server = app.listen(process.env.APP_PORT, () => {
-//   console.log(`Server is listening on port ${process.env.APP_PORT}`);
-// });
+const server = app.listen(process.env.APP_PORT, () => {
+  console.log(`Server is listening on port ${process.env.APP_PORT}`);
+});

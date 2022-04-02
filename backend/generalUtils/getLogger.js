@@ -32,7 +32,14 @@ const warnRotationFileFormat = new winston.transports.DailyRotateFile({
 });
 
 const logConfiguration = {
-  transports: [debugRotationFileFormat, warnRotationFileFormat],
+  transports: [
+    debugRotationFileFormat,
+    new winston.transports.Console({
+      level: "info",
+      format: winston.format.combine(winston.format.colorize(), myFormat),
+    }),
+    warnRotationFileFormat,
+  ],
 };
 
 exports.getLogger = function () {

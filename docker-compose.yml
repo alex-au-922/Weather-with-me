@@ -9,13 +9,13 @@ services:
         - IMAGE_NAME=${FRONTEND_IMAGE}
         - IMAGE_VERSION=${FRONTEND_NODE_VERSION}
         - IMAGE_TAG=${FRONTEND_NODE_TAG}
-        - HOME=${HOME}
+        - HOME=${APP_HOME}
         - NPM_VERSION=${FRONTEND_NPM_VERSION}
     container_name: react-frontend
     volumes:
-      - ./frontend/public:${HOME}/public
-      - ./frontend/src:${HOME}/src
-      - ./frontend/build:${HOME}/build
+      - ./frontend/public:${APP_HOME}/public
+      - ./frontend/src:${APP_HOME}/src
+      - ./frontend/build:${APP_HOME}/build
     restart: ${RESTART_POLICY}
     command: npm start
 
@@ -28,19 +28,28 @@ services:
         - IMAGE_NAME=${BACKEND_IMAGE}
         - IMAGE_VERSION=${BACKEND_NODE_VERSION}
         - IMAGE_TAG=${BACKEND_NODE_TAG}
-        - HOME=${HOME}
+        - HOME=${APP_HOME}
         - NPM_VERSION=${BACKEND_NPM_VERSION}
     container_name: node-backend
     environment:
-      - DATABASE_ACCESS_URL=${DATABASE_CLIENT_URL}
+      - DATABASE_ADMIN_USER=${DATABASE_ADMIN_USER}
+      - DATABASE_ADMIN_PASSWORD=${DATABASE_ADMIN_PASSWORD}
+      - WEATHER_DATABASE_NAME=${WEATHER_DATABASE_NAME}
+      - USER_DATABASE_NAME=${USER_DATABASE_NAME}
+      - DATABASE_PORT=${DATABASE_VIRTUAL_HOST_PORT}
+      - DATABASE_HOST=database
       - APP_PORT=${BACKEND_VIRTUAL_HOST_PORT}
     volumes:
-      - ./index.js:${HOME}/index.js
-      - ./utils:${HOME}/utils
-      - ./fetcher:${HOME}/fetcher
-      - ./backendInit:${HOME}/backendInit
+      - ./backend/index.js:${APP_HOME}/index.js
+      - ./backend/backendConfig.js:${APP_HOME}/backendConfig.js
+      - ./backend/generalUtils:${APP_HOME}/generalUtils
+      - ./backend/fetcherUtils:${APP_HOME}/fetcherUtils
+      - ./backend/backendInit:${APP_HOME}/backendInit
+      - ./backend/databaseUtils:${APP_HOME}/databaseUtils
+      - ./backend/logs:${APP_HOME}/logs
+      - ./backend/demo.js:${APP_HOME}/demo.js
     restart: ${RESTART_POLICY}
-    command: npm run start
+    tty: true
 
   database:
     image: mongodb-database
@@ -55,9 +64,10 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DATABASE_ADMIN_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_ADMIN_PASSWORD}
-      MONGO_INITDB_DATABASE: ${DATABASE_NAME}
     volumes:
       - ./database/data:/data/db
+    ports:
+      - 37017:27017
     container_name: mongodb-database
 
   database-client:

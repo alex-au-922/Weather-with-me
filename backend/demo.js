@@ -1,10 +1,12 @@
-const fetchAirTemp = require("./fetcher/csv/meanAirTemp.js");
-const fetchRelHumid = require("./fetcher/csv/meanRelHumid.js");
-const fetchWindDirection = require("./fetcher/csv/meanWindDirection.js");
-
+const fetchAirTemp = require("./fetcherUtils/csv/meanAirTemp.js");
+const fetchRelHumid = require("./fetcherUtils/csv/meanRelHumid.js");
+const fetchWindDirection = require("./fetcherUtils/csv/meanWindDirection.js");
+const createLocation = require("./databaseUtils/createGeoLocCol.js");
+const updateWeather = require("./databaseUtils/updateWeatherCol");
+const updateTemp = updateWeather.updateTemp;
 const result = async function () {
-  const result = await fetchWindDirection.parsedFetch();
-  console.log(result);
+  const result = await fetchAirTemp.parsedFetch();
+  await updateTemp(result);
 };
 
 result();

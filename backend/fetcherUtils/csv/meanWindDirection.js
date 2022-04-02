@@ -1,7 +1,7 @@
-const csvToObject = require("../../utils/parseCSVObject.js").csvToObject;
+const csvToObject = require("../../generalUtils/parseCSVObject.js").csvToObject;
 const fetchAPIConfig = require("../../backendConfig.js").fetchAPIConfig;
 const parseGovtTimeString =
-  require("../../utils/parseGovtTimeString.js").parseGovtTimeString;
+  require("../../generalUtils/parseGovtTimeString.js").parseGovtTimeString;
 const fetch = require("node-fetch");
 
 exports.parsedFetch = async function parsedFetch() {

@@ -1,19 +1,21 @@
+const mongoose = require("mongoose");
+
 exports.fetchAPIConfig = {
   meanAirTemp: {
     url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_temperature.csv",
-    fetchDuration: 60000,
+    fetchDuration: 600000, // 10 minutes
   },
   meanRelHumid: {
     url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_humidity.csv",
-    fetchDuration: 60000,
+    fetchDuration: 600000, // 10 minutes
   },
   meanWindDirection: {
     url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_10min_wind.csv",
-    fetchDuration: 600000,
+    fetchDuration: 600000, // 10 minutes
   },
   pollutantAirQuality: {
     url: "https://www.aqhi.gov.hk/epd/ddata/html/out/24pc_Eng.xml",
-    fetchDuration: 600000,
+    fetchDuration: 3600000, // 1 hour
   },
 };
 
@@ -24,11 +26,33 @@ exports.loggerConfig = {
       `${[info.timestamp]} [${info.level}] > ${info.message}`,
   },
   logFileFormat: {
-    debugLogFileName: "logs/debug_%DATE%.log",
-    warnLogFileName: "logs/warning_%DATE%.log",
+    debugLogFileName: `${__dirname}/logs/debug_%DATE%.log`,
+    warnLogFileName: `${__dirname}/logs/warning_%DATE%.log`,
     logFileNameDatePattern: "YYYY-MM-DD",
     archieveLogFile: false,
     maxSize: "500m",
     maxFiles: "7d",
   },
 };
+
+exports.Geolocation = mongoose.model(
+  "GeoLocation",
+  new mongoose.Schema({
+    name: String,
+    latitude: Number,
+    longitude: Number,
+  })
+);
+
+exports.Weather = mongoose.model(
+  "Weather",
+  new mongoose.Schema({
+    time: Date,
+    locationId: [{ type: mongoose.Schema.Types.ObjectId, ref: "geolocations" }],
+    temperature: Number,
+    relativeHumidity: { type: Number, min: 0, max: 100 },
+    tenMinMeanWindDir: String,
+    tenMinMeanWindSpeed: Number,
+    tenMinMaxGust: Number,
+  })
+);
