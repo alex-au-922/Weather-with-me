@@ -4,9 +4,9 @@ const fetchWindDirection = require("./fetcherUtils/csv/meanWindDirection.js");
 const createLocation = require("./databaseUtils/createGeoLocCol.js");
 const updateWeather = require("./databaseUtils/updateWeatherCol");
 const updateTemp = updateWeather.updateTemp;
+
 const result = async function () {
-  const result = await fetchAirTemp.parsedFetch();
-  await updateTemp(result);
+  await createLocation.createLocation();
 };
 
 result();

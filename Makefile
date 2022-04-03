@@ -6,7 +6,7 @@ npm-install:
 	cd frontend/ && npm i
 local-run-frontend-test:
 	cd frontend/ && npm start
-	
+
 up:
 	docker-compose up -d
 down:
