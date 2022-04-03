@@ -40,10 +40,9 @@ function cleanGeoLocationJson(geoLocationJson) {
 
 async function insertLocation(data) {
   await GeoLocation.createCollection();
-  const result = await GeoLocation.collection.insertMany(data, {
+  await GeoLocation.collection.insertMany(data, {
     ordered: true,
   });
-  logger.info(
-    `Inserted ${result.length} locations into geolocations collection.`
-  );
+
+  logger.info(`Inserted locations into geolocations collection.`);
 }

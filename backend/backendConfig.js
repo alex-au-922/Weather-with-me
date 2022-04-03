@@ -35,7 +35,7 @@ exports.loggerConfig = {
   },
 };
 
-exports.Geolocation = mongoose.model(
+exports.GeoLocation = mongoose.model(
   "GeoLocation",
   new mongoose.Schema({
     name: String,
