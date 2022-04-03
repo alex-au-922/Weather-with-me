@@ -1,7 +1,8 @@
 const databaseUtils = require("../generalUtils/database");
 const connectWeatherDB = databaseUtils.connectWeatherDB;
 const collectionExists = databaseUtils.collectionExists;
-const GeoLocation = require("../backendConfig.js").GeoLocation;
+const geolocationSchema = require("../backendConfig.js").databaseConfig
+  .geolocationSchema;
 const mongoose = require("mongoose");
 const logger = require("../generalUtils/getLogger").getLogger();
 const util = require("util");
@@ -39,6 +40,7 @@ function cleanGeoLocationJson(geoLocationJson) {
 }
 
 async function insertLocation(data) {
+  const GeoLocation = mongoose.model("GeoLocation", geolocationSchema);
   await GeoLocation.createCollection();
   await GeoLocation.collection.insertMany(data, {
     ordered: true,

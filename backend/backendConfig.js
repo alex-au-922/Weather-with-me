@@ -35,18 +35,13 @@ exports.loggerConfig = {
   },
 };
 
-exports.GeoLocation = mongoose.model(
-  "GeoLocation",
-  new mongoose.Schema({
+exports.databaseConfig = {
+  geolocationSchema: new mongoose.Schema({
     name: String,
     latitude: Number,
     longitude: Number,
-  })
-);
-
-exports.Weather = mongoose.model(
-  "Weather",
-  new mongoose.Schema({
+  }),
+  weatherSchema: new mongoose.Schema({
     time: Date,
     locationId: [{ type: mongoose.Schema.Types.ObjectId, ref: "geolocations" }],
     temperature: Number,
@@ -54,5 +49,5 @@ exports.Weather = mongoose.model(
     tenMinMeanWindDir: String,
     tenMinMeanWindSpeed: Number,
     tenMinMaxGust: Number,
-  })
-);
+  }),
+};
