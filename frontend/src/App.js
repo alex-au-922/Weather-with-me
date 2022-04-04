@@ -1,6 +1,7 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
 import { Button, InputGroup, FormControl, Card } from "react-bootstrap";
+import { BACKEND_HOST } from "./frontendConfig";
 
 const App = () => {
   return (
@@ -16,9 +17,20 @@ const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const handleLogin = () => {
-    console.log(username);
-    console.log(password);
+  const handleLogin = async () => {
+    const data = { username, password };
+    const response = await fetch(`${BACKEND_HOST}/login/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const responseData = await response.json();
+    if (responseData.success) {
+      console.log(responseData.success);
+    }
   };
   return (
     <Card>

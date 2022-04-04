@@ -9,5 +9,7 @@ local-run-frontend-test:
 
 up:
 	docker-compose up -d
+local-run-backend-test: up
+	docker logs -f node-backend
 down:
 	docker-compose down
