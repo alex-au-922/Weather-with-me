@@ -12,6 +12,8 @@ services:
         - HOME=${APP_HOME}
         - NPM_VERSION=${FRONTEND_NPM_VERSION}
     container_name: react-frontend
+    environment:
+      - BACKEND_HOST=${BACKEND_HOST}
     volumes:
       - ./frontend/public:${APP_HOME}/public
       - ./frontend/src:${APP_HOME}/src
