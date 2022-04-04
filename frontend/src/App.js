@@ -16,9 +16,20 @@ const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const handleLogin = () => {
-    console.log(username);
-    console.log(password);
+  const handleLogin = async () => {
+    const data = { username, password };
+    const response = await fetch("http://localhost:10083/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    const responseData = await response.json();
+    if (responseData.success) {
+      console.log(responseData.success);
+    }
   };
   return (
     <Card>

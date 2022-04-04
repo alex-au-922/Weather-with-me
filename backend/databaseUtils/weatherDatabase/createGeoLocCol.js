@@ -1,10 +1,10 @@
-const databaseUtils = require("../generalUtils/database");
+const databaseUtils = require("../../generalUtils/database");
 const connectWeatherDB = databaseUtils.connectWeatherDB;
 const collectionExists = databaseUtils.collectionExists;
-const geolocationSchema = require("../backendConfig.js").databaseConfig
+const geolocationSchema = require("../../backendConfig.js").databaseConfig
   .geolocationSchema;
 const mongoose = require("mongoose");
-const logger = require("../generalUtils/getLogger").getLogger();
+const logger = require("../../generalUtils/getLogger").getLogger();
 const util = require("util");
 const fs = require("fs");
 const readFile = util.promisify(fs.readFile);
