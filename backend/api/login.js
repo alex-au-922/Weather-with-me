@@ -12,7 +12,7 @@ router.post("/", (req, res) => {
 
   const handleLogin = async () => {
     res.setHeader("Content-Type", "application/json");
-    const userInfo = await checkUserCredentials(username);
+    const userInfo = await checkUserCredentials("username", username);
     if (!userInfo.success)
       res.send({ success: false, errorType: null, error: null });
 
