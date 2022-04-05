@@ -1,8 +1,9 @@
-const logger = require("../generalUtils/getLogger").getLogger();
-const connectWeatherDB = require("../generalUtils/database").connectWeatherDB;
+const logger = require("../../generalUtils/getLogger").getLogger();
+const connectWeatherDB =
+  require("../../generalUtils/database").connectWeatherDB;
 const mongoose = require("mongoose");
-const weather = require("../backendConfig.js").databaseConfig.weatherSchema;
-const geolocationSchema = require("../backendConfig.js").databaseConfig
+const weather = require("../../backendConfig.js").databaseConfig.weatherSchema;
+const geolocationSchema = require("../../backendConfig.js").databaseConfig
   .geolocationSchema;
 
 exports.updateTemp = async function (airTempData) {
@@ -10,6 +11,7 @@ exports.updateTemp = async function (airTempData) {
   try {
     await insertOrUpdateTemp(airTempData);
   } catch (error) {
+    
     logger.error(error);
   } finally {
     db.close();

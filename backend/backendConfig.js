@@ -58,3 +58,4 @@ exports.databaseConfig = {
     role: String,
   }),
 };
+

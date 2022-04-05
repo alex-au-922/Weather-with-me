@@ -10,6 +10,7 @@ const fs = require("fs");
 const readFile = util.promisify(fs.readFile);
 
 exports.createLocation = async function () {
+  const db = await connectWeatherDB();
   try {
     if (!(await collectionExists(db, "geolocations"))) {
       const plainText = await readFile(`${__dirname}/locations.json`);
@@ -21,7 +22,10 @@ exports.createLocation = async function () {
       logger.info("The collection geolocations already exists");
     }
   } catch (error) {
+    console.log(error);
     logger.error(error);
+  } finally {
+    db.close();
   }
 };
 
@@ -34,6 +38,10 @@ function cleanGeoLocationJson(geoLocationJson) {
     newObject["longitude"] = longitude;
     return newObject;
   });
+}
+
+function mapGeoLocationName(geoLocationJson) {
+  //TODO: write the mapping
 }
 
 async function insertLocation(data) {
