@@ -42,6 +42,7 @@ const App = () => {
               path={route.path}
             />
           ))}
+          <Route path="/*" element={<Navigate to="/" />} />
         </Routes>
       )}
     </>
