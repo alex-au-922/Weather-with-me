@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-exports.createExpressApp = function () {
+exports.createExpressApp = () => {
   const app = express();
   app.use(bodyParser.json());
   app.use(cors());

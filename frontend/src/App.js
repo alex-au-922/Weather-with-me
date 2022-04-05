@@ -1,62 +1,51 @@
 import "./App.css";
-import React, { useState, useEffect } from "react";
-import { Button, InputGroup, FormControl, Card } from "react-bootstrap";
-import { BACKEND_HOST } from "./frontendConfig";
+import React, { useEffect, useContext } from "react";
+import { Route, Routes, Navigate } from "react-router-dom";
+import { FullScreenLoading } from "./utils/loading";
+import routes from "./configs/routes";
+import { AuthContext } from "./middleware/auth";
 
 const App = () => {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <LoginPage />
-      </header>
-    </div>
-  );
-};
+  const { user, fetching } = useContext(AuthContext);
 
-const LoginPage = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const handleLogin = async () => {
-    const data = { username, password };
-    const response = await fetch(`${BACKEND_HOST}/login/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-    const responseData = await response.json();
-    if (responseData.success) {
-      console.log(responseData.success);
-    }
-  };
   return (
-    <Card>
-      <Card.Body>
-        <Card.Title>Login</Card.Title>
-        <InputGroup>
-          <FormControl
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(event) => setUsername(event.target.value)}
+    <>
+      {fetching ? (
+        <FullScreenLoading />
+      ) : (
+        <Routes>
+          <Route
+            path="/"
+            element={
+              user.authenticated ? (
+                <Navigate to="/home" exact />
+              ) : (
+                <Navigate to="/login" exact />
+              )
+            }
           />
-        </InputGroup>
-        <InputGroup>
-          <FormControl
-            type="text"
-            placeholder="Password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
-        </InputGroup>
-        <Button variant="primary" onClick={handleLogin}>
-          Login
-        </Button>
-      </Card.Body>
-    </Card>
+          {routes.map((route, index) => (
+            <Route
+              key={index}
+              exact
+              element={
+                route.protected ? (
+                  user.authenticated ? (
+                    route.component
+                  ) : (
+                    <Navigate to="/" />
+                  )
+                ) : (
+                  route.component
+                )
+              }
+              path={route.path}
+            />
+          ))}
+          <Route path="/*" element={<Navigate to="/" />} />
+        </Routes>
+      )}
+    </>
   );
 };
 
