@@ -50,4 +50,11 @@ exports.databaseConfig = {
     tenMinMeanWindSpeed: Number,
     tenMinMaxGust: Number,
   }),
+  userSchema: new mongoose.Schema({
+    username: String,
+    password: String,
+    email: String,
+    viewMode: String,
+    role: String,
+  }),
 };

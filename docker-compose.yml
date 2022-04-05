@@ -43,12 +43,13 @@ services:
       - DATABASE_PORT=${DATABASE_VIRTUAL_HOST_PORT}
       - DATABASE_HOST=database
       - APP_PORT=${BACKEND_VIRTUAL_HOST_PORT}
+      - JWT_SECRET=testing!
     volumes:
       - ./backend/index.js:${APP_HOME}/index.js
       - ./backend/backendConfig.js:${APP_HOME}/backendConfig.js
       - ./backend/generalUtils:${APP_HOME}/generalUtils
       - ./backend/fetcherUtils:${APP_HOME}/fetcherUtils
-      - ./backend/backendInit:${APP_HOME}/backendInit
+      - ./backend/api:${APP_HOME}/api
       - ./backend/databaseUtils:${APP_HOME}/databaseUtils
       - ./backend/logs:${APP_HOME}/logs
       - ./backend/demo.js:${APP_HOME}/demo.js
