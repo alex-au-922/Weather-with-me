@@ -5,8 +5,12 @@ const createLocation = require("./databaseUtils/weatherDatabase/createGeoLocCol.
 const updateWeather = require("./databaseUtils/weatherDatabase/updateWeatherCol");
 const updateTemp = updateWeather.updateTemp;
 
-setInterval(() => {
+createLocation.createLocation();
 
-}, )
+// fetchAirTemp.parsedFetch();
 
-result();
+// setInterval(() => {
+
+// }, )
+
+// result();

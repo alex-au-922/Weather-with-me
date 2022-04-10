@@ -19,6 +19,10 @@ exports.fetchAPIConfig = {
   },
 };
 
+exports.geoLocationMapper = {
+
+};
+
 exports.loggerConfig = {
   logFormat: {
     logTimeFormat: "YYYY-MM-DD HH:mm:ss",
@@ -38,8 +42,12 @@ exports.loggerConfig = {
 exports.databaseConfig = {
   geolocationSchema: new mongoose.Schema({
     name: String,
+    address: String,
     latitude: Number,
     longitude: Number,
+    tempStation: String,
+    relHumStation: String,
+    windStation: String
   }),
   weatherSchema: new mongoose.Schema({
     time: Date,

@@ -15,7 +15,8 @@ exports.createLocation = async function () {
     if (!(await collectionExists(db, "geolocations"))) {
       const plainText = await readFile(`${__dirname}/locations.json`);
       const geoLocationJson = JSON.parse(plainText);
-      const cleantGeoLocationJson = cleanGeoLocationJson(geoLocationJson);
+      const cleantGeoLocationJson = await cleanGeoLocationJson(geoLocationJson);
+      const mappedGeoLocationJson = await mapGeoLocationName(cleantGeoLocationJson);
       logger.info("Creating the geolocations Collection...");
       await insertLocation(cleantGeoLocationJson);
     } else {
@@ -29,10 +30,11 @@ exports.createLocation = async function () {
   }
 };
 
-function cleanGeoLocationJson(geoLocationJson) {
+async function cleanGeoLocationJson(geoLocationJson) {
   return geoLocationJson.features.map((feature) => {
     const newObject = {};
-    newObject["name"] = feature.properties.Address;
+    newObject["name"] = feature.properties["Facility Name"];
+    newObject["address"] = feature.properties.Address;
     const [latitude, longitude] = feature.geometry.coordinates;
     newObject["latitude"] = latitude;
     newObject["longitude"] = longitude;
@@ -40,8 +42,14 @@ function cleanGeoLocationJson(geoLocationJson) {
   });
 }
 
-function mapGeoLocationName(geoLocationJson) {
-  //TODO: write the mapping
+async function mapGeoLocationName (cleantGeoLocationJson) {
+  const plainText = await readFile(`${__dirname}/mappedLocation.json`);
+  const mappedGeoLocation = JSON.parse(plainText);
+  return cleantGeoLocationJson.map((obj) => {
+    obj["tempStation"] = mappedGeoLocation.hasOwnProperty(obj.name) ? mappedGeoLocation[obj.name]['Air Temperature'] : null;
+    obj["relHumStation"] = mappedGeoLocation.hasOwnProperty(obj.name) ? mappedGeoLocation[obj.name]['Relative Humidity'] : null;
+    obj["windStation"] = mappedGeoLocation.hasOwnProperty(obj.name) ? mappedGeoLocation[obj.name]['Wind'] : null;
+  });
 }
 
 async function insertLocation(data) {
