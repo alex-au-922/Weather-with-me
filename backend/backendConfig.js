@@ -9,7 +9,7 @@ exports.fetchAPIConfig = {
     url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_humidity.csv",
     fetchDuration: 600000, // 10 minutes
   },
-  meanWindDirection: {
+  meanWindData: {
     url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_10min_wind.csv",
     fetchDuration: 600000, // 10 minutes
   },
@@ -55,8 +55,8 @@ exports.databaseConfig = {
     temperature: Number,
     relativeHumidity: { type: Number, min: 0, max: 100 },
     tenMinMeanWindDir: String,
-    tenMinMeanWindSpeed: Number,
-    tenMinMaxGust: Number,
+    tenMinMeanWindSpeed: String,
+    tenMinMaxGust: String,
   }),
   userSchema: new mongoose.Schema({
     username: String,
