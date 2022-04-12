@@ -4,13 +4,5 @@ const fetchWindDirection = require("./fetcherUtils/csv/meanWindDirection.js");
 const createLocation = require("./databaseUtils/weatherDatabase/createGeoLocCol.js");
 const updateWeather = require("./databaseUtils/weatherDatabase/updateWeatherCol");
 
-// createLocation.createLocation();
-updateWeather.updateWeather();
- 
-// fetchAirTemp.parsedFetch();
-
-// setInterval(() => {
-
-// }, )
-
-// result();
+createLocation.createLocation();
+setInterval(updateWeather.updateWeather, 600000);

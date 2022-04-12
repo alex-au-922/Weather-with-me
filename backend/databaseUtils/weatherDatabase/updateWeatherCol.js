@@ -51,7 +51,7 @@ async function insertOrUpdateVariables(Weather, geolocationDoc, airTempData, hum
     const temperature = airTempData[geolocationDoc['tempStation']]['Air Temperature(degree Celsius)'];
     const relativeHumidity = humidityData[geolocationDoc['relHumStation']]['Relative Humidity(percent)'];
     const windObject = windData[geolocationDoc['windStation']];
-    const time = windObject['Date time'];
+    const time = parseGovtTimeString(windObject['Date time']);
     const windDir = windObject['10-Minute Mean Wind Direction(Compass points)'];
     const windSpeed = windObject['10-Minute Mean Speed(km/hour)'];
     const windGust = windObject['10-Minute Maximum Gust(km/hour)'];
