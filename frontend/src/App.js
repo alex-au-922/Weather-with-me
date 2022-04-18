@@ -4,12 +4,14 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { FullScreenLoading } from "./utils/loading";
 import routes from "./configs/routes";
 import { AuthContext } from "./middleware/auth";
+import NavBar from "./components/navbar";
 
 const App = () => {
   const { user, fetching } = useContext(AuthContext);
 
   return (
     <>
+      <NavBar>
       {fetching ? (
         <FullScreenLoading />
       ) : (
@@ -45,6 +47,7 @@ const App = () => {
           <Route path="/*" element={<Navigate to="/" />} />
         </Routes>
       )}
+      </NavBar>      
     </>
   );
 };
