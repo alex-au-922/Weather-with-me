@@ -57,7 +57,7 @@ services:
       - ${BACKEND_REAL_HOST_PORT}:${BACKEND_VIRTUAL_HOST_PORT}
     restart: ${RESTART_POLICY}
     tty: true
-    command: npm run crawl
+    # command: npm run crawl
 
   database:
     image: mongodb-database

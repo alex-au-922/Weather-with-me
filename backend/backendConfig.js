@@ -55,8 +55,8 @@ exports.databaseConfig = {
     temperature: Number,
     relativeHumidity: { type: Number, min: 0, max: 100 },
     tenMinMeanWindDir: String,
-    tenMinMeanWindSpeed: String,
-    tenMinMaxGust: String,
+    tenMinMeanWindSpeed: Number,
+    tenMinMaxGust: Number,
   }),
   userSchema: new mongoose.Schema({
     username: String,

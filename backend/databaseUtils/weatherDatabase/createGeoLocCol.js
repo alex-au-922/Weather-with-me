@@ -16,7 +16,7 @@ exports.createLocation = async function () {
       const plainText = await readFile(`${__dirname}/locations.json`);
       const geoLocationJson = JSON.parse(plainText);
       const cleantGeoLocationJson = await cleanGeoLocationJson(geoLocationJson);
-      const mappedGeoLocationJson = await mapGeoLocationName(cleantGeoLocationJson);
+      // const mappedGeoLocationJson = await mapGeoLocationName(cleantGeoLocationJson);
       logger.info("Creating the geolocations Collection...");
       await insertLocation(cleantGeoLocationJson);
     } else {
@@ -25,9 +25,10 @@ exports.createLocation = async function () {
   } catch (error) {
     console.log(error);
     logger.error(error);
-  } finally {
-    db.close();
   }
+  // finally {
+  //   db.close();
+  // }
 };
 
 async function cleanGeoLocationJson(geoLocationJson) {
@@ -42,15 +43,21 @@ async function cleanGeoLocationJson(geoLocationJson) {
   });
 }
 
-async function mapGeoLocationName (cleantGeoLocationJson) {
-  const plainText = await readFile(`${__dirname}/mappedLocation.json`);
-  const mappedGeoLocation = JSON.parse(plainText);
-  return cleantGeoLocationJson.map((obj) => {
-    obj["tempStation"] = mappedGeoLocation.hasOwnProperty(obj.name) ? mappedGeoLocation[obj.name]['Air Temperature'] : null;
-    obj["relHumStation"] = mappedGeoLocation.hasOwnProperty(obj.name) ? mappedGeoLocation[obj.name]['Relative Humidity'] : null;
-    obj["windStation"] = mappedGeoLocation.hasOwnProperty(obj.name) ? mappedGeoLocation[obj.name]['Wind'] : null;
-  });
-}
+// async function mapGeoLocationName(cleantGeoLocationJson) {
+//   const plainText = await readFile(`${__dirname}/mappedLocation.json`);
+//   const mappedGeoLocation = JSON.parse(plainText);
+//   return cleantGeoLocationJson.map((obj) => {
+//     obj["tempStation"] = mappedGeoLocation.hasOwnProperty(obj.name)
+//       ? mappedGeoLocation[obj.name]["Air Temperature"]
+//       : null;
+//     obj["relHumStation"] = mappedGeoLocation.hasOwnProperty(obj.name)
+//       ? mappedGeoLocation[obj.name]["Relative Humidity"]
+//       : null;
+//     obj["windStation"] = mappedGeoLocation.hasOwnProperty(obj.name)
+//       ? mappedGeoLocation[obj.name]["Wind"]
+//       : null;
+//   });
+// }
 
 async function insertLocation(data) {
   const GeoLocation = mongoose.model("GeoLocation", geolocationSchema);

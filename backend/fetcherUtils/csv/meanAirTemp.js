@@ -15,7 +15,8 @@ function cleanAirTempText(airTempArray) {
   return airTempArray.map((oldObject) => {
     const newObject = {};
     newObject["location"] = oldObject["Automatic Weather Station"];
-    newObject["temperature"] = oldObject["Air Temperature(degree Celsius)"];
+    newObject["temperature"] = Number(oldObject["Air Temperature(degree Celsius)"]);
+    if (isNaN(newObject["temperature"])) newObject["temperature"] = null;
     newObject["time"] = parseGovtTimeString(oldObject["Date time"]);
     return newObject;
   });
