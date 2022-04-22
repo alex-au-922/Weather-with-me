@@ -1,20 +1,22 @@
 const mongoose = require("mongoose");
 
 exports.fetchAPIConfig = {
-  meanAirTemp: {
-    url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_temperature.csv",
-    fetchDuration: 6000, // 10 minutes
-  },
-  meanRelHumid: {
-    url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_humidity.csv",
-    fetchDuration: 6000, // 10 minutes
-  },
-  meanWindData: {
-    url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_10min_wind.csv",
-    fetchDuration: 6000, // 10 minutes
+  meanWeatherData: {
+    meanAirTemp: {
+      url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_temperature.csv",
+    },
+    meanRelHumid: {
+      url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_humidity.csv",
+    },
+    meanWindData: {
+      url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_10min_wind.csv",
+    },
+    fetchDuration: 60000, // 1 minute
   },
   pollutantAirQuality: {
-    url: "https://www.aqhi.gov.hk/epd/ddata/html/out/24pc_Eng.xml",
+    pollutant: {
+      url: "https://www.aqhi.gov.hk/epd/ddata/html/out/24pc_Eng.xml",
+    },
     fetchDuration: 3600000, // 1 hour
   },
 };
@@ -47,7 +49,13 @@ exports.databaseConfig = {
   }),
   weatherSchema: new mongoose.Schema({
     time: Date,
-    locationId: [{ type: mongoose.Schema.Types.ObjectId, ref: "geolocations" }],
+    locationId: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "geolocations",
+        unique: true,
+      },
+    ],
     temperature: Number,
     relativeHumidity: { type: Number, min: 0, max: 100 },
     tenMinMeanWindDir: String,

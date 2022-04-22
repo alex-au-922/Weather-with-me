@@ -3,12 +3,19 @@ const connectWeatherDB =
   require("../../generalUtils/database").connectWeatherDB;
 const mongoose = require("mongoose");
 const { collectionExists } = require("../../generalUtils/database");
-const weatherSchema = require("../../backendConfig.js").databaseConfig.weatherSchema;
+const weatherSchema = require("../../backendConfig.js").databaseConfig
+  .weatherSchema;
 const geolocationSchema = require("../../backendConfig.js").databaseConfig
   .geolocationSchema;
-const fetchAirTemp = require("../../fetcher")
+const fetchAirTemp = require("../../fetcherUtils/csv/meanAirTemp");
+const fetchRelHumid = require("../../fetcherUtils/csv/meanRelHumid");
+const fetchWindDirection = require("../../fetcherUtils/csv/meanWindDirection");
 
-exports.updateWeather = async function () {};
+const updateWeather = async function () {
+  await updateTemp();
+  await updateRelHumid();
+  await updateWind();
+};
 
 const updateTemp = async function () {
   logger.info("Updating temperature!");
@@ -33,9 +40,10 @@ const updateData = async function (fetchFunction) {
       await Weather.createCollection();
     }
     const weatherData = await fetchFunction();
-    const trasnforemedWindData = await transformLocField(weatherData);
-    await insertOrUpdateWeatherData(trasnforemedWindData);
+    const transformedData = await transformLocField(weatherData);
+    await insertOrUpdateWeatherData(transformedData);
   } catch (error) {
+    console.log(error);
     logger.error(error);
   }
 };
@@ -80,8 +88,9 @@ async function transformLocId(datum) {
     return null;
   }
   const geolocationObject = geolocationDatum.toObject();
-  const newDatum = { ...datum, location: geolocationObject._id };
+  const newDatum = { ...datum, locationId: geolocationObject._id };
   return newDatum;
 }
 
-module.exports = { updateTemp, updateRelHumid, updateWind };
+// module.exports = { updateTemp, updateRelHumid, updateWind };
+module.exports = { updateWeather };

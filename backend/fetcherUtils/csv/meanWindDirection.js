@@ -5,7 +5,7 @@ const parseGovtTimeString =
 const fetch = require("node-fetch");
 
 exports.parsedFetch = async function parsedFetch() {
-  const response = await fetch(fetchAPIConfig.meanWindData.url);
+  const response = await fetch(fetchAPIConfig.meanWeatherData.meanWindData.url);
   const responseText = await response.text();
   const windDirectionArray = csvToObject(responseText);
   console.log(parseGovtTimeString);
@@ -18,11 +18,13 @@ function cleanWindDirectionText(windDirectionArray) {
     newObject["location"] = oldObject["Automatic Weather Station"];
     newObject["tenMinMeanWindDir"] =
       oldObject["10-Minute Mean Wind Direction(Compass points)"];
-    if (newObject["tenMinMeanWindDir"] === "N/A") newObject["tenMinMeanWindDir"] = null;
+    if (newObject["tenMinMeanWindDir"] === "N/A")
+      newObject["tenMinMeanWindDir"] = null;
     newObject["tenMinMeanWindSpeed"] = Number(
       oldObject["10-Minute Mean Speed(km/hour)"]
     );
-    if (isNaN(newObject["tenMinMeanWindSpeed"])) newObject["tenMinMeanWindSpeed"] = null;
+    if (isNaN(newObject["tenMinMeanWindSpeed"]))
+      newObject["tenMinMeanWindSpeed"] = null;
     newObject["tenMinMaxGust"] = Number(
       oldObject["10-Minute Maximum Gust(km/hour)"]
     );
