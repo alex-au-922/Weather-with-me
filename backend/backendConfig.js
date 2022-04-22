@@ -3,24 +3,20 @@ const mongoose = require("mongoose");
 exports.fetchAPIConfig = {
   meanAirTemp: {
     url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_temperature.csv",
-    fetchDuration: 600000, // 10 minutes
+    fetchDuration: 6000, // 10 minutes
   },
   meanRelHumid: {
     url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_humidity.csv",
-    fetchDuration: 600000, // 10 minutes
+    fetchDuration: 6000, // 10 minutes
   },
   meanWindData: {
     url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_10min_wind.csv",
-    fetchDuration: 600000, // 10 minutes
+    fetchDuration: 6000, // 10 minutes
   },
   pollutantAirQuality: {
     url: "https://www.aqhi.gov.hk/epd/ddata/html/out/24pc_Eng.xml",
     fetchDuration: 3600000, // 1 hour
   },
-};
-
-exports.geoLocationMapper = {
-
 };
 
 exports.loggerConfig = {
@@ -47,7 +43,7 @@ exports.databaseConfig = {
     longitude: Number,
     tempStation: String,
     relHumStation: String,
-    windStation: String
+    windStation: String,
   }),
   weatherSchema: new mongoose.Schema({
     time: Date,
@@ -66,4 +62,3 @@ exports.databaseConfig = {
     role: String,
   }),
 };
-
