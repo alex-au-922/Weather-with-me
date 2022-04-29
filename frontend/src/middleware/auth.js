@@ -1,5 +1,6 @@
-import { useState, createContext, useEffect } from "react";
+import { useState, useContext, createContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { WebSocketContext } from "./websocket";
 import decryptJwt from "../utils/jwt/decrypt";
 
 const AuthContext = createContext({});
@@ -13,6 +14,9 @@ const AuthProvider = (props) => {
     email: null,
     authenticated: false,
   });
+  const { connectWebSocket, disconnectWebSocket } =
+    useContext(WebSocketContext);
+
   const navigate = useNavigate();
   useEffect(() => {
     (async () => {
@@ -25,6 +29,7 @@ const AuthProvider = (props) => {
           email: result.email,
           authenticated: true,
         });
+        connectWebSocket();
       }
       setFetching(false);
     })();
@@ -33,7 +38,8 @@ const AuthProvider = (props) => {
     navigate("/");
     setFetching(true);
   };
-  const logout = () => {
+  const logout = async () => {
+    disconnectWebSocket();
     setUser({
       username: null,
       role: null,

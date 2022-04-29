@@ -1,14 +1,20 @@
 const logger = require("../../generalUtils/getLogger").getLogger();
 const connectWeatherDB =
   require("../../generalUtils/database").connectWeatherDB;
-const mongoose = require("mongoose");
 const { collectionExists } = require("../../generalUtils/database");
-const weatherSchema = require("../../backendConfig.js").databaseConfig.weatherSchema;
+const weatherSchema = require("../../backendConfig.js").databaseConfig
+  .weatherSchema;
 const geolocationSchema = require("../../backendConfig.js").databaseConfig
   .geolocationSchema;
-const fetchAirTemp = require("../../fetcher")
+const fetchAirTemp = require("../../fetcherUtils/csv/meanAirTemp");
+const fetchRelHumid = require("../../fetcherUtils/csv/meanRelHumid");
+const fetchWindDirection = require("../../fetcherUtils/csv/meanWindDirection");
 
-exports.updateWeather = async function () {};
+const updateWeather = async function () {
+  await updateTemp();
+  await updateRelHumid();
+  await updateWind();
+};
 
 const updateTemp = async function () {
   logger.info("Updating temperature!");
@@ -26,43 +32,45 @@ const updateWind = async function () {
 };
 
 const updateData = async function (fetchFunction) {
-  const db = await connectWeatherDB();
+  const weatherDB = await connectWeatherDB();
   try {
-    if (!(await collectionExists(db, "weathers"))) {
-      const Weather = mongoose.model("Weather", weatherSchema);
+    if (!(await collectionExists(weatherDB, "weathers"))) {
+      const Weather = weatherDB.model("Weather", weatherSchema);
       await Weather.createCollection();
     }
     const weatherData = await fetchFunction();
-    const trasnforemedWindData = await transformLocField(weatherData);
-    await insertOrUpdateWeatherData(trasnforemedWindData);
+    const transformedData = await transformLocField(weatherDB, weatherData);
+    await insertOrUpdateWeatherData(weatherDB, transformedData);
   } catch (error) {
+    console.log(error);
     logger.error(error);
   }
 };
 
-async function insertOrUpdateWeatherData(weatherData) {
+async function insertOrUpdateWeatherData(weatherDB, weatherData) {
   //TODO: to update the insert or update of air temperature data
   await Promise.all(
     weatherData.map(
-      async (weatherDatum) => await insertOrUpdateWeatherDatum(weatherDatum)
+      async (weatherDatum) =>
+        await insertOrUpdateWeatherDatum(weatherDB, weatherDatum)
     )
   );
 }
 
-async function insertOrUpdateWeatherDatum(weatherDatum) {
-  const Weather = mongoose.model("Weather", weatherSchema);
+async function insertOrUpdateWeatherDatum(weatherDB, weatherDatum) {
+  const Weather = weatherDB.model("Weather", weatherSchema);
   const { locationId } = weatherDatum;
   const recordExists = await Weather.findOne({ locationId });
   if (recordExists !== null) {
-    await Weather.updateOne({ locationId }, weatherDatum);
+    const result = await Weather.updateOne({ locationId }, weatherDatum);
   } else {
     await Weather.create(weatherDatum);
   }
 }
 
-async function transformLocField(data) {
+async function transformLocField(weatherDB, data) {
   const transformedData = await Promise.all(
-    data.map(async (datum) => await transformLocId(datum))
+    data.map(async (datum) => await transformLocId(weatherDB, datum))
   );
   const filteredTransformedData = transformedData.filter(
     (trasnformedDatum) => trasnformedDatum !== null
@@ -70,9 +78,9 @@ async function transformLocField(data) {
   return filteredTransformedData;
 }
 
-async function transformLocId(datum) {
+async function transformLocId(weatherDB, datum) {
   const { location } = datum;
-  const GeoLocation = mongoose.model("GeoLocation", geolocationSchema);
+  const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
   const geolocationDatum = await GeoLocation.findOne({
     name: location,
   });
@@ -80,8 +88,9 @@ async function transformLocId(datum) {
     return null;
   }
   const geolocationObject = geolocationDatum.toObject();
-  const newDatum = { ...datum, location: geolocationObject._id };
+  const newDatum = { ...datum, locationId: geolocationObject._id };
   return newDatum;
 }
 
-module.exports = { updateTemp, updateRelHumid, updateWind };
+// module.exports = { updateTemp, updateRelHumid, updateWind };
+module.exports = { updateWeather };

@@ -44,6 +44,9 @@ services:
       - DATABASE_HOST=database
       - APP_PORT=${BACKEND_VIRTUAL_HOST_PORT}
       - JWT_SECRET=testing!
+      - SMTP_EMAIL=${SMTP_EMAIL}
+      - SMTP_EMAIL_PW=${SMTP_EMAIL_PW}
+      - FRONTEND_HOST=${FRONTEND_HOST}
     volumes:
       - ./backend/index.js:${APP_HOME}/index.js
       - ./backend/backendConfig.js:${APP_HOME}/backendConfig.js
@@ -52,6 +55,7 @@ services:
       - ./backend/api:${APP_HOME}/api
       - ./backend/databaseUtils:${APP_HOME}/databaseUtils
       - ./backend/logs:${APP_HOME}/logs
+      - ./backend/websocket:${APP_HOME}/websocket
       - ./backend/demo.js:${APP_HOME}/demo.js
     ports:
       - ${BACKEND_REAL_HOST_PORT}:${BACKEND_VIRTUAL_HOST_PORT}

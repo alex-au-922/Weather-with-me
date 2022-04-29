@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import BACKEND_HOST from "../../frontendConfig";
+import { BACKEND_HOST } from "../../frontendConfig";
 import checkString from "../../utils/checkString";
 import { Form, Card, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
