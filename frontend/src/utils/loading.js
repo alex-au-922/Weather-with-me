@@ -1,5 +1,7 @@
+import "./loading.css";
+
 const FullScreenLoading = () => {
-  return <div>Loading...</div>;
+  return <span class="loader"></span>;
 };
 
 export { FullScreenLoading };
