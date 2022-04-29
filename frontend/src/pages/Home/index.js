@@ -1,6 +1,7 @@
 import { Button } from "react-bootstrap";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../../middleware/auth";
+import { WebSocketContext } from "../../middleware/websocket";
 import { Container, Row } from "react-bootstrap";
 
 const Home = () => {
@@ -8,6 +9,18 @@ const Home = () => {
     user: { username, role, email, viewMode },
     logout,
   } = useContext(AuthContext);
+  const { webSocket } = useContext(WebSocketContext);
+  useEffect(() => {
+    if (webSocket !== null) {
+      webSocket.addEventListener("message", (event) => {
+        console.log(event.data);
+      });
+      return () =>
+        webSocket.removeEventListener("message", (event) => {
+          console.log(event.data);
+        });
+    }
+  }, [webSocket]);
   return (
     <Container>
       <Row>

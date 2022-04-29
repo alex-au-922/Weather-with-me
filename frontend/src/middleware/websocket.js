@@ -4,16 +4,39 @@ const WebSocketContext = createContext({});
 
 const WebSocketProvider = (props) => {
   const [webSocket, setWebSocket] = useState(null);
-  const [logined, SetLogined] = useState(false);
+  const [connect, setConnect] = useState(false);
 
   useEffect(() => {
-      if (logined) {
-        
+    if (connect) {
+      try {
+        const newWebSocket = new WebSocket("ws://localhost:10083/websockets");
+        newWebSocket.onopen = () => {
+          console.log("open connection");
+          console.log(newWebSocket);
+        };
+        setWebSocket(newWebSocket);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      if (webSocket) {
+        webSocket.close();
+        setWebSocket(null);
+      }
     }
-  }, [logined]);
+  }, [connect]);
+
+  const connectWebSocket = () => {
+    setConnect(true);
+  };
+  const disconnectWebSocket = () => {
+    setConnect(false);
+  };
 
   return (
-    <WebSocketContext.Provider value={{ SetLogined, webSocket }}>
+    <WebSocketContext.Provider
+      value={{ webSocket, connectWebSocket, disconnectWebSocket }}
+    >
       {props.children}
     </WebSocketContext.Provider>
   );

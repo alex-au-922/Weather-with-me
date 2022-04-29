@@ -30,6 +30,7 @@ function cleanWindDirectionText(windDirectionArray) {
     );
     if (isNaN(newObject["tenMinMaxGust"])) newObject["tenMinMaxGust"] = null;
     newObject["time"] = parseGovtTimeString(oldObject["Date time"]);
+    newObject["updatedTime"] = Date();
     return newObject;
   });
 }

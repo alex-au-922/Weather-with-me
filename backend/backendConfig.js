@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const nodemailer = require("nodemailer");
 
 exports.fetchAPIConfig = {
   meanWeatherData: {
@@ -61,6 +62,7 @@ exports.databaseConfig = {
     tenMinMeanWindDir: String,
     tenMinMeanWindSpeed: Number,
     tenMinMaxGust: Number,
+    updatedTime: Date,
   }),
   userSchema: new mongoose.Schema({
     username: String,
@@ -69,4 +71,33 @@ exports.databaseConfig = {
     viewMode: String,
     role: String,
   }),
+  resetPwSchema: new mongoose.Schema({
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      unique: true,
+    },
+    username: {
+      type: String,
+      ref: "users",
+      unique: true,
+    },
+    userHash: String,
+    email: {
+      type: String,
+      ref: "users",
+      unique: true,
+    },
+    expiredTime: Date,
+  }),
 };
+
+exports.resetLinkExpiredTime = 3600000; //1 hour
+
+exports.transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.SMTP_EMAIL,
+    pass: process.env.SMTP_EMAIL_PW,
+  },
+});

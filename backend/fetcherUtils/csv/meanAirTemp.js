@@ -20,6 +20,7 @@ function cleanAirTempText(airTempArray) {
     );
     if (isNaN(newObject["temperature"])) newObject["temperature"] = null;
     newObject["time"] = parseGovtTimeString(oldObject["Date time"]);
+    newObject["updatedTime"] = Date();
     return newObject;
   });
 }

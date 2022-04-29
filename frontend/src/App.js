@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { FullScreenLoading } from "./utils/loading";
 import routes from "./configs/routes";

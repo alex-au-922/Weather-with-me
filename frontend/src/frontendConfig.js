@@ -1,3 +1,5 @@
 const BACKEND_HOST = "http://localhost:10083";
 
-export default BACKEND_HOST;
+const REDIRECT_TIME = 3000;
+
+export { BACKEND_HOST, REDIRECT_TIME };

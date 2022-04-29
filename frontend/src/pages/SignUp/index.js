@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import BACKEND_HOST from "../../frontendConfig";
+import { BACKEND_HOST } from "../../frontendConfig";
 import { Form, Card, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 const SignUp = () => {
@@ -74,11 +74,11 @@ const SignUp = () => {
           />
           <Form.Control
             type="text"
-            placeholder="Email "
+            placeholder="Email"
             onChange={(event) =>
               setUserInfo({
                 ...userInfo,
-                confirmedPassword: event.target.value,
+                email: event.target.value,
               })
             }
           />

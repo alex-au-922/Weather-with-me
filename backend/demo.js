@@ -6,8 +6,4 @@ const fetchAPIConfig = require("./backendConfig").fetchAPIConfig;
 
 createLocation.createLocation();
 
-const init = () => {
-  setInterval(updateWeather, fetchAPIConfig.meanWeatherData.fetchDuration);
-};
-
-init();
+updateWeather();

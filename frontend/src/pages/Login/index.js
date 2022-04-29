@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Form, Card, Button } from "react-bootstrap";
 import checkString from "../../utils/checkString";
-import BACKEND_HOST from "../../frontendConfig";
+import { BACKEND_HOST } from "../../frontendConfig";
 import { AuthContext } from "../../middleware/auth";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";

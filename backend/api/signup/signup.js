@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const uniqueUsername =
-  require("../generalUtils/userCreds/username").uniqueUsername;
-const passwordHash = require("../generalUtils/userCreds/password").passwordHash;
+  require("../../generalUtils/userCreds/username").uniqueUsername;
 const addNewUser =
-  require("../databaseUtils/userDatabase/addNewUser").addNewUser;
-const encrypt = require("../generalUtils/jwt/encrypt").encrypt;
+  require("../../databaseUtils/userDatabase/addNewUser").addNewUser;
+const encrypt = require("../../generalUtils/jwt/encrypt").encrypt;
 
 router.post("/", (req, res) => {
   const { username, password, email } = req.body;

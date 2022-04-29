@@ -21,6 +21,7 @@ function cleanRelHumidText(relHumidArray) {
     if (isNaN(newObject["relativeHumidity"]))
       newObject["relativeHumidity"] = null;
     newObject["time"] = parseGovtTimeString(oldObject["Date time"]);
+    newObject["updatedTime"] = Date();
     return newObject;
   });
 }
