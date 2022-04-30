@@ -9,7 +9,7 @@ const Home = () => {
   return (
     <>
       <NavBar user={user} logout={logout}>
-        {user.isAdmin ? <AdminView /> : <UserView />}
+        {user.isAdmin ? <AdminView user={user} /> : <UserView user={user} />}
       </NavBar>
     </>
   );

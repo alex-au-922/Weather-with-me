@@ -19,7 +19,7 @@ const AdminView = (props) => {
   const [view, setView] = useState("User");
   const [userList, setUserList] = useState();
   const [weatherList, setWeatherList] = useState();
-  const { username, email, logout } = props;
+  const { username, email, logout } = props.user;
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
   const handleViewSelect = (event) => setView(event);
@@ -38,12 +38,16 @@ const AdminView = (props) => {
     //initial fetch user data
     (async () => {
       const url = `${BACKEND_WEBSERVER_HOST}/user/all`;
+      const requestBody = {
+        username,
+        token: localStorage.getItem("token"),
+      };
       const payload = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token: localStorage.getItem("token") }),
+        body: JSON.stringify(requestBody),
       };
       const fetchResult = await fetch(url, payload);
       const { success, result } = await fetchResult.json();
@@ -64,12 +68,16 @@ const AdminView = (props) => {
     //initial fetch weather data
     (async () => {
       const url = `${BACKEND_WEBSERVER_HOST}/weather/all`;
+      const requestBody = {
+        username,
+        token: localStorage.getItem("token"),
+      };
       const payload = {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token: localStorage.getItem("token") }),
+        body: JSON.stringify(requestBody),
       };
       const fetchResult = await fetch(url, payload);
       const { success, result } = await fetchResult.json();
