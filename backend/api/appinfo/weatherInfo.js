@@ -3,16 +3,16 @@ const express = require("express");
 const checkUserCredentialsById =
   require("../../generalUtils/userCreds/username").checkUserCredentialsById;
 const getLatestWeatherData =
-  require("../../databaseUtils/weatherDatabase/getLatestData").getLatestData;
+  require("../../databaseUtils/weatherDatabase/getLatestWeatherData").getLatestData;
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { token } = req.body;
+  const { token, username } = req.body;
   if (token !== undefined && token !== null) {
     try {
       const decoded = decrypt(token);
       const { user } = await checkUserCredentialsById(decoded._id);
-      if (user.role === "admin") {
+      if (username === user.username) {
         const result = await getLatestWeatherData();
         res.send({
           success: result.success,
@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
         res.send({
           success: false,
           errorType: "unauthorized",
-          error: "Please don't try to hack me!",
+          error: "Unauthorized Action",
         });
       }
     } catch (error) {
@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
     res.send({
       success: false,
       errorType: "unauthorized",
-      error: "Please don't try to hack me!",
+      error: "Unauthorized Action",
     });
   }
 });

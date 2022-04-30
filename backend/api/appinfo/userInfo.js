@@ -7,12 +7,12 @@ const getLatestUserData =
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { token } = req.body;
+  const { token, username } = req.body;
   if (token !== undefined && token !== null) {
     try {
       const decoded = decrypt(token);
       const { user } = await checkUserCredentialsById(decoded._id);
-      if (user.role === "admin") {
+      if (user.role === "admin" && username === user.username) {
         const result = await getLatestUserData();
         res.send({
           success: result.success,
