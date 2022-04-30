@@ -35,13 +35,9 @@ export default function NavBar(props) {
           <Navbar.Collapse>
             <Nav className="me-auto">
               <Nav.Link href="/home">Change Password</Nav.Link>
-              //! admin also have the settings page, but he cannot 
-              //! change his email
               <Nav.Link href="/home">Settings</Nav.Link>
             </Nav>
             <Nav>
-              //TODO: show the name properly and at breakpoint don't add it to
-              //TODO: the collapsed bar
               <p style={{ color: "#fff" }}>{`${props.user.username}`}</p>
               <Button onClick={props.logout}> Logout</Button>
             </Nav>

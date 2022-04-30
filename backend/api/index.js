@@ -6,6 +6,8 @@ const allWeather = require("./appinfo/weatherInfo");
 const resetPw = require("./resetpw/resetPw");
 const resetPwEmail = require("./resetpw/sendResetPwEmail");
 const userHash = require("./resetpw/userHash");
+const updateEmail = require("./changeSettings/email");
+const updateViewMode = require("./changeSettings/viewMode");
 
 const api = (app) => {
   app.use("/signup", signup);
@@ -16,7 +18,8 @@ const api = (app) => {
   app.use("/userhash", userHash);
   app.use("/user/all", allUser);
   app.use("/weather/all", allWeather);
-  app.on("userDataChanged", (event) => console.log(event));
+  app.use("/setting/email", updateEmail);
+  app.use("/setting/viewMode", updateViewMode);
   return app;
 };
 
