@@ -13,7 +13,9 @@ services:
         - NPM_VERSION=${FRONTEND_NPM_VERSION}
     container_name: react-frontend
     environment:
-      - BACKEND_HOST=${BACKEND_HOST}
+      - BACKEND_WEBSERVER_HOST=${BACKEND_WEBSERVER_HOST}
+      - BACKEND_USERWS_HOST=${BACKEND_USERWS_HOST}
+      - BACKEND_WEATHERWS_HOST=${BACKEND_WEATHERWS_HOST}
     volumes:
       - ./frontend/public:${APP_HOME}/public
       - ./frontend/src:${APP_HOME}/src
@@ -42,8 +44,13 @@ services:
       - USER_DATABASE_NAME=${USER_DATABASE_NAME}
       - DATABASE_PORT=${DATABASE_VIRTUAL_HOST_PORT}
       - DATABASE_HOST=database
-      - APP_PORT=${BACKEND_VIRTUAL_HOST_PORT}
+      - WEBSER_PORT=${BACKEND_VIRTUAL_WEBSERVER_HOST_PORT}
+      - USERWS_PORT=${BACKEND_VIRTUAL_USERWS_HOST_PORT}
+      - WEATHERWS_PORT=${BACKEND_VIRTUAL_WEATHERWS_HOST_PORT}
       - JWT_SECRET=testing!
+      - SMTP_EMAIL=${SMTP_EMAIL}
+      - SMTP_EMAIL_PW=${SMTP_EMAIL_PW}
+      - FRONTEND_HOST=${FRONTEND_HOST}
     volumes:
       - ./backend/index.js:${APP_HOME}/index.js
       - ./backend/backendConfig.js:${APP_HOME}/backendConfig.js
@@ -52,12 +59,15 @@ services:
       - ./backend/api:${APP_HOME}/api
       - ./backend/databaseUtils:${APP_HOME}/databaseUtils
       - ./backend/logs:${APP_HOME}/logs
+      - ./backend/websocket:${APP_HOME}/websocket
       - ./backend/demo.js:${APP_HOME}/demo.js
     ports:
-      - ${BACKEND_REAL_HOST_PORT}:${BACKEND_VIRTUAL_HOST_PORT}
+      - ${BACKEND_REAL_WEBSERVER_HOST_PORT}:${BACKEND_VIRTUAL_WEBSERVER_HOST_PORT}
+      - ${BACKEND_REAL_USERWS_HOST_PORT}:${BACKEND_VIRTUAL_USERWS_HOST_PORT}
+      - ${BACKEND_REAL_WEATHERWS_HOST_PORT}:${BACKEND_VIRTUAL_WEATHERWS_HOST_PORT}
     restart: ${RESTART_POLICY}
     tty: true
-    command: npm run crawl
+    command: npm run dev
 
   database:
     image: mongodb-database

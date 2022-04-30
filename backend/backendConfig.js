@@ -1,20 +1,23 @@
 const mongoose = require("mongoose");
+const nodemailer = require("nodemailer");
 
 exports.fetchAPIConfig = {
-  meanAirTemp: {
-    url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_temperature.csv",
-    fetchDuration: 600000, // 10 minutes
-  },
-  meanRelHumid: {
-    url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_humidity.csv",
-    fetchDuration: 600000, // 10 minutes
-  },
-  meanWindDirection: {
-    url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_10min_wind.csv",
-    fetchDuration: 600000, // 10 minutes
+  meanWeatherData: {
+    meanAirTemp: {
+      url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_temperature.csv",
+    },
+    meanRelHumid: {
+      url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_humidity.csv",
+    },
+    meanWindData: {
+      url: "https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_10min_wind.csv",
+    },
+    fetchDuration: 60000, // 1 minute
   },
   pollutantAirQuality: {
-    url: "https://www.aqhi.gov.hk/epd/ddata/html/out/24pc_Eng.xml",
+    pollutant: {
+      url: "https://www.aqhi.gov.hk/epd/ddata/html/out/24pc_Eng.xml",
+    },
     fetchDuration: 3600000, // 1 hour
   },
 };
@@ -36,26 +39,93 @@ exports.loggerConfig = {
 };
 
 exports.databaseConfig = {
-  geolocationSchema: new mongoose.Schema({
-    name: String,
-    latitude: Number,
-    longitude: Number,
-  }),
-  weatherSchema: new mongoose.Schema({
-    time: Date,
-    locationId: [{ type: mongoose.Schema.Types.ObjectId, ref: "geolocations" }],
-    temperature: Number,
-    relativeHumidity: { type: Number, min: 0, max: 100 },
-    tenMinMeanWindDir: String,
-    tenMinMeanWindSpeed: Number,
-    tenMinMaxGust: Number,
-  }),
-  userSchema: new mongoose.Schema({
-    username: String,
-    password: String,
-    email: String,
-    viewMode: String,
-    role: String,
-  }),
+  geolocationSchema: new mongoose.Schema(
+    {
+      name: String,
+      address: String,
+      latitude: Number,
+      longitude: Number,
+      tempStation: String,
+      relHumStation: String,
+      windStation: String,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
+  weatherSchema: new mongoose.Schema(
+    {
+      time: Date,
+      locationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "GeoLocation",
+        unique: true,
+      },
+      temperature: Number,
+      relativeHumidity: { type: Number, min: 0, max: 100 },
+      tenMinMeanWindDir: String,
+      tenMinMeanWindSpeed: Number,
+      tenMinMaxGust: Number,
+      updatedTime: Date,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
+  userSchema: new mongoose.Schema(
+    {
+      username: String,
+      password: String,
+      email: String,
+      viewMode: String,
+      role: String,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
+  resetPwSchema: new mongoose.Schema(
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        unique: true,
+      },
+      userHash: String,
+      expiredTime: Date,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
 };
 
+exports.resetLinkExpiredTime = 3600000; //1 hour
+
+exports.transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.SMTP_EMAIL,
+    pass: process.env.SMTP_EMAIL_PW,
+  },
+});

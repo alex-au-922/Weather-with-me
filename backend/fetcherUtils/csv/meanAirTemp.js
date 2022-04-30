@@ -5,7 +5,7 @@ const parseGovtTimeString =
 const fetch = require("node-fetch");
 
 exports.parsedFetch = async function parsedFetch() {
-  const response = await fetch(fetchAPIConfig.meanAirTemp.url);
+  const response = await fetch(fetchAPIConfig.meanWeatherData.meanAirTemp.url);
   const responseText = await response.text();
   const airTempArray = csvToObject(responseText);
   return cleanAirTempText(airTempArray);
@@ -15,8 +15,12 @@ function cleanAirTempText(airTempArray) {
   return airTempArray.map((oldObject) => {
     const newObject = {};
     newObject["location"] = oldObject["Automatic Weather Station"];
-    newObject["temperature"] = oldObject["Air Temperature(degree Celsius)"];
+    newObject["temperature"] = Number(
+      oldObject["Air Temperature(degree Celsius)"]
+    );
+    if (isNaN(newObject["temperature"])) newObject["temperature"] = null;
     newObject["time"] = parseGovtTimeString(oldObject["Date time"]);
+    newObject["updatedTime"] = Date();
     return newObject;
   });
 }

@@ -4,13 +4,21 @@ import "./index.css";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./middleware/auth";
+import {
+  WeatherWebSocketProvider,
+  UserWebSocketProvider,
+} from "./middleware/websocket";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <WeatherWebSocketProvider>
+        <UserWebSocketProvider>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </UserWebSocketProvider>
+      </WeatherWebSocketProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

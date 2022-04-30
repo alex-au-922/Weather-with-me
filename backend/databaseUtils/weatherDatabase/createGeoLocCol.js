@@ -10,29 +10,28 @@ const fs = require("fs");
 const readFile = util.promisify(fs.readFile);
 
 exports.createLocation = async function () {
-  const db = await connectWeatherDB();
+  const weatherDB = await connectWeatherDB();
   try {
-    if (!(await collectionExists(db, "geolocations"))) {
+    if (!(await collectionExists(weatherDB, "geolocations"))) {
       const plainText = await readFile(`${__dirname}/locations.json`);
       const geoLocationJson = JSON.parse(plainText);
-      const cleantGeoLocationJson = cleanGeoLocationJson(geoLocationJson);
+      const cleantGeoLocationJson = await cleanGeoLocationJson(geoLocationJson);
       logger.info("Creating the geolocations Collection...");
-      await insertLocation(cleantGeoLocationJson);
+      await insertLocation(weatherDB, cleantGeoLocationJson);
     } else {
       logger.info("The collection geolocations already exists");
     }
   } catch (error) {
     console.log(error);
     logger.error(error);
-  } finally {
-    db.close();
   }
 };
 
-function cleanGeoLocationJson(geoLocationJson) {
+async function cleanGeoLocationJson(geoLocationJson) {
   return geoLocationJson.features.map((feature) => {
     const newObject = {};
-    newObject["name"] = feature.properties.Address;
+    newObject["name"] = feature.properties["Facility Name"];
+    newObject["address"] = feature.properties.Address;
     const [latitude, longitude] = feature.geometry.coordinates;
     newObject["latitude"] = latitude;
     newObject["longitude"] = longitude;
@@ -40,12 +39,8 @@ function cleanGeoLocationJson(geoLocationJson) {
   });
 }
 
-function mapGeoLocationName(geoLocationJson) {
-  //TODO: write the mapping
-}
-
-async function insertLocation(data) {
-  const GeoLocation = mongoose.model("GeoLocation", geolocationSchema);
+async function insertLocation(weatherDB, data) {
+  const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
   await GeoLocation.createCollection();
   await GeoLocation.collection.insertMany(data, {
     ordered: true,
