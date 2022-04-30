@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
   res.setHeader("Content-Type", "application/json");
-  const { username, password } = req.body;
+  const { username, password, token, hash } = req.body;
   const { user } = await checkUserCredentials("username", username);
   const passwordSame = await comparePassword(password, user.password);
   if (passwordSame) {
