@@ -1,20 +1,31 @@
-import { Button } from "react-bootstrap";
 import { useContext } from "react";
 import { AuthContext } from "../../middleware/auth";
-import { Container, Row } from "react-bootstrap";
+import AdminView from "./adminView";
+import UserView from "./userHome";
 
 const Home = () => {
   const {
-    user: { username, role, email, viewMode },
+    user: { username, isAdmin, email, viewMode },
     logout,
   } = useContext(AuthContext);
   return (
-    <Container>
-      <Row>
-        <div> Hello {username}!</div>
-        <Button onClick={logout}> Logout</Button>
-      </Row>
-    </Container>
+    <>
+      {isAdmin ? (
+        <AdminView
+          username={username}
+          email={email}
+          viewMode={viewMode}
+          logout={logout}
+        />
+      ) : (
+        <UserView
+          username={username}
+          email={email}
+          viewMode={viewMode}
+          logout={logout}
+        />
+      )}
+    </>
   );
 };
 

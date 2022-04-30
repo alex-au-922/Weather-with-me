@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const logger = require("../generalUtils/getLogger").getLogger();
-const encrypt = require("../generalUtils/jwt/encrypt").encrypt;
+const logger = require("../../generalUtils/getLogger").getLogger();
+const encrypt = require("../../generalUtils/jwt/encrypt").encrypt;
 const comparePassword =
-  require("../generalUtils/userCreds/password").comparePassword;
+  require("../../generalUtils/userCreds/password").comparePassword;
 const checkUserCredentials =
-  require("../generalUtils/userCreds/username").checkUserCredentials;
+  require("../../generalUtils/userCreds/username").checkUserCredentials;
 
 router.post("/", (req, res) => {
   const { username, password } = req.body;

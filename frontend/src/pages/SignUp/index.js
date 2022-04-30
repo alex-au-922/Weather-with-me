@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import BACKEND_HOST from "../../frontendConfig";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
+import checkString from "../../utils/input/checkString";
 import { Form, Card, Button } from "react-bootstrap";
+import FormInputWithError from "../../utils/gui/formInputError";
 import { useNavigate } from "react-router-dom";
+import objectSetAll from "../../utils/setAll";
 const SignUp = () => {
   const [userInfo, setUserInfo] = useState({
-    username: null,
-    password: null,
-    confirmedPassword: null,
-    email: null,
+    username: "",
+    password: "",
+    confirmedPassword: "",
+    email: "",
   });
   const [error, setError] = useState({
     username: false,
@@ -15,10 +18,30 @@ const SignUp = () => {
     confirmedPassword: false,
     email: false,
   });
+
   const navigate = useNavigate();
   const createNewUser = async () => {
-    //TODO: validate the user info and add appropriate errors
-    const url = `${BACKEND_HOST}/signup`;
+    const bufferError = objectSetAll(error, false);
+
+    const { username, password, confirmedPassword } = userInfo;
+    const usernameCheckResult = checkString(username);
+    const passwordCheckResult = checkString(password);
+    if (!usernameCheckResult.success) {
+      setError({ ...bufferError, username: usernameCheckResult.error });
+      return;
+    }
+    if (!passwordCheckResult.success) {
+      setError({ ...bufferError, password: passwordCheckResult.error });
+      return;
+    }
+    if (confirmedPassword !== password) {
+      setError({
+        ...bufferError,
+        confirmedPassword: "Passwords are not the same!",
+      });
+      return;
+    }
+    const url = `${BACKEND_WEBSERVER_HOST}/signup`;
     const payload = {
       method: "POST",
       headers: {
@@ -33,7 +56,7 @@ const SignUp = () => {
         console.log("Unknown error occurs!");
         return;
       } else {
-        setError({ ...error, username: resultJson.error });
+        setError({ ...bufferError, username: resultJson.error });
         return;
       }
     } else {
@@ -44,50 +67,82 @@ const SignUp = () => {
   };
 
   return (
-    <Card style={{ width: "18rem" }}>
-      <Card.Body>
-        <Card.Title>Create Account</Card.Title>
-        <Form>
-          <Form.Control
-            type="text"
-            placeholder="Username"
-            onChange={(event) =>
-              setUserInfo({ ...userInfo, username: event.target.value })
-            }
-          />
-          <Form.Control
-            type="text"
-            placeholder="Password"
-            onChange={(event) =>
-              setUserInfo({ ...userInfo, password: event.target.value })
-            }
-          />
-          <Form.Control
-            type="text"
-            placeholder="Confirm Password"
-            onChange={(event) =>
-              setUserInfo({
-                ...userInfo,
-                confirmedPassword: event.target.value,
-              })
-            }
-          />
-          <Form.Control
-            type="text"
-            placeholder="Email "
-            onChange={(event) =>
-              setUserInfo({
-                ...userInfo,
-                confirmedPassword: event.target.value,
-              })
-            }
-          />
-        </Form>
-        <Button variant="primary" onClick={createNewUser}>
-          Login
-        </Button>
-      </Card.Body>
-    </Card>
+    <div className="d-flex justify-content-center" style={{ height: "100vh" }}>
+      <div className="d-flex align-items-center">
+        <Card style={{ width: "25rem", height: "40rem" }}>
+          <Card.Body>
+            <div
+              style={{ height: "10%", marginBottom: "5%" }}
+              className="d-flex justify-content-center align-items-center"
+            >
+              <Card.Title style={{ fontSize: "25px" }}>
+                Create Account
+              </Card.Title>
+            </div>
+            <Form style={{ height: "60%" }}>
+              <FormInputWithError
+                style={{ width: "100%", height: "15%", marginBottom: "5%" }}
+                type="text"
+                placeholder="Username"
+                onChange={(event) =>
+                  setUserInfo({ ...userInfo, username: event.target.value })
+                }
+                error={error.username}
+              />
+              <FormInputWithError
+                type="password"
+                style={{ width: "100%", height: "15%", marginBottom: "5%" }}
+                placeholder="Password"
+                onChange={(event) =>
+                  setUserInfo({ ...userInfo, password: event.target.value })
+                }
+                error={error.password}
+              />
+              <FormInputWithError
+                type="password"
+                style={{ width: "100%", height: "15%", marginBottom: "5%" }}
+                placeholder="Confirm Password"
+                onChange={(event) =>
+                  setUserInfo({
+                    ...userInfo,
+                    confirmedPassword: event.target.value,
+                  })
+                }
+                error={error.confirmedPassword}
+              />
+              <Form.Control
+                type="text"
+                style={{ width: "100%", height: "15%" }}
+                placeholder="Email (Optional) "
+                onChange={(event) =>
+                  setUserInfo({
+                    ...userInfo,
+                    confirmedPassword: event.target.value,
+                  })
+                }
+              />
+            </Form>
+            <div style={{ height: "20%" }}>
+              <Button
+                style={{ width: "100%", height: "40%" }}
+                variant="primary"
+                onClick={createNewUser}
+              >
+                Create
+              </Button>
+            </div>
+            <div
+              style={{ height: "7%" }}
+              className="d-flex justify-content-end"
+            >
+              <Button variant="light" onClick={() => navigate("/login")}>
+                Back
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
+      </div>
+    </div>
   );
 };
 
