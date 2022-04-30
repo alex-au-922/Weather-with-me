@@ -2,29 +2,15 @@ import { useContext } from "react";
 import { AuthContext } from "../../middleware/auth";
 import AdminView from "./adminView";
 import UserView from "./userHome";
+import NavBar from "../../components/navbar";
 
 const Home = () => {
-  const {
-    user: { username, isAdmin, email, viewMode },
-    logout,
-  } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
   return (
     <>
-      {isAdmin ? (
-        <AdminView
-          username={username}
-          email={email}
-          viewMode={viewMode}
-          logout={logout}
-        />
-      ) : (
-        <UserView
-          username={username}
-          email={email}
-          viewMode={viewMode}
-          logout={logout}
-        />
-      )}
+      <NavBar user={user} logout={logout}>
+        {user.isAdmin ? <AdminView /> : <UserView />}
+      </NavBar>
     </>
   );
 };

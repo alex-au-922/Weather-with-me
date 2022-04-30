@@ -15,6 +15,7 @@ const getLatestWeatherData =
   require("./databaseUtils/weatherDatabase/getLatestData").getLatestData;
 const getLatestUserData =
   require("./databaseUtils/userDatabase/getLatestData").getLatestData;
+  
 const eventEmitter = require("./api/_eventEmitter");
 api(app);
 
