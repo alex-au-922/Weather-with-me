@@ -29,7 +29,6 @@ const UserView = (props) => {
     <Container>
       <Row>
         <div> Hello {username}!</div>
-        <Button onClick={logout}> Logout</Button>
       </Row>
     </Container>
   );

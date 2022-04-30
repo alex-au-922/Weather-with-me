@@ -98,7 +98,6 @@ const AdminView = (props) => {
       ) : (
         <AdminWeatherView dataList={weatherList} />
       )}{" "}
-      <Button onClick={logout}> Logout</Button>
     </>
   );
 };

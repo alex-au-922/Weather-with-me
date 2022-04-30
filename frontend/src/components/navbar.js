@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import "bootstrap/dist/css/bootstrap.css";
-import { Navbar, Container, Nav } from "react-bootstrap";
+import { Navbar, Container, Nav, Button } from "react-bootstrap";
 import SwitchButton from "./switch";
 
 const expandScreenSize = "md";
@@ -34,8 +34,16 @@ export default function NavBar(props) {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse>
             <Nav className="me-auto">
-              <Nav.Link href="/home">User Profile</Nav.Link>
+              <Nav.Link href="/home">Change Password</Nav.Link>
+              //! admin also have the settings page, but he cannot 
+              //! change his email
               <Nav.Link href="/home">Settings</Nav.Link>
+            </Nav>
+            <Nav>
+              //TODO: show the name properly and at breakpoint don't add it to
+              //TODO: the collapsed bar
+              <p style={{ color: "#fff" }}>{`${props.user.username}`}</p>
+              <Button onClick={props.logout}> Logout</Button>
             </Nav>
           </Navbar.Collapse>
         </Container>
