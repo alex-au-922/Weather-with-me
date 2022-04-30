@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Form, Card, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { BACKEND_HOST } from "../../frontendConfig";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 
 const ResetPasswordEmail = (props) => {
   const [email, setEmail] = useState();
   const navigate = useNavigate();
 
   const handleSendResetPwEmail = async () => {
-    const url = `${BACKEND_HOST}/resetpw/email`;
+    const url = `${BACKEND_WEBSERVER_HOST}/resetpw/email`;
     const payload = {
       method: "POST",
       headers: {

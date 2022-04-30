@@ -39,57 +39,85 @@ exports.loggerConfig = {
 };
 
 exports.databaseConfig = {
-  geolocationSchema: new mongoose.Schema({
-    name: String,
-    address: String,
-    latitude: Number,
-    longitude: Number,
-    tempStation: String,
-    relHumStation: String,
-    windStation: String,
-  }),
-  weatherSchema: new mongoose.Schema({
-    time: Date,
-    locationId: [
-      {
+  geolocationSchema: new mongoose.Schema(
+    {
+      name: String,
+      address: String,
+      latitude: Number,
+      longitude: Number,
+      tempStation: String,
+      relHumStation: String,
+      windStation: String,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
+  weatherSchema: new mongoose.Schema(
+    {
+      time: Date,
+      locationId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "geolocations",
+        ref: "GeoLocation",
         unique: true,
       },
-    ],
-    temperature: Number,
-    relativeHumidity: { type: Number, min: 0, max: 100 },
-    tenMinMeanWindDir: String,
-    tenMinMeanWindSpeed: Number,
-    tenMinMaxGust: Number,
-    updatedTime: Date,
-  }),
-  userSchema: new mongoose.Schema({
-    username: String,
-    password: String,
-    email: String,
-    viewMode: String,
-    role: String,
-  }),
-  resetPwSchema: new mongoose.Schema({
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users",
-      unique: true,
+      temperature: Number,
+      relativeHumidity: { type: Number, min: 0, max: 100 },
+      tenMinMeanWindDir: String,
+      tenMinMeanWindSpeed: Number,
+      tenMinMaxGust: Number,
+      updatedTime: Date,
     },
-    username: {
-      type: String,
-      ref: "users",
-      unique: true,
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
+  userSchema: new mongoose.Schema(
+    {
+      username: String,
+      password: String,
+      email: String,
+      viewMode: String,
+      role: String,
     },
-    userHash: String,
-    email: {
-      type: String,
-      ref: "users",
-      unique: true,
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
+  resetPwSchema: new mongoose.Schema(
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        unique: true,
+      },
+      userHash: String,
+      expiredTime: Date,
     },
-    expiredTime: Date,
-  }),
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
 };
 
 exports.resetLinkExpiredTime = 3600000; //1 hour

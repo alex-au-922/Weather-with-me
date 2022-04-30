@@ -36,17 +36,17 @@ const routes = [
   {
     path: "/reset/success",
     component: <ResetPasswordSuccess />,
-    protected: true,
+    protected: false,
   },
   {
     path: "/reset/email/success",
     component: <ResetPasswordEmailSuccess />,
-    protected: true,
+    protected: false,
   },
   {
     path: "/signup/success",
     component: <SignUpSuccess />,
-    protected: true,
+    protected: false,
   },
 ];
 export default routes;

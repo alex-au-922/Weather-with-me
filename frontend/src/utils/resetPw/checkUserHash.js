@@ -1,9 +1,9 @@
-import { BACKEND_HOST } from "../../frontendConfig";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import unixTimeExpired from "../time/unixExpired";
 
 const findUserHash = async (userHash) => {
   // Decrypt the jwt
-  const endPoint = `${BACKEND_HOST}/userhash`;
+  const endPoint = `${BACKEND_WEBSERVER_HOST}/userhash`;
   const payload = {
     method: "POST",
     headers: {

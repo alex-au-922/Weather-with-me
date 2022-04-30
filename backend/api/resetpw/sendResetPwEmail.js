@@ -6,7 +6,7 @@ const randomUserHash =
 const sendResetPwEmail =
   require("../../generalUtils/userCreds/resetPwEmail").sendResetPwEmail;
 const addPendingResetPwUser =
-  require("../../databaseUtils/userDatabase/resetPwPending").addPendingResetPwUser;
+  require("../../databaseUtils/userDatabase/resetPw").addPendingResetPwUser;
 const resetLinkExpiredTime =
   require("../../backendConfig").resetLinkExpiredTime;
 const offsetTime = require("../../generalUtils/time/offsetTime").offsetTime;

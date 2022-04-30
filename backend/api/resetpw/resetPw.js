@@ -8,7 +8,9 @@ const passwordHash = passwordUtils.passwordHash;
 const updatePassword = passwordUtils.updatePassword;
 const comparePassword = passwordUtils.comparePassword;
 const logger = require("../../generalUtils/getLogger").getLogger();
-
+const deleteResetPasswordRecord =
+  require("../../databaseUtils/userDatabase/resetPw").deleteResetPasswordRecord;
+const eventEmitter = require("../_eventEmitter");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
@@ -31,6 +33,8 @@ router.post("/", async (req, res) => {
       const { success, errorType, error } = result;
       const token = encrypt(user._id);
       res.send({ success, errorType, error, token });
+      await deleteResetPasswordRecord(username);
+      eventEmitter.emit("updateUserData");
     } else {
       res.send(result);
     }

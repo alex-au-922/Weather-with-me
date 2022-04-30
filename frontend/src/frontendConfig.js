@@ -1,5 +1,12 @@
-const BACKEND_HOST = "http://localhost:10083";
+const BACKEND_WEBSERVER_HOST = "http://localhost:10083";
+const BACKEND_USERWS_HOST = "ws://localhost:10085";
+const BACKEND_WEATHERWS_HOST = "ws://localhost:10086";
 
 const REDIRECT_TIME = 3000;
 
-export { BACKEND_HOST, REDIRECT_TIME };
+export {
+  BACKEND_WEBSERVER_HOST,
+  BACKEND_USERWS_HOST,
+  BACKEND_WEATHERWS_HOST,
+  REDIRECT_TIME,
+};

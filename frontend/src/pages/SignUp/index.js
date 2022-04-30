@@ -1,14 +1,16 @@
 import React, { useState } from "react";
-import { BACKEND_HOST } from "../../frontendConfig";
-import checkString from "../../utils/checkString";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
+import checkString from "../../utils/input/checkString";
 import { Form, Card, Button } from "react-bootstrap";
+import FormInputWithError from "../../utils/gui/formInputError";
 import { useNavigate } from "react-router-dom";
+import objectSetAll from "../../utils/setAll";
 const SignUp = () => {
   const [userInfo, setUserInfo] = useState({
-    username: null,
-    password: null,
-    confirmedPassword: null,
-    email: null,
+    username: "",
+    password: "",
+    confirmedPassword: "",
+    email: "",
   });
   const [error, setError] = useState({
     username: false,
@@ -19,29 +21,27 @@ const SignUp = () => {
 
   const navigate = useNavigate();
   const createNewUser = async () => {
-    //TODO: set all error to false before checking
-    //TODO; output error message
-    //Checked username format error, pw format error, username matched exisiting user error and confirmedPassword error
+    const bufferError = objectSetAll(error, false);
+
     const { username, password, confirmedPassword } = userInfo;
     const usernameCheckResult = checkString(username);
     const passwordCheckResult = checkString(password);
     if (!usernameCheckResult.success) {
-      setError({ ...error, username: usernameCheckResult.error });
+      setError({ ...bufferError, username: usernameCheckResult.error });
       return;
     }
     if (!passwordCheckResult.success) {
-      setError({ ...error, password: passwordCheckResult.error });
+      setError({ ...bufferError, password: passwordCheckResult.error });
       return;
     }
     if (confirmedPassword !== password) {
       setError({
-        ...error,
-        confirmedPassword:
-          "The confirmed Password is different from your password.",
+        ...bufferError,
+        confirmedPassword: "Passwords are not the same!",
       });
       return;
     }
-    const url = `${BACKEND_HOST}/signup`;
+    const url = `${BACKEND_WEBSERVER_HOST}/signup`;
     const payload = {
       method: "POST",
       headers: {
@@ -56,7 +56,7 @@ const SignUp = () => {
         console.log("Unknown error occurs!");
         return;
       } else {
-        setError({ ...error, username: resultJson.error });
+        setError({ ...bufferError, username: resultJson.error });
         return;
       }
     } else {
@@ -80,34 +80,35 @@ const SignUp = () => {
               </Card.Title>
             </div>
             <Form style={{ height: "60%" }}>
-              <Form.Control
+              <FormInputWithError
                 style={{ width: "100%", height: "15%", marginBottom: "5%" }}
                 type="text"
-                className={error.username ? "is-invalid" : ""}
                 placeholder="Username"
                 onChange={(event) =>
                   setUserInfo({ ...userInfo, username: event.target.value })
                 }
+                error={error.username}
               />
-              <Form.Control
+              <FormInputWithError
                 type="password"
                 style={{ width: "100%", height: "15%", marginBottom: "5%" }}
                 placeholder="Password"
                 onChange={(event) =>
                   setUserInfo({ ...userInfo, password: event.target.value })
                 }
+                error={error.password}
               />
-              <Form.Control
+              <FormInputWithError
                 type="password"
                 style={{ width: "100%", height: "15%", marginBottom: "5%" }}
                 placeholder="Confirm Password"
-                className={error.confirmedPassword ? "is-invalid" : ""}
                 onChange={(event) =>
                   setUserInfo({
                     ...userInfo,
                     confirmedPassword: event.target.value,
                   })
                 }
+                error={error.confirmedPassword}
               />
               <Form.Control
                 type="text"

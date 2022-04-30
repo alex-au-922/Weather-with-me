@@ -1,30 +1,42 @@
 const app = require("./generalUtils/createExpressApp").createExpressApp();
 const api = require("./api");
 const logger = require("./generalUtils/getLogger").getLogger();
-const createWebSocketServer = require("./websocket");
+const createWeatherWebSocketServer =
+  require("./websocket/weather").createWeatherWebSocketServer;
+const createUserWebSocketServer =
+  require("./websocket/user").createUserWebSocketServer;
 const createLocation =
   require("./databaseUtils/weatherDatabase/createGeoLocCol.js").createLocation;
 const {
   updateWeather,
 } = require("./databaseUtils/weatherDatabase/updateWeatherCol");
 const fetchAPIConfig = require("./backendConfig").fetchAPIConfig;
-const getLatestData = require("./databaseUtils/weatherDatabase/getLatestData");
+const getLatestWeatherData =
+  require("./databaseUtils/weatherDatabase/getLatestData").getLatestData;
+const getLatestUserData =
+  require("./databaseUtils/userDatabase/getLatestData").getLatestData;
+const eventEmitter = require("./api/_eventEmitter");
 api(app);
 
-const server = app.listen(process.env.APP_PORT, () => {
-  logger.info(`Server is listening on port ${process.env.APP_PORT}`);
+const server = app.listen(process.env.WEBSER_PORT, () => {
+  logger.info(`Server is listening on port ${process.env.WEBSER_PORT}`);
 });
 
-const sendData = createWebSocketServer(server);
+const sendWeatherData = createWeatherWebSocketServer(server);
+const sendUserData = createUserWebSocketServer(server);
 
-const update = async () => {
+const updateWeatherData = async () => {
   await updateWeather();
-  const latestData = await getLatestData();
-  console.log(latestData);
-  sendData(JSON.stringify(latestData));
+  const latestData = await getLatestWeatherData();
+  sendWeatherData(JSON.stringify(latestData));
 };
+
+eventEmitter.on("updateUserData", async () => {
+  const latestData = await getLatestUserData();
+  sendUserData(JSON.stringify(latestData));
+});
 
 (async () => {
   await createLocation();
-  setInterval(update, fetchAPIConfig.meanWeatherData.fetchDuration);
+  setInterval(updateWeatherData, fetchAPIConfig.meanWeatherData.fetchDuration);
 })();

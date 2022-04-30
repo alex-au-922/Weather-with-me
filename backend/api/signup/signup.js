@@ -4,7 +4,10 @@ const uniqueUsername =
   require("../../generalUtils/userCreds/username").uniqueUsername;
 const addNewUser =
   require("../../databaseUtils/userDatabase/addNewUser").addNewUser;
+const passwordHash =
+  require("../../generalUtils/userCreds/password").passwordHash;
 const encrypt = require("../../generalUtils/jwt/encrypt").encrypt;
+const eventEmitter = require("../_eventEmitter");
 
 router.post("/", (req, res) => {
   const { username, password, email } = req.body;
@@ -29,6 +32,7 @@ router.post("/", (req, res) => {
       const userId = await addNewUser(newUser);
       const token = encrypt(userId);
       res.send({ success: true, errorType: null, error: null, token });
+      eventEmitter.emit("updateUserData");
     }
   };
   handleSignup();

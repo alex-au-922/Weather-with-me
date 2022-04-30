@@ -9,7 +9,7 @@ const addPendingResetPwUser = async (resetPwInfo) => {
     const ResetPw = userDB.model("ResetPw", resetPwSchema);
     const existsUserId = await ResetPw.findOne({ userId: resetPwInfo.userId });
     if (existsUserId) {
-      const result = await ResetPw.update(
+      const result = await ResetPw.updateOne(
         { userId: resetPwInfo.userId },
         resetPwInfo
       );
@@ -24,4 +24,11 @@ const addPendingResetPwUser = async (resetPwInfo) => {
   }
 };
 
+const deleteResetPasswordRecord = async (username) => {
+  const userDB = await connectUserDB();
+  const ResetPw = userDB.model("ResetPw", resetPwSchema);
+  const result = await ResetPw.deleteOne({ username });
+};
+
 exports.addPendingResetPwUser = addPendingResetPwUser;
+exports.deleteResetPasswordRecord = deleteResetPasswordRecord;

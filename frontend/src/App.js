@@ -1,7 +1,7 @@
 import "./App.css";
 import React, { useContext } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
-import { FullScreenLoading } from "./utils/loading";
+import { FullScreenLoading } from "./utils/gui/loading";
 import routes from "./configs/routes";
 import { AuthContext } from "./middleware/auth";
 

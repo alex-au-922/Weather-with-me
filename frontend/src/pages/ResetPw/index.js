@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Form, Card, Button } from "react-bootstrap";
-import { FullScreenLoading } from "../../utils/loading";
+import { FullScreenLoading } from "../../utils/gui/loading";
 import { useParams, useNavigate } from "react-router-dom";
-import checkString from "../../utils/checkString";
+import checkString from "../../utils/input/checkString";
 import findUserHash from "../../utils/resetPw/checkUserHash";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BACKEND_HOST } from "../../frontendConfig";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 
 const ResetPassword = () => {
   const { userHash } = useParams();
@@ -29,7 +29,7 @@ const ResetPassword = () => {
           setAuthorized(true);
           setUserInfo({
             ...userInfo,
-            username: userHashResult.userInfo.username,
+            username: userHashResult.userInfo.userId.username,
           });
         }
         setValidating(false);
@@ -48,7 +48,7 @@ const ResetPassword = () => {
       setError({ ...error, confirmedPassword: "Passwords are not the same!" });
       return;
     }
-    const url = `${BACKEND_HOST}/resetpw`;
+    const url = `${BACKEND_WEBSERVER_HOST}/resetpw`;
     const payload = {
       method: "POST",
       headers: {

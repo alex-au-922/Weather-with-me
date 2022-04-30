@@ -1,4 +1,4 @@
-import { BACKEND_HOST } from "../../frontendConfig";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import sleep from "../time/sleep";
 import unixTimeExpired from "../time/unixExpired";
 
@@ -13,7 +13,7 @@ const decryptJwt = async () => {
   }
 
   // Decrypt the jwt
-  const endPoint = `${BACKEND_HOST}/decrypt`;
+  const endPoint = `${BACKEND_WEBSERVER_HOST}/decrypt`;
   const payload = {
     method: "POST",
     headers: {

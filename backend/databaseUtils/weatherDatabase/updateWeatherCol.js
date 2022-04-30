@@ -92,5 +92,4 @@ async function transformLocId(weatherDB, datum) {
   return newDatum;
 }
 
-// module.exports = { updateTemp, updateRelHumid, updateWind };
 module.exports = { updateWeather };

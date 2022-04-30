@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Form, Card, Button } from "react-bootstrap";
-import checkString from "../../utils/checkString";
-import { BACKEND_HOST } from "../../frontendConfig";
+import FormInputWithError from "../../utils/gui/formInputError";
+import checkString from "../../utils/input/checkString";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import { AuthContext } from "../../middleware/auth";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
+import objectSetAll from "../../utils/setAll";
 
 const Login = () => {
   const [userInfo, setUserInfo] = useState({ username: "", password: "" });
@@ -14,22 +16,21 @@ const Login = () => {
   const navigate = useNavigate();
 
   const validateLogin = async () => {
+    const bufferError = objectSetAll(error, false);
+
     const { username, password } = userInfo;
     const usernameCheckResult = checkString(username);
     const passwordCheckResult = checkString(password);
-    //TODO: set all error to false before checking
-    //TODO; output error message
-    //const bufferError = { ...error };
-    //setError({ username: false, password: false });
+
     if (!usernameCheckResult.success) {
-      setError({ ...error, username: usernameCheckResult.error });
+      setError({ ...bufferError, username: usernameCheckResult.error });
       return;
     }
     if (!passwordCheckResult.success) {
-      setError({ ...error, password: passwordCheckResult.error });
+      setError({ ...bufferError, password: passwordCheckResult.error });
       return;
     }
-    const url = `${BACKEND_HOST}/login`;
+    const url = `${BACKEND_WEBSERVER_HOST}/login`;
     const payload = {
       method: "POST",
       headers: {
@@ -44,10 +45,10 @@ const Login = () => {
         console.log("Unknown error occurs!");
         return;
       } else if (resultJson.errorType === "username") {
-        setError({ ...error, username: resultJson.error });
+        setError({ ...bufferError, username: resultJson.error });
         return;
       }
-      setError({ ...error, password: resultJson.error });
+      setError({ ...bufferError, password: resultJson.error });
       return;
     } else {
       const token = resultJson.token;
@@ -77,30 +78,31 @@ const Login = () => {
             </div>
             <Form style={{ height: "40%" }}>
               <div style={{ height: "10%" }} />
-              <Form.Control
+              <FormInputWithError
                 style={{ height: "25%", marginBottom: "5%" }}
                 type="text"
-                className={error.username ? "is-invalid" : ""}
                 placeholder="Username"
                 onChange={(event) =>
                   setUserInfo({ ...userInfo, username: event.target.value })
                 }
+                error={error.username}
               />
-              <Form.Control
+
+              <FormInputWithError
                 style={{ height: "25%", marginTop: "5%" }}
                 type="password"
-                className={error.password ? "is-invalid" : ""}
                 placeholder="Password"
                 onChange={(event) =>
                   setUserInfo({ ...userInfo, password: event.target.value })
                 }
+                error={error.password}
               />
               <div className="d-flex justify-content-end">
                 <Button
                   style={{ marginTop: "1%" }}
                   variant="light"
                   className="d-flex justify-content-end btn-sm"
-                  onClick={() => navigate("/forgetpassword")}
+                  onClick={() => navigate("/reset/email")}
                 >
                   Forget Password?
                 </Button>
