@@ -36,7 +36,7 @@ export default function NavBar(props) {
           <Navbar.Collapse>
             <Nav className="me-auto">
               <Nav.Link href="/home">Change Password</Nav.Link>
-              <Nav.Link href="/home">Settings</Nav.Link>
+              <Nav.Link href="/settings">Settings</Nav.Link>
             </Nav>
             <Nav>
               <Nav.Link style={{ color: "#fff" }} disabled>{`${props.user.username}`}</Nav.Link>

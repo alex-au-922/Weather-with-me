@@ -6,6 +6,7 @@ import ResetPasswordSuccess from "../pages/ResetPwSuccess";
 import ResetPasswordEmailSuccess from "../pages/ResetPwEmailSuccess";
 import SignUp from "../pages/SignUp";
 import SignUpSuccess from "../pages/SignUpSuccess";
+import Settings from "../pages/Home/settings";
 
 const routes = [
   {
@@ -48,5 +49,10 @@ const routes = [
     component: <SignUpSuccess />,
     protected: false,
   },
+  {
+    path: "/settings",
+    component: <Settings />,
+    protected: true,
+  }
 ];
 export default routes;
