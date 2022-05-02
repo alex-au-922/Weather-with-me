@@ -5,9 +5,8 @@ import { AuthContext } from "../../middleware/auth";
 import NavBar from "../../components/navbar";
 import SwitchButton from "../../components/switch";
 import { Container } from "react-bootstrap";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 
-
-const verifyEmailAPI = '';
 
 const Settings = () => {
     const { user, logout } = useContext(AuthContext);
@@ -18,7 +17,7 @@ const Settings = () => {
     });
 
     const [ email, setEmail ] = useState({
-        userEmail: "",
+        userEmail: user.email,
         valid: false
     })
 
@@ -53,17 +52,51 @@ const Settings = () => {
     }
 
     const onVerifyEmail = async (e) => {
-        const Response = await fetch(verifyEmailAPI, {
+        const api = `${BACKEND_WEBSERVER_HOST}/resetpw`;        
+        const payload = {
             method: "POST",
-        });
-        await console.log(Response);
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                username: email.userEmail
+            }),
+        }
+        const Response = await fetch(api, payload);
+        const ResponseJson = await Response.json();
+        if (ResponseJson.success) {
+            window.alert('Successfully updated email.');
+        }
+        else {
+            window.alert('Failed to update email.');
+        }
     }
 
-    const onSubmitEmail = (e) => {
+    const onSubmitEmail = async (e) => {
         e.preventDefault();
+        const token = localStorage.getItem("token");
+        const api = `${BACKEND_WEBSERVER_HOST}/setting/update`;        
+        const payload = {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                token: token,
+                username: user.username,
+                email: email.userEmail,
+            }),
+        }
         if (email.valid && email.userEmail !== '') {
-            // Fetch API here
-            console.log(email);
+            const Response = await fetch(api, payload);
+            const ResponseJson = await Response.json();
+            await console.log(ResponseJson);
+            if (ResponseJson.success) {
+                window.alert('Successfully updated email.');
+            }
+            else {
+                window.alert('Failed to update email.');
+            }               
         }
         else {
             window.alert('Invalid email');
@@ -80,11 +113,10 @@ const Settings = () => {
                 <Form noValidate onSubmit={onSubmitEmail}>
                     <Form.Group>
                         <Form.Label>Email Address</Form.Label>
-                        <Form.Control type="email" placeholder="Enter your email" onChange={onChangeEmail} isValid={email.valid} isInvalid={!email.valid} required/>
+                        <Form.Control type="email" placeholder="Enter your email" value={email.userEmail} onChange={onChangeEmail} isValid={email.valid} required/>
                         <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                         <Form.Control.Feedback type="invalid">Please input a valid email.</Form.Control.Feedback>
-                        <Button className="my-2" variant="outline-primary">Verify Email</Button>  
-                        <Button className="mx-2" variant="outline-success" type="submit">Bind Email</Button>
+                        <Button className="my-2" variant="outline-success" type="submit">Bind Email</Button>
                     </Form.Group>
                 </Form>
                 <hr/>
