@@ -21,6 +21,7 @@ const UserView = (props) => {
     const handler = (event) => {
       const newWeatherJson = JSON.parse(event.data).result;
       const newWeatherList = parseWeatherDataFrontendView(newWeatherJson);
+      console.log(newWeatherList);
       setWeatherList(newWeatherList);
     };
     return registerMessageListener(webSocket, handler);

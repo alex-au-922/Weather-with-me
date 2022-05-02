@@ -1,7 +1,4 @@
 import { useState, useContext, useEffect } from "react";
-import { Button } from "react-bootstrap";
-import AdminUserView from "./userView";
-import AdminWeatherView from "./weatherView";
 import {
   UserWebSocketContext,
   WeatherWebSocketContext,
@@ -10,28 +7,56 @@ import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import parseUserDataFrontendView from "../../../utils/data/user";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
 import { registerMessageListener } from "../../../utils/websocket/listener";
+import { renderModals } from "./modals";
+import { UserDataFormModal, userModalOptions } from "./modals/userAdminModal";
+import {
+  WeatherDataFormModal,
+  weatherModalOptions,
+} from "./modals/weatherAdminModal";
 import DropDownButton from "../../../utils/gui/dropDown";
+import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
 
 // a component that fetchs all the user and weather data at the top level
 // then pass the data to the lower level view
 // listen to update of user and weather data on respective websockets
 const AdminView = (props) => {
+  const [dataLists, setDataLists] = useState({
+    User: null,
+    Weather: null,
+  });
   const [view, setView] = useState("User");
-  const [userList, setUserList] = useState();
-  const [weatherList, setWeatherList] = useState();
-  const { username, email, logout } = props.user;
+  const { username } = props.user;
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
   const handleViewSelect = (event) => setView(event);
 
+  const switchViewOptions = {
+    handleSelect: handleViewSelect,
+    buttonName: view,
+    options: Object.keys(dataLists),
+  };
+
+  const renderSwitchView = (switchViewOptions) => {
+    if (switchViewOptions !== undefined && switchViewOptions !== null) {
+      return <DropDownButton {...switchViewOptions} />;
+    }
+  };
+
+  const renderUserModal = renderModals(UserDataFormModal);
+  const renderWeatherModal = renderModals(WeatherDataFormModal);
+
   const updateUserData = (resultJson) => {
     const newUserList = parseUserDataFrontendView(resultJson);
-    setUserList(newUserList);
+    setDataLists((dataLists) => {
+      return { ...dataLists, User: newUserList };
+    });
   };
 
   const updateWeatherData = (resultJson) => {
     const newWeatherList = parseWeatherDataFrontendView(resultJson);
-    setWeatherList(newWeatherList);
+    setDataLists((dataLists) => {
+      return { ...dataLists, Weather: newWeatherList };
+    });
   };
 
   useEffect(() => {
@@ -96,15 +121,27 @@ const AdminView = (props) => {
 
   return (
     <>
-      <DropDownButton
-        handleSelect={handleViewSelect}
-        buttonName={view}
-        options={["User", "Weather"]}
-      />
       {view === "User" ? (
-        <AdminUserView dataList={userList} />
+        <ResourceManagementTable
+          key="user"
+          dataList={dataLists.User}
+          switchViewOptions={switchViewOptions}
+          renderSwitchView={renderSwitchView}
+          modalConfig={userModalOptions}
+          renderModals={renderUserModal}
+          options={["username", "email", "viewMode"]}
+        />
       ) : (
-        <AdminWeatherView dataList={weatherList} />
+        <ResourceManagementTable
+          key="weather"
+          dataList={dataLists.Weather}
+          switchViewOptions={switchViewOptions}
+          renderSwitchView={renderSwitchView}
+          modalConfig={weatherModalOptions}
+          renderModals={renderWeatherModal}
+          options={["name", "latitude", "longitude"]}
+          optionsType={{ name: String, latitude: Number, longitude: Number }}
+        />
       )}{" "}
     </>
   );

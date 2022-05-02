@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Typeahead } from "react-bootstrap-typeahead";
-import escapeRegExp from "../../utils/input/escapeRegExp";
-import DropDownButton from "./dropDown";
+import escapeRegExp from "../../input/escapeRegExp";
+import DropDownButton from "../dropDown";
+import camelToCapitalize from "../../input/camelToCapitalize";
 import "react-bootstrap-typeahead/css/Typeahead.css";
 
 const useInputFocusRef = () => {
@@ -15,21 +16,10 @@ const useInputFocusRef = () => {
         window.removeEventListener("keyup", loseFocusHandler);
       }
     };
-    const addFocusHandler = (event) => {
-      if (event.key === "Enter") {
-        reference.focus();
-      }
-    };
-    if (focused) {
-      window.removeEventListener("keyup", addFocusHandler);
-      if (reference !== null) {
-        window.addEventListener("keyup", loseFocusHandler);
-      }
+    if (focused && reference !== null) {
+      window.addEventListener("keyup", loseFocusHandler);
     } else {
       window.removeEventListener("keyup", loseFocusHandler);
-      if (reference !== null) {
-        window.addEventListener("keyup", addFocusHandler);
-      }
     }
   }, [focused, reference]);
   useEffect(() => {
@@ -38,13 +28,39 @@ const useInputFocusRef = () => {
   return { ref, setFocused };
 };
 
-const TableSearchBar = (props) => {
+const TableTitleBar = (props) => {
+  const firstValidStringOption = () => {
+    if (props.options) {
+      if (props.optionsType) {
+        for (const key of Object.keys(props.optionsType)) {
+          if (
+            props.optionsAllowedTypes.indexOf(props.optionsType[key]) !== -1
+          ) {
+            return key;
+          }
+        }
+        return null;
+      }
+      return props.options[0];
+    }
+    return null;
+  };
   const [searchField, setSearchField] = useState({
-    name: props.options[0],
+    name: firstValidStringOption(),
     options: [],
     input: "",
   });
   const searchBarRef = useInputFocusRef();
+
+  useEffect(() => {
+    if (firstValidStringOption() !== searchField.name) {
+      setSearchField({
+        ...searchField,
+        name: firstValidStringOption(),
+        input: "",
+      });
+    }
+  }, [props.options]);
 
   useEffect(() => {
     searchBarRef.ref.current.clear();
@@ -80,12 +96,15 @@ const TableSearchBar = (props) => {
     });
   }, [props.filteredDataList]);
 
-  const handleSearchFieldOptionChange = (event) =>
-    setSearchField({
-      ...searchField,
-      name: event,
-      input: "",
-    });
+  const handleSearchFieldOptionChange = (event) => {
+    if (searchField.name !== event) {
+      setSearchField({
+        ...searchField,
+        name: event,
+        input: "",
+      });
+    }
+  };
 
   const handleSearchInputValueChange = (input) =>
     setSearchField({
@@ -105,11 +124,15 @@ const TableSearchBar = (props) => {
 
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
+      {props.renderSwitchView(props.switchViewOptions)}
       <Typeahead
         id="searchbar"
         options={searchField.options ?? []}
         paginate={true}
-        placeholder={searchField.name}
+        disabled={searchField.name === null}
+        placeholder={
+          searchField.name === null ? "" : camelToCapitalize(searchField.name)
+        }
         onInputChange={handleSearchInputValueChange}
         onChange={handleSearchSelectedValueChange}
         ref={searchBarRef.ref}
@@ -117,12 +140,19 @@ const TableSearchBar = (props) => {
         onBlur={() => searchBarRef.setFocused(false)}
       />
       <DropDownButton
+        renderSplitButton={props.renderSplitButton}
+        splitButtonChild={props.splitButtonChild}
+        splitButtonOptions={props.splitButtonOptions}
         options={props.options}
-        buttonName={searchField.name}
+        optionsType={props.optionsType}
+        optionsAllowedTypes={props.optionsAllowedTypes}
+        buttonName={
+          searchField.name === null ? "" : camelToCapitalize(searchField.name)
+        }
         handleSelect={handleSearchFieldOptionChange}
       />
     </div>
   );
 };
 
-export default TableSearchBar;
+export default TableTitleBar;
