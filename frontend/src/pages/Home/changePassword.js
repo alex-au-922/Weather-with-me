@@ -5,6 +5,8 @@ import { AuthContext } from "../../middleware/auth";
 import NavBar from "../../components/navbar";
 import { Container } from "react-bootstrap";
 import checkString from "../../utils/input/checkString";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
 
@@ -17,6 +19,7 @@ const ChangePassword = () => {
         repassword: "",
         match: false,
     })
+    const navigate = useNavigate();
 
     const onChangePw = (e) => {
         let password = e.target.value;
@@ -64,18 +67,41 @@ const ChangePassword = () => {
         }
     };
 
-    const onSubmitPw = (e) => {
+    const onSubmitPw = async (e) => {
         e.preventDefault();
+        const api = `${BACKEND_WEBSERVER_HOST}/resetpw`;
+        const username = user.username;
+        const pwd = password.password;
+        const payload = {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({ 
+                username: username, 
+                password: pwd,
+            }),
+        }
         if (password.valid) {
             if (repassword.match) {
-                console.log('OK');
+                const Response = await fetch(api, payload);
+                const ResponseJson = await Response.json();
+                if (! ResponseJson.success) {
+                    window.alert("Password reset unsuccessful. Please try again!")
+                    console.log('failed to change new password');
+                }
+                else {
+                    const token = ResponseJson.token;
+                    localStorage.setItem("token", token);
+                    navigate("/reset/success");
+                }
             }
             else {
-                console.log('Not match');
+                window.alert("The re-entered password is incorrect");
             }
         }
         else {
-            console.log("INVALID PW");
+            window.alert("Invalid password, please enter 4 - 20 characters!");
         }
     };
 
