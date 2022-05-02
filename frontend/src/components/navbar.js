@@ -35,7 +35,7 @@ export default function NavBar(props) {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse>
             <Nav className="me-auto">
-              <Nav.Link href="/home">Change Password</Nav.Link>
+              <Nav.Link href="/changepw">Change Password</Nav.Link>
               <Nav.Link href="/settings">Settings</Nav.Link>
             </Nav>
             <Nav>
