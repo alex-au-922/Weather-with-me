@@ -28,7 +28,7 @@ const Settings = () => {
           mode: newMode,
           isSwitched: newState,
         });
-      };
+    }
     
     const onChangeEmail = (e) => {
         let emailInput = e.target.value;
@@ -37,7 +37,6 @@ const Settings = () => {
             userEmail: emailInput,
             valid: validEmail
         });
-        // console.log(email);
     }
 
     const validateEmail = () => {
@@ -48,27 +47,6 @@ const Settings = () => {
         }
         else {
             return false
-        }
-    }
-
-    const onVerifyEmail = async (e) => {
-        const api = `${BACKEND_WEBSERVER_HOST}/resetpw`;        
-        const payload = {
-            method: "POST",
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify({
-                username: email.userEmail
-            }),
-        }
-        const Response = await fetch(api, payload);
-        const ResponseJson = await Response.json();
-        if (ResponseJson.success) {
-            window.alert('Successfully updated email.');
-        }
-        else {
-            window.alert('Failed to update email.');
         }
     }
 
@@ -90,7 +68,6 @@ const Settings = () => {
         if (email.valid && email.userEmail !== '') {
             const Response = await fetch(api, payload);
             const ResponseJson = await Response.json();
-            await console.log(ResponseJson);
             if (ResponseJson.success) {
                 window.alert('Successfully updated email.');
             }
@@ -100,6 +77,30 @@ const Settings = () => {
         }
         else {
             window.alert('Invalid email');
+        }
+    }
+
+    const onSaveMode = async (e) => {
+        const token = localStorage.getItem("token");
+        const api = `${BACKEND_WEBSERVER_HOST}/setting/update`;
+        const payload = {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+            },
+            body: JSON.stringify({
+                token: token,
+                username: user.username,
+                viewMode: viewMode.mode,
+            }),
+        }
+        const Response = await fetch(api, payload);
+        const ResponseJson = await Response.json();
+        if (ResponseJson.success) {
+            window.alert('Successfully switched mode');
+        }
+        else {
+            window.alert('Failed to switch mode');
         }
     }
 
@@ -124,6 +125,7 @@ const Settings = () => {
                     View Mode Setting
                 </h2>
                 <SwitchButton type="button" active={viewMode.isSwitched} clicked={clickSwitch}></SwitchButton>
+                <Button className="my-2" variant="outline-success" onClick={onSaveMode}>Save Mode</Button>
             </Container>
         </NavBar> 
         </>
