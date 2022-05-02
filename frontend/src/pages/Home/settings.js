@@ -61,7 +61,7 @@ const Settings = () => {
 
     const onSubmitEmail = (e) => {
         e.preventDefault();
-        if (email.valid) {
+        if (email.valid && email.userEmail !== '') {
             // Fetch API here
             console.log(email);
         }
@@ -77,10 +77,10 @@ const Settings = () => {
                 <h2>
                     Email Setting
                 </h2>
-                <Form noValidate validated={email.valid} onSubmit={onSubmitEmail}>
+                <Form noValidate onSubmit={onSubmitEmail}>
                     <Form.Group>
                         <Form.Label>Email Address</Form.Label>
-                        <Form.Control type="email" placeholder="Enter your email" onChange={onChangeEmail} required/>
+                        <Form.Control type="email" placeholder="Enter your email" onChange={onChangeEmail} isValid={email.valid} isInvalid={!email.valid} required/>
                         <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                         <Form.Control.Feedback type="invalid">Please input a valid email.</Form.Control.Feedback>
                         <Button className="my-2" variant="outline-primary">Verify Email</Button>  

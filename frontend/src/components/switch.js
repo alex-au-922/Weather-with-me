@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { Sun, Moon } from 'react-bootstrap-icons';
 
 // Styled Components
 const StyledSwitchButton = styled.div`
@@ -44,7 +45,7 @@ const StyledSwitchButton = styled.div`
 const SwitchButton = (props) => (
   <StyledSwitchButton active={props.active}>
     <button type={props.type} onClick={props.clicked}></button>
-    <span>{props.active ? "Enable" : "Disabled"}</span>
+    <span>{props.active ? <Sun/> : <Moon/> }</span>
   </StyledSwitchButton>
 );
 
