@@ -7,6 +7,8 @@ import SwitchButton from "../../components/switch";
 import { Container } from "react-bootstrap";
 
 
+const verifyEmailAPI = '';
+
 const Settings = () => {
     const { user, logout } = useContext(AuthContext);
 
@@ -36,6 +38,7 @@ const Settings = () => {
             userEmail: emailInput,
             valid: validEmail
         });
+        // console.log(email);
     }
 
     const validateEmail = () => {
@@ -47,6 +50,13 @@ const Settings = () => {
         else {
             return false
         }
+    }
+
+    const onVerifyEmail = async (e) => {
+        const Response = await fetch(verifyEmailAPI, {
+            method: "POST",
+        });
+        await console.log(Response);
     }
 
     const onSubmitEmail = (e) => {
@@ -67,12 +77,14 @@ const Settings = () => {
                 <h2>
                     Email Setting
                 </h2>
-                <Form onSubmit={onSubmitEmail}>
+                <Form noValidate validated={email.valid} onSubmit={onSubmitEmail}>
                     <Form.Group>
                         <Form.Label>Email Address</Form.Label>
                         <Form.Control type="email" placeholder="Enter your email" onChange={onChangeEmail} required/>
+                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                        <Form.Control.Feedback type="invalid">Please input a valid email.</Form.Control.Feedback>
                         <Button className="my-2" variant="outline-primary">Verify Email</Button>  
-                        <Button className="mx-2" variant="outline-success" type="submit"> Submit</Button>
+                        <Button className="mx-2" variant="outline-success" type="submit">Bind Email</Button>
                     </Form.Group>
                 </Form>
                 <hr/>
