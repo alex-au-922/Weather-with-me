@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import { Navbar, Container, Nav, Button } from "react-bootstrap";
+import { DoorOpen } from 'react-bootstrap-icons';
 import SwitchButton from "./switch";
 
 const expandScreenSize = "md";
@@ -34,12 +35,12 @@ export default function NavBar(props) {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse>
             <Nav className="me-auto">
-              <Nav.Link href="/home">Change Password</Nav.Link>
-              <Nav.Link href="/home">Settings</Nav.Link>
+              <Nav.Link href="/changepw">Change Password</Nav.Link>
+              <Nav.Link href="/settings">Settings</Nav.Link>
             </Nav>
             <Nav>
-              <p style={{ color: "#fff" }}>{`${props.user.username}`}</p>
-              <Button onClick={props.logout}> Logout</Button>
+              <Nav.Link style={{ color: "#fff" }} disabled>{`${props.user.username}`}</Nav.Link>
+              <Nav.Link onClick={props.logout}> <DoorOpen style={{ color: "#fff" }}/>Logout</Nav.Link>              
             </Nav>
           </Navbar.Collapse>
         </Container>
