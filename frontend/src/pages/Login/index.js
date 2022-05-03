@@ -36,23 +36,31 @@ const Login = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(userInfo),
+      body: JSON.stringify({
+        ...userInfo,
+      }),
     };
     const result = await fetch(url, payload);
-    const resultJson = await result.json();
-    if (!resultJson.success) {
-      if (resultJson.errorType === null) {
+    const {
+      success,
+      errorType,
+      error: errorMessage,
+      refreshToken,
+      accessToken,
+    } = await result.json();
+    if (!success) {
+      if (errorType === "UNKNOWN_ERROR") {
         console.log("Unknown error occurs!");
         return;
-      } else if (resultJson.errorType === "username") {
-        setError({ ...bufferError, username: resultJson.error });
+      } else if (errorType === "username") {
+        setError({ ...bufferError, username: errorMessage });
         return;
       }
-      setError({ ...bufferError, password: resultJson.error });
+      setError({ ...bufferError, password: errorMessage });
       return;
     } else {
-      const token = resultJson.token;
-      localStorage.setItem("token", token);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("accessToken", accessToken);
       login();
     }
   };

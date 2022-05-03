@@ -65,7 +65,7 @@ const AdminView = (props) => {
       const url = `${BACKEND_WEBSERVER_HOST}/user/all`;
       const requestBody = {
         username,
-        token: localStorage.getItem("token"),
+        accessToken: localStorage.getItem("accessToken"),
       };
       const payload = {
         method: "POST",
@@ -95,7 +95,7 @@ const AdminView = (props) => {
       const url = `${BACKEND_WEBSERVER_HOST}/weather/all`;
       const requestBody = {
         username,
-        token: localStorage.getItem("token"),
+        accessToken: localStorage.getItem("accessToken"),
       };
       const payload = {
         method: "POST",

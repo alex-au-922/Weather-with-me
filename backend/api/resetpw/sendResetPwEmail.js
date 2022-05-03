@@ -1,8 +1,7 @@
 const express = require("express");
 const findUserInfoByEmail =
   require("../../generalUtils/userCreds/username").findUserInfoByEmail;
-const randomUserHash =
-  require("../../generalUtils/userCreds/userHash").randomUserHash;
+const randomHash = require("../../generalUtils/userCreds/userHash").randomHash;
 const sendResetPwEmail =
   require("../../generalUtils/userCreds/resetPwEmail").sendResetPwEmail;
 const addPendingResetPwUser =
@@ -20,7 +19,7 @@ router.post("/", async (req, res) => {
 
   if (existUser !== null) {
     const { userId, username } = existUser;
-    const userHash = randomUserHash();
+    const userHash = randomHash();
     const resetPwInfo = {
       userId,
       userHash,

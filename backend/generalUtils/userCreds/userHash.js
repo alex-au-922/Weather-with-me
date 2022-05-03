@@ -1,4 +1,4 @@
-const randomUserHash = (length = 8) => {
+const randomHash = (length = 8) => {
   let result = "";
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -9,4 +9,4 @@ const randomUserHash = (length = 8) => {
   return result;
 };
 
-exports.randomUserHash = randomUserHash;
+exports.randomHash = randomHash;

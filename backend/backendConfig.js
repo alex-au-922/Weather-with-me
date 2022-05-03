@@ -107,6 +107,27 @@ exports.databaseConfig = {
         unique: true,
       },
       userHash: String,
+      createdTime: Date,
+      expiredTime: Date,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
+  refreshTokenSchema: new mongoose.Schema(
+    {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        unique: true,
+      },
+      refreshTokenHash: String,
+      createdTime: Date,
       expiredTime: Date,
     },
     {
@@ -129,3 +150,74 @@ exports.transporter = nodemailer.createTransport({
     pass: process.env.SMTP_EMAIL_PW,
   },
 });
+
+exports.HTTP_STATUS = {
+  success: {
+    ok: {
+      status: 200,
+      statusType: "SUCCESS",
+    },
+    created: {
+      status: 201,
+      statusType: "RESOURCE_CREATED",
+    },
+    accepted: {
+      status: 202,
+      statusType: "METHOD_ACCEPTED",
+    },
+    noContent: {
+      status: 204,
+      statusType: "SUCCESS_NO_CONTENT",
+    },
+  },
+  clientError: {
+    badRequest: {
+      status: 400,
+      statusType: "BAD_REQUEST_ERROR",
+    },
+    unauthorized: {
+      status: 401,
+      statusType: "UNAUTHORIZED_ERROR",
+    },
+    forbidden: {
+      status: 403,
+      statusType: "FORBIDDEN_ERROR",
+    },
+    notFound: {
+      status: 404,
+      statusType: "NOT_FOUND_ERROR",
+    },
+    methodNotAllowed: {
+      status: 405,
+      statusType: "METHOD_NOT_ALLOWED_ERROR",
+    },
+    notAccepted: {
+      status: 406,
+      statusType: "NOT_ACCETPED_ERROR",
+    },
+    requestTimeout: {
+      status: 408,
+      statusType: "REQUEST_TIMEOUT_ERROR",
+    },
+  },
+  serverError: {
+    internalServerError: {
+      status: 500,
+      statusType: "INTERNAL_SERVER_ERROR",
+    },
+    notImplemented: {
+      status: 501,
+      statusType: "NOT_IMPLEMENTED_ERROR",
+    },
+    badGateWay: {
+      status: 502,
+      statusType: "BAD_GATEWAY_ERROR",
+    },
+    serviceUnavailable: {
+      status: 503,
+      statusType: "SERVICE_UNAVAILBLE_ERROR",
+    },
+  },
+};
+
+exports.ACCESS_TOKEN_EXPIRED_TIME = "15m";

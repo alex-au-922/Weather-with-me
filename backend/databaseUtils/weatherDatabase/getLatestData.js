@@ -8,15 +8,24 @@ const geolocationSchema = require("../../backendConfig").databaseConfig
 
 const getLatestData = async function () {
   const weatherDB = await connectWeatherDB();
+  const response = {
+    success: false,
+    error: null,
+    errorType: null,
+    result: null,
+  };
   try {
     const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
     const Weather = weatherDB.model("Weather", weatherSchema);
-    const allData = await Weather.find().populate("locationId");
-    return { success: true, result: allData, error: null };
+    const result = await Weather.find().populate("locationId");
+    response.success = true;
+    response.result = result;
   } catch (error) {
-    console.log(error);
-    return { success: false, result: null, error };
+    logger.error(error);
+    response.error = error;
+    response.errorType = "UNKNOWN_ERROR";
   }
+  return response;
 };
 
 exports.getLatestData = getLatestData;

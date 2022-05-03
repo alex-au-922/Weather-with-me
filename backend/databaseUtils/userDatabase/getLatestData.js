@@ -4,14 +4,23 @@ const userSchema = require("../../backendConfig.js").databaseConfig.userSchema;
 
 const getLatestData = async () => {
   const userDB = await connectUserDB();
+  const response = {
+    success: false,
+    error: null,
+    errorType: null,
+    result: null,
+  };
   try {
     const User = userDB.model("User", userSchema);
     const result = await User.find();
-    return { success: true, result, error: null };
+    response.success = true;
+    response.result = result;
   } catch (error) {
     logger.error(error);
-    return { success: false, result: null, error };
+    response.error = error;
+    response.errorType = "UNKNOWN_ERROR";
   }
+  return response;
 };
 
 exports.getLatestData = getLatestData;
