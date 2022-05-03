@@ -1,5 +1,6 @@
 import Home from "../pages/Home";
 import Login from "../pages/Login";
+import Search from "../pages/SearchLocation";
 import ResetPassword from "../pages/ResetPw";
 import ResetPasswordEmail from "../pages/ResetPwEmail";
 import ResetPasswordSuccess from "../pages/ResetPwSuccess";
@@ -16,6 +17,11 @@ const routes = [
   {
     path: "/home",
     component: <Home />,
+    protected: true,
+  },
+  {
+    path: "/search",
+    component: <Search />,
     protected: true,
   },
   {

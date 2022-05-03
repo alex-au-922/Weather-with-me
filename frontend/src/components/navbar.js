@@ -36,6 +36,7 @@ export default function NavBar(props) {
             <Nav className="me-auto">
               <Nav.Link href="/home">Change Password</Nav.Link>
               <Nav.Link href="/home">Settings</Nav.Link>
+              <Nav.Link href="/search">Search</Nav.Link>
             </Nav>
             <Nav>
               <p style={{ color: "#fff" }}>{`${props.user.username}`}</p>
