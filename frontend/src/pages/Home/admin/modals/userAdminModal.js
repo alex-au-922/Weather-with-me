@@ -1,16 +1,8 @@
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
+import { FormRowHeader } from "../../../../utils/gui/formInputs";
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-
-const FormRowHeader = (props) => {
-  const displayString = props.updated ? " *" : "";
-  return (
-    <Form.Label>
-      {camelToCapitalize(props.field)}
-      <span style={{ color: "red" }}> {displayString}</span>
-    </Form.Label>
-  );
-};
+import UnsavedModal from "../../../../utils/gui/modals/unsavedModal";
 
 const SelectFormModalRow = (props) => {
   const originalValue = props.chosenOption;
@@ -79,41 +71,6 @@ const InputFormModalRow = (props) => {
         value={updateValue}
         onChange={handleChangeValue}
       />
-    </>
-  );
-};
-
-const UnsavedModal = (props) => {
-  return (
-    <>
-      <Modal
-        show={props.show}
-        onHide={props.onHide}
-        centered
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        backdrop="static"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            Unsaved Data!
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          You have unsaved data. Are you sure you want to close the modal?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={props.onHide}>No</Button>
-          <Button
-            onClick={() => {
-              props.onHide();
-              props.forceClose();
-            }}
-          >
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 };
@@ -212,6 +169,8 @@ const UserDataFormModal = (props) => {
       <UnsavedModal
         show={showUnsavedModal}
         onHide={handleCloseUnsavedModal}
+        title={"Unsaved Data"}
+        body={"You have unsaved data. Are you sure you want to close the form?"}
         forceClose={handleInnerCloseModal}
       />
     </>

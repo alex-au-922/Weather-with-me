@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Form, Card, Button } from "react-bootstrap";
-import FormInputWithError from "../../utils/gui/formInputError";
+import FormInputWithError from "../../utils/gui/formInputs";
 import checkString from "../../utils/input/checkString";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import { AuthContext } from "../../middleware/auth";

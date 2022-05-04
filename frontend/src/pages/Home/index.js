@@ -5,10 +5,10 @@ import UserView from "./userHome";
 import NavBar from "../../components/navbar";
 
 const Home = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   return (
     <>
-      <NavBar user={user} logout={logout}>
+      <NavBar>
         {user.isAdmin ? <AdminView user={user} /> : <UserView user={user} />}
       </NavBar>
     </>

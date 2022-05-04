@@ -108,12 +108,10 @@ const tokenUpdate = async (userId, oldRefreshToken = null) =>{
 
     if (oldRefreshToken !== null) {
       const refreshTokenUser = await RefreshTokenModel.findOne({ userId });
-      console.log(refreshTokenUser, oldRefreshToken);
       const oldRefreshTokenCorrect = await compareRefreshToken(
         oldRefreshToken,
         refreshTokenUser.refreshTokenHash
       );
-      console.log("oldRefreshTokenCorrect", oldRefreshTokenCorrect);
       if (!oldRefreshTokenCorrect) {
         response.errorType = HTTP_STATUS.clientError.unauthorized.statusType;
         response.error = "unauthorized action";
@@ -146,7 +144,6 @@ const tokenUpdate = async (userId, oldRefreshToken = null) =>{
       response.errorType =
         HTTP_STATUS.serverError.internalServerError.statusType;
     response.error = error;
-    console.log(response);
       return response;
   }
 }

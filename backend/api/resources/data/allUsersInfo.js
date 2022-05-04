@@ -1,11 +1,11 @@
 const express = require("express");
 const decryptAccessToken =
-  require("../../generalUtils/userCreds/accessToken").decryptAccessToken;
+  require("../../../generalUtils/userCreds/accessToken").decryptAccessToken;
+const getLatestUserData =
+  require("../../../databaseUtils/userDatabase/getLatestData").getLatestData;
 const checkUserCredentialsById =
-  require("../../generalUtils/userCreds/username").checkUserCredentialsById;
-const getLatestWeatherData =
-  require("../../databaseUtils/weatherDatabase/getLatestData").getLatestData;
-const { HTTP_STATUS } = require("../../backendConfig");
+  require("../../../generalUtils/userCreds/username").checkUserCredentialsById;
+const { HTTP_STATUS } = require("../../../backendConfig");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
@@ -42,7 +42,7 @@ router.post("/", async (req, res) => {
             error: getUserDataError,
             errorType: getUserDataErrorType,
             result,
-          } = await getLatestWeatherData();
+          } = await getLatestUserData();
           if (getUserDataSuccess) {
             status = HTTP_STATUS.success.ok.status;
             response.success = true;
@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
         } else {
           status = HTTP_STATUS.clientError.unauthorized.status;
           response.error = "Don't hack me!";
-          response.errorType = "UNAUTHORIZED_ERROR";
+          response.errorType = HTTP_STATUS.clientError.unauthorized.statusType;
         }
       } else {
         response.error = userInfoError;

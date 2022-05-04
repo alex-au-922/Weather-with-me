@@ -1,135 +1,148 @@
-import React, { useState, useContext } from "react";
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
+import React, { useState, useContext, useReducer, useEffect } from "react";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
 import { AuthContext } from "../../middleware/auth";
 import NavBar from "../../components/navbar";
-import SwitchButton from "../../components/switch";
+import SwitchButton from "../../utils/gui/switch";
 import { Container } from "react-bootstrap";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
-
+import validateEmail from "../../utils/input/checkEmail";
+import resourceFetch from "../../utils/authUtils/resourceFetch";
+import FormInputWithError from "../../utils/gui/formInputs";
+import { FormRowHeader } from "../../utils/gui/formInputs";
 
 const Settings = () => {
-    const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useContext(AuthContext);
+  const [unsaved, setUnsaved] = useState({
+    email: false,
+    viewMode: false,
+  });
+  const [userInvalidated, setUserInvalidated] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState({
+    email: { success: null, error: null, errorType: null },
+    viewMode: { success: null, error: null, errorType: null },
+    system: { success: null, error: null, errorType: null },
+  });
+  const [currentViewMode, toggleCurrentViewMode] = useReducer((viewMode) =>
+    viewMode === "default" ? "dark" : "default"
+  );
+  const [email, setEmail] = useState(user.email);
 
-    const [ viewMode, setViewMode ] = useState({
-        mode: "dark",
-        isSwitched: false,
+  const clickSwitch = () => {
+    toggleCurrentViewMode();
+  };
+
+  const onChangeEmail = (event) => {
+    const newEmailInput = event.target.value;
+    setEmail({
+      ...email,
+      userEmail: newEmailInput,
     });
+  };
 
-    const [ email, setEmail ] = useState({
-        userEmail: user.email,
-        valid: false
-    })
+  useEffect(() => {
+    setUnsaved({
+      email: email.emailInput === user.email,
+      viewMode: currentViewMode === user.viewMode,
+    });
+  }, [email.emailInput, currentViewMode]);
 
-    const clickSwitch = () => {
-        let newState = !viewMode.isSwitched;
-        let newMode = newState ? "light" : "dark";
-        setViewMode({
-          mode: newMode,
-          isSwitched: newState,
-        });
+  const onSubmitEmail = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    const api = `${BACKEND_WEBSERVER_HOST}/setting/update`;
+    const payload = {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        accessToken: accessToken,
+        username: user.username,
+        email: email.userEmail,
+      }),
+    };
+    const emailValid = validateEmail(email.emailInput);
+    if (!emailValid) {
+      const emailError = "Invalid email format!";
+      const emailErrorType = "INVALID_INPUT";
+      setUpdateInfo({
+        ...updateInfo,
+        email: { success: false, error: emailError, errorType: emailErrorType },
+      });
+    } else {
+      const { success, error, errorType, invalidated } = await resourceFetch(
+        api,
+        payload
+      );
+      setUpdateInfo({ ...updateInfo, email: { success, error, errorType } });
+      setUserInvalidated(invalidated);
     }
-    
-    const onChangeEmail = (e) => {
-        let emailInput = e.target.value;
-        let validEmail = validateEmail();
-        setEmail({ 
-            userEmail: emailInput,
-            valid: validEmail
-        });
-    }
+  };
 
-    const validateEmail = () => {
-        let validEmail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-        let valid = email.userEmail.match(validEmail);
-        if (valid){
-            return true
-        }
-        else {
-            return false
-        }
-    }
-
-    const onSubmitEmail = async (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem("token");
-        const api = `${BACKEND_WEBSERVER_HOST}/setting/update`;        
-        const payload = {
-            method: "POST",
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify({
-                token: token,
-                username: user.username,
-                email: email.userEmail,
-            }),
-        }
-        if (email.valid && email.userEmail !== '') {
-            const Response = await fetch(api, payload);
-            const ResponseJson = await Response.json();
-            if (ResponseJson.success) {
-                window.alert('Successfully updated email.');
-            }
-            else {
-                window.alert('Failed to update email.');
-            }               
-        }
-        else {
-            window.alert('Invalid email');
-        }
-    }
-
-    const onSaveMode = async (e) => {
-        const token = localStorage.getItem("token");
-        const api = `${BACKEND_WEBSERVER_HOST}/setting/update`;
-        const payload = {
-            method: "POST",
-            headers: {
-                "content-type": "application/json",
-            },
-            body: JSON.stringify({
-                token: token,
-                username: user.username,
-                viewMode: viewMode.mode,
-            }),
-        }
-        const Response = await fetch(api, payload);
-        const ResponseJson = await Response.json();
-        if (ResponseJson.success) {
-            window.alert('Successfully switched mode');
-        }
-        else {
-            window.alert('Failed to switch mode');
-        }
-    }
-
-    return (
-        <>
-        <NavBar user={user} logout={logout}>
-            <Container style={{ justifyContent: 'center' }}>
-                <h2>
-                    Email Setting
-                </h2>
-                <Form noValidate onSubmit={onSubmitEmail}>
-                    <Form.Group>
-                        <Form.Label>Email Address</Form.Label>
-                        <Form.Control type="email" placeholder="Enter your email" value={email.userEmail} onChange={onChangeEmail} isValid={email.valid} required/>
-                        <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                        <Form.Control.Feedback type="invalid">Please input a valid email.</Form.Control.Feedback>
-                        <Button className="my-2" variant="outline-success" type="submit">Bind Email</Button>
-                    </Form.Group>
-                </Form>
-                <hr/>
-                <h2>
-                    View Mode Setting
-                </h2>
-                <SwitchButton type="button" active={viewMode.isSwitched} clicked={clickSwitch}></SwitchButton>
-                <Button className="my-2" variant="outline-success" onClick={onSaveMode}>Save Mode</Button>
-            </Container>
-        </NavBar> 
-        </>
+  const onSaveMode = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+    const api = `${BACKEND_WEBSERVER_HOST}/setting/update`;
+    const payload = {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        accessToken: accessToken,
+        username: user.username,
+        viewMode: currentViewMode.mode,
+      }),
+    };
+    const { success, error, errorType, invalidated } = await resourceFetch(
+      api,
+      payload
     );
+    setUpdateInfo({ ...updateInfo, viewMode: { success, error, errorType } });
+    setUserInvalidated(invalidated);
+  };
+
+  return (
+    <>
+      <NavBar user={user} logout={logout}>
+        <Container style={{ justifyContent: "center" }}>
+          <h2>Email Setting</h2>
+          <Form>
+            <Form.Group>
+              <Form.Label>Email Address</Form.Label>
+              <FormInputWithError
+                type="email"
+                placeholder="Enter your email"
+                onChange={onChangeEmail}
+                error={updateInfo.email.error}
+                required
+              />
+              <Button
+                className="my-2"
+                variant="outline-success"
+                onClick={onSubmitEmail}
+              >
+                Bind Email
+              </Button>
+            </Form.Group>
+          </Form>
+          <hr />
+          <h2>View Mode Setting</h2>
+          <SwitchButton
+            type="button"
+            active={currentViewMode === "default"}
+            clicked={clickSwitch}
+          ></SwitchButton>
+          <Button
+            className="my-2"
+            variant="outline-success"
+            onClick={onSaveMode}
+          >
+            Save Mode
+          </Button>
+        </Container>
+      </NavBar>
+    </>
+  );
 };
 
 export default Settings;

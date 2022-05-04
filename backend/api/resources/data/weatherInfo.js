@@ -1,9 +1,11 @@
 const express = require("express");
-const checkUserCredentialsById =
-  require("../../generalUtils/userCreds/username").checkUserCredentialsById;
 const decryptAccessToken =
-  require("../../generalUtils/userCreds/accessToken").decryptAccessToken;
-const HTTP_STATUS = require("../../backendConfig").HTTP_STATUS;
+  require("../../../generalUtils/userCreds/accessToken").decryptAccessToken;
+const checkUserCredentialsById =
+  require("../../../generalUtils/userCreds/username").checkUserCredentialsById;
+const getLatestWeatherData =
+  require("../../../databaseUtils/weatherDatabase/getLatestData").getLatestData;
+const { HTTP_STATUS } = require("../../../backendConfig");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
@@ -16,7 +18,8 @@ router.post("/", async (req, res) => {
     errorType: null,
     result: null,
   };
-  const { accessToken } = req.body;
+
+  const { accessToken, username } = req.body;
   try {
     const {
       success: decryptSuccess,
@@ -25,6 +28,7 @@ router.post("/", async (req, res) => {
       result: decryptResult,
     } = decryptAccessToken(accessToken);
     if (decryptSuccess) {
+      // successfully decrypted accessToken
       const {
         success: userInfoSuccess,
         user,
@@ -32,11 +36,27 @@ router.post("/", async (req, res) => {
         errorType: userInfoErrorType,
       } = await checkUserCredentialsById(decryptResult);
       if (userInfoSuccess) {
-        status = HTTP_STATUS.success.ok.status;
-        response.result = user;
-        response.success = true;
+        if (user.role === "admin" && user.username == username) {
+          const {
+            success: getUserDataSuccess,
+            error: getUserDataError,
+            errorType: getUserDataErrorType,
+            result,
+          } = await getLatestWeatherData();
+          if (getUserDataSuccess) {
+            status = HTTP_STATUS.success.ok.status;
+            response.success = true;
+            response.result = result;
+          } else {
+            response.error = getUserDataError;
+            response.errorType = getUserDataErrorType;
+          }
+        } else {
+          status = HTTP_STATUS.clientError.unauthorized.status;
+          response.error = "Don't hack me!";
+          response.errorType = "UNAUTHORIZED_ERROR";
+        }
       } else {
-        status = HTTP_STATUS.clientError.unauthorized.status;
         response.error = userInfoError;
         response.errorType = userInfoErrorType;
       }

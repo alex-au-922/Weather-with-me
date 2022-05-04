@@ -6,7 +6,7 @@ import {
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import parseUserDataFrontendView from "../../../utils/data/user";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
-import { registerMessageListener } from "../../../utils/websocket/listener";
+import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import { renderModals } from "./modals";
 import { UserDataFormModal, userModalOptions } from "./modals/userAdminModal";
 import {

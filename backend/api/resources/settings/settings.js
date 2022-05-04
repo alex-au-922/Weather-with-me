@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const logger = require("../../generalUtils/getLogger").getLogger();
-const decrypt = require("../../generalUtils/jwt/decrypt").decrypt;
+const logger = require("../../../generalUtils/getLogger").getLogger();
+const decrypt = require("../../../generalUtils/jwt/decrypt").decrypt;
 const updateUserData =
-  require("../../databaseUtils/userDatabase/updateSettings").updateUserData;
-const eventEmitter = require("../_eventEmitter");
-const checkUserCredentialsById = require("../../generalUtils/userCreds/username").checkUserCredentialsById;
+  require("../../../databaseUtils/userDatabase/updateSettings").updateUserData;
+const eventEmitter = require("../../_eventEmitter");
+const checkUserCredentialsById = require("../../../generalUtils/userCreds/username").checkUserCredentialsById;
 
 
 router.post("/", async (req, res) => {
