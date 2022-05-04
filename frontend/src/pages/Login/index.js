@@ -45,8 +45,7 @@ const Login = () => {
       success,
       errorType,
       error: errorMessage,
-      refreshToken,
-      accessToken,
+      result: { refreshToken, accessToken },
     } = await result.json();
     if (!success) {
       if (errorType === "UNKNOWN_ERROR") {

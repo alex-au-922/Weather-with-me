@@ -24,13 +24,14 @@ const tokensRefresh = async () => {
     validateRefreshTokenPayload
   );
 
-  const { success, refreshToken, accessToken, error, errorType } =
+  const { success, result, error, errorType } =
     await validateRefreshTokenResult.json();
   if (!success) {
     response.error = error;
     response.errorType = errorType;
     return response;
   }
+  const { refreshToken, accessToken } = result;
   localStorage.setItem("refreshToken", refreshToken);
   localStorage.setItem("accessToken", accessToken);
   response.success = true;

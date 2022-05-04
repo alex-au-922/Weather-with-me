@@ -3,12 +3,17 @@ const jwtDecrypt = require("../jwt/decrypt").decrypt;
 const ACCESS_TOKEN_EXPIRED_TIME =
   require("../../backendConfig").ACCESS_TOKEN_EXPIRED_TIME;
 const jwt = require("jsonwebtoken");
+const { InternalServerError } = require("../../errorConfig");
 const HTTP_STATUS = require("../../backendConfig").HTTP_STATUS;
 
 const signNewAccessToken = (userId) => {
-  const jwtStore = { userId: userId.toString() };
-  const newAccessToken = jwtEncrpyt(jwtStore, ACCESS_TOKEN_EXPIRED_TIME);
-  return newAccessToken;
+  try {
+    const jwtStore = { userId: userId.toString() };
+    const newAccessToken = jwtEncrpyt(jwtStore, ACCESS_TOKEN_EXPIRED_TIME);
+    return newAccessToken;
+  } catch (error) {
+    throw new InternalServerError("Cannot create new access token!");
+  }
 };
 
 const decryptAccessToken = (accessToken) => {
