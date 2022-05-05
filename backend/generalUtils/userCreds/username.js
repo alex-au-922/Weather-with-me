@@ -17,30 +17,15 @@ const checkUserCredentials = async (key, value) => {
 };
 
 const checkUserCredentialsById = async (userId) => {
-  const response = {
-    success: false,
-    error: null,
-    errorType: null,
-    user: null,
-  };
-  const userDB = await connectUserDB();
   try {
+    const userDB = await connectUserDB();
     const UserModel = userDB.model("User", userSchema);
     const foundUser = await UserModel.findById(userId);
-    if (foundUser === null) {
-      response.error = "unauthorized_action";
-      response.errorType = HTTP_STATUS.clientError.unauthorized.statusType;
-      return response;
-    }
+    if (foundUser === null) return null;
     const user = foundUser.toObject();
-    response.success = true;
-    response.user = user;
-    return response;
+    return user;
   } catch (error) {
-    logger.error(error);
-    response.error = error;
-    response.errorType = "UNKNOWN_ERROR";
-    return { success: false, user: null };
+    throw new DatabaseError(error);
   }
 };
 

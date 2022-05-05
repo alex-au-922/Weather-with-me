@@ -10,11 +10,10 @@ const checkUserCredentials =
   require("../../generalUtils/userCreds/username").checkUserCredentials;
 const issueNewRefreshToken =
   require("../../generalUtils/userCreds/refreshToken").issueNewRefreshToken;
-const { apiResponseWrapper } = require("../_apiWrapper");
 
-router.post(
-  "/",
-  apiResponseWrapper(async (req, _) => {
+router.post("/", async (req, res, next) => {
+  try {
+    const response = res.locals.response;
     const { username, password } = req.body;
     const user = await checkUserCredentials("username", username);
     if (user === null) throw new UsernameError("Username does not exist!");
@@ -22,11 +21,15 @@ router.post(
     if (!passwordCorrect) throw new PasswordError("Password incorrect!");
     const newRefreshToken = await issueNewRefreshToken(user._id);
     const newAccessToken = signNewAccessToken(user._id);
-    return {
+    response.result = {
       refreshToken: newRefreshToken,
       accessToken: newAccessToken,
     };
-  })
-);
+    response.success = true;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;

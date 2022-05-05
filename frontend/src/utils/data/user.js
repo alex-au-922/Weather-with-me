@@ -20,7 +20,7 @@ const initFetchUserData = async () => {
     result: null,
     invalidated: null,
   };
-  const userDataURL = `${BACKEND_WEBSERVER_HOST}/user`;
+  const userDataURL = `${BACKEND_WEBSERVER_HOST}/resources/data/user`;
   const userDataPayload = {
     method: "POST",
     headers: {

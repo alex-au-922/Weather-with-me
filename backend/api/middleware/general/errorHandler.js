@@ -7,9 +7,11 @@ const {
   InvalidAccessTokenError,
   UnauthorizationError,
   UnknownError,
-} = require("../../errorConfig");
+} = require("../../../errorConfig");
+const { HTTP_STATUS } = require("../../../backendConfig");
 
-const errorHandler = (err, req, res, next) => {
+const errorHandler = async (error, req, res, next) => {
+  const response = res.locals.response;
   switch (error.constructor) {
     case UsernameError:
     case PasswordError:
@@ -22,12 +24,8 @@ const errorHandler = (err, req, res, next) => {
       res.status(HTTP_STATUS.serverError.internalServerError.status);
       break;
   }
-  const response = JSON.stringify({
-    success: false,
-    error: err.message,
-    errorType: error.name,
-    result: null,
-  });
-  res.send(response);
+  response.error = error.message;
+  response.errorType = error.name;
+  next();
 };
 module.exports = errorHandler;

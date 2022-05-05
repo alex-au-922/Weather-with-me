@@ -62,7 +62,7 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch user data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/user/all`;
+      const url = `${BACKEND_WEBSERVER_HOST}/resources/data/users`;
       const requestBody = {
         username,
         accessToken: localStorage.getItem("accessToken"),
@@ -92,7 +92,7 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch weather data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/weather/all`;
+      const url = `${BACKEND_WEBSERVER_HOST}/resources/data/weathers`;
       const requestBody = {
         username,
         accessToken: localStorage.getItem("accessToken"),

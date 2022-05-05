@@ -5,10 +5,10 @@ const decrypt = require("../../../generalUtils/jwt/decrypt").decrypt;
 const updateUserData =
   require("../../../databaseUtils/userDatabase/updateSettings").updateUserData;
 const eventEmitter = require("../../_eventEmitter");
-const checkUserCredentialsById = require("../../../generalUtils/userCreds/username").checkUserCredentialsById;
+const checkUserCredentialsById =
+  require("../../../generalUtils/userCreds/username").checkUserCredentialsById;
 
-
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   const { token, username, email, viewMode } = req.body;
   if (token !== undefined && token !== null) {
     try {

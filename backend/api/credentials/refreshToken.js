@@ -9,17 +9,10 @@ const refreshTokenRotation =
   require("../../generalUtils/userCreds/refreshToken").refreshTokenRotation;
 const signNewAccessToken =
   require("../../generalUtils/userCreds/accessToken").signNewAccessToken;
-
-router.post(
-  "/",
-  async (req, res) => {
-    const response = {
-      success: true,
-      error: null,
-      errorType: null,
-      result: null,
-    };
-    res.status(200);
+const { InvalidRefreshTokenError } = require("../../errorConfig");
+router.post("/", async (req, res, next) => {
+  try {
+    const response = res.locals.response;
     const { refreshToken } = req.body;
     const refreshTokenUserId = await findValidRefreshToken(refreshToken);
     if (refreshTokenUserId === null)
@@ -33,21 +26,11 @@ router.post(
       refreshToken: newRefreshToken,
       accessToken: newAccessToken,
     };
-    res.send(JSON.stringify(response));
+    response.success = true;
+    next();
+  } catch (error) {
+    next(error);
   }
-  // apiResponseWrapper(async (req, _) => {
-  //   const { refreshToken } = req.body;
-  //   const refreshTokenUserId = await findValidRefreshToken(refreshToken);
-  //   const newRefreshToken = await refreshTokenRotation(
-  //     refreshTokenUserId,
-  //     refreshToken
-  //   );
-  //   const newAccessToken = signNewAccessToken(refreshTokenUserId);
-  //   return {
-  //     refreshToken: newRefreshToken,
-  //     accessToken: newAccessToken,
-  //   };
-  // })
-);
+});
 
 module.exports = router;
