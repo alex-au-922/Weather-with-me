@@ -12,19 +12,42 @@ const signNewAccessToken =
 
 router.post(
   "/",
-  apiResponseWrapper(async (req, _) => {
+  async (req, res) => {
+    const response = {
+      success: true,
+      error: null,
+      errorType: null,
+      result: null,
+    };
+    res.status(200);
     const { refreshToken } = req.body;
     const refreshTokenUserId = await findValidRefreshToken(refreshToken);
+    if (refreshTokenUserId === null)
+      throw new InvalidRefreshTokenError("Refresh token invalid!");
     const newRefreshToken = await refreshTokenRotation(
       refreshTokenUserId,
       refreshToken
     );
     const newAccessToken = signNewAccessToken(refreshTokenUserId);
-    return {
+    response.result = {
       refreshToken: newRefreshToken,
       accessToken: newAccessToken,
     };
-  })
+    res.send(JSON.stringify(response));
+  }
+  // apiResponseWrapper(async (req, _) => {
+  //   const { refreshToken } = req.body;
+  //   const refreshTokenUserId = await findValidRefreshToken(refreshToken);
+  //   const newRefreshToken = await refreshTokenRotation(
+  //     refreshTokenUserId,
+  //     refreshToken
+  //   );
+  //   const newAccessToken = signNewAccessToken(refreshTokenUserId);
+  //   return {
+  //     refreshToken: newRefreshToken,
+  //     accessToken: newAccessToken,
+  //   };
+  // })
 );
 
 module.exports = router;

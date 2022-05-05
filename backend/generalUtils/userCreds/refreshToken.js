@@ -103,17 +103,8 @@ const tokenUpdate = async (userId, oldRefreshToken = null) => {
     const generateTokenResult = await generateRefreshToken();
     refreshToken = generateTokenResult.refreshToken;
     hashedRefreshToken = generateTokenResult.hashedRefreshToken;
-    const allUserTokens = await RefreshTokenModel.find();
-    const validRefreshTokens = await Promise.all(
-      allUserTokens.map(
-        async (userTokenInfo) =>
-          await validateUserRefreshToken(refreshToken, userTokenInfo)
-      )
-    );
-    const validRefreshToken = validRefreshTokens.filter(
-      (userRefreshToken) => userRefreshToken.valid
-    );
-    if (validRefreshToken.length) continue; // duplicated hash
+    const refreshTokenUser = await findValidRefreshToken(refreshToken);
+    if (refreshTokenUser !== null) continue; // duplicated hash
     newRefreshTokenUnique = true;
   }
   await updateUserRefreshToken(userId, hashedRefreshToken);
@@ -134,8 +125,7 @@ const findValidRefreshToken = async (refreshToken) => {
   const validRefreshToken = validRefreshTokens.filter(
     (userRefreshToken) => userRefreshToken.valid
   );
-  if (!validRefreshToken.length)
-    throw new InvalidRefreshTokenError("Refresh token invalid!");
+  if (!validRefreshToken.length) return null;
   return validRefreshToken[0].userId;
 };
 
