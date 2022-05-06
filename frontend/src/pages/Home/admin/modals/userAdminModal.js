@@ -1,16 +1,9 @@
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
+import { FormRowHeader } from "../../../../utils/gui/formInputs";
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-
-const FormRowHeader = (props) => {
-  const displayString = props.updated ? " *" : "";
-  return (
-    <Form.Label>
-      {camelToCapitalize(props.field)}
-      <span style={{ color: "red" }}> {displayString}</span>
-    </Form.Label>
-  );
-};
+import { InputFormModalRow } from ".";
+import UnsavedModal from "../../../../utils/gui/modals/unsavedModal";
 
 const SelectFormModalRow = (props) => {
   const originalValue = props.chosenOption;
@@ -43,77 +36,6 @@ const SelectFormModalRow = (props) => {
           <option key={index}>{option}</option>
         ))}
       </Form.Select>
-    </>
-  );
-};
-
-const InputFormModalRow = (props) => {
-  const originalValue = props.blank ? "" : props.value;
-  const [updateValue, setUpdateValue] = useState(originalValue);
-  const [valueChanged, setValueChanged] = useState(
-    updateValue === originalValue
-  );
-  const handleChangeValue = (event) => {
-    setUpdateValue(event.target.value);
-  };
-
-  useEffect(() => {
-    setValueChanged(updateValue !== originalValue);
-  }, [updateValue]);
-
-  useEffect(() => {
-    props.onChange(props.field, valueChanged);
-  }, [valueChanged]);
-
-  return (
-    <>
-      <FormRowHeader
-        field={props.field}
-        updated={updateValue !== originalValue}
-      />
-
-      <input
-        className="form-control"
-        type={props.type}
-        placeholder={props.placeholder}
-        value={updateValue}
-        onChange={handleChangeValue}
-      />
-    </>
-  );
-};
-
-const UnsavedModal = (props) => {
-  return (
-    <>
-      <Modal
-        show={props.show}
-        onHide={props.onHide}
-        centered
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
-        backdrop="static"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            Unsaved Data!
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          You have unsaved data. Are you sure you want to close the modal?
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={props.onHide}>No</Button>
-          <Button
-            onClick={() => {
-              props.onHide();
-              props.forceClose();
-            }}
-          >
-            Yes
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 };
@@ -212,6 +134,8 @@ const UserDataFormModal = (props) => {
       <UnsavedModal
         show={showUnsavedModal}
         onHide={handleCloseUnsavedModal}
+        title={"Unsaved Data"}
+        body={"You have unsaved data. Are you sure you want to close the form?"}
         forceClose={handleInnerCloseModal}
       />
     </>

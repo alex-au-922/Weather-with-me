@@ -1,12 +1,14 @@
 import { useState, useContext, createContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { WeatherWebSocketContext, UserWebSocketContext } from "./websocket";
-import decryptJwt from "../utils/jwt/decrypt";
+import tokensRefresh from "../utils/authUtils/tokenRefresh";
+import { initFetchUserData } from "../utils/data/user";
 
 const AuthContext = createContext({});
 
 const AuthProvider = (props) => {
   const [fetching, setFetching] = useState(true);
+  const [logined, setLogined] = useState(false);
   const [user, setUser] = useState({
     username: null,
     isAdmin: null,
@@ -20,31 +22,45 @@ const AuthProvider = (props) => {
   const navigate = useNavigate();
   useEffect(() => {
     (async () => {
-      const { success, result } = await decryptJwt();
-      if (success && !result.expired) {
-        const isAdmin = result.role === "admin";
-        setUser({
-          username: result.username,
-          isAdmin,
-          viewMode: result.viewMode,
-          email: result.email,
-          authenticated: true,
-        });
-        weatherWSContext.connectWebSocket();
-        if (isAdmin) {
-          userWSContext.connectWebSocket();
+      if (fetching) {
+        const { success: validateSuccess } = await tokensRefresh();
+        if (validateSuccess) {
+          const { success: fetchSuccess, result } = await initFetchUserData();
+          if (fetchSuccess) {
+            setUser({
+              username: result.username,
+              isAdmin: result.role === "admin",
+              viewMode: result.viewMode,
+              email: result.email,
+              authenticated: true,
+            });
+          } else {
+            navigate("/login");
+          }
         }
+        setFetching(false);
       }
-      setFetching(false);
     })();
   }, [fetching]);
+
+  useEffect(() => {
+    if (user.authenticated && logined) {
+      weatherWSContext.connectWebSocket();
+      if (user.isAdmin) {
+        userWSContext.connectWebSocket();
+      }
+    } else {
+      weatherWSContext?.disconnectWebSocket();
+      userWSContext?.disconnectWebSocket();
+    }
+  }, [user.authenticated, logined]);
+
   const login = () => {
     navigate("/");
     setFetching(true);
+    setLogined(true);
   };
   const logout = async () => {
-    weatherWSContext.disconnectWebSocket();
-    userWSContext.disconnectWebSocket();
     setUser({
       username: null,
       isAdmin: null,
@@ -53,6 +69,7 @@ const AuthProvider = (props) => {
       authenticated: false,
     });
     navigate("/login");
+    setLogined(false);
   };
   return (
     <AuthContext.Provider value={{ user, fetching, login, logout }}>

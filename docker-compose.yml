@@ -54,6 +54,7 @@ services:
     volumes:
       - ./backend/index.js:${APP_HOME}/index.js
       - ./backend/backendConfig.js:${APP_HOME}/backendConfig.js
+      - ./backend/errorConfig.js:${APP_HOME}/errorConfig.js
       - ./backend/generalUtils:${APP_HOME}/generalUtils
       - ./backend/fetcherUtils:${APP_HOME}/fetcherUtils
       - ./backend/api:${APP_HOME}/api

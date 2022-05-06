@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { Container, Row, Button } from "react-bootstrap";
 import { WeatherWebSocketContext } from "../../middleware/websocket";
-import { registerMessageListener } from "../../utils/websocket/listener";
+import { registerMessageListener } from "../../utils/listeners/webSocketMessage";
 import parseWeatherDataFrontendView from "../../utils/data/weather";
 import { Typeahead } from "react-bootstrap-typeahead";
 const UserView = (props) => {

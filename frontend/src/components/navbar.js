@@ -1,12 +1,13 @@
 import React, { useState, useContext } from "react";
 import "bootstrap/dist/css/bootstrap.css";
 import { Navbar, Container, Nav, Button } from "react-bootstrap";
-import SwitchButton from "./switch";
-
+import { DoorOpen } from "react-bootstrap-icons";
+import { AuthContext } from "../middleware/auth";
 const expandScreenSize = "md";
 
 // create a component so that it has the function of navbar
 export default function NavBar(props) {
+  const { user, logout } = useContext(AuthContext);
   const [state, setState] = useState({
     mode: "dark",
     isSwitched: false,
@@ -34,12 +35,19 @@ export default function NavBar(props) {
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse>
             <Nav className="me-auto">
-              <Nav.Link href="/home">Change Password</Nav.Link>
-              <Nav.Link href="/home">Settings</Nav.Link>
+              <Nav.Link href="/changepw">Change Password</Nav.Link>
+              <Nav.Link href="/settings">Settings</Nav.Link>
             </Nav>
             <Nav>
-              <p style={{ color: "#fff" }}>{`${props.user.username}`}</p>
-              <Button onClick={props.logout}> Logout</Button>
+              <Nav.Link
+                style={{ color: "#fff" }}
+                disabled
+              >{`${user.username}`}</Nav.Link>
+              <Nav.Link onClick={logout}>
+                {" "}
+                <DoorOpen style={{ color: "#fff" }} />
+                Logout
+              </Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

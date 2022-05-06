@@ -6,11 +6,11 @@ import {
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import parseUserDataFrontendView from "../../../utils/data/user";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
-import { registerMessageListener } from "../../../utils/websocket/listener";
+import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import { renderModals } from "./modals";
 import { UserDataFormModal, userModalOptions } from "./modals/userAdminModal";
 import {
-  WeatherDataFormModal,
+  WeatherAdminDataFormModal,
   weatherModalOptions,
 } from "./modals/weatherAdminModal";
 import DropDownButton from "../../../utils/gui/dropDown";
@@ -24,15 +24,15 @@ const AdminView = (props) => {
     User: null,
     Weather: null,
   });
-  const [view, setView] = useState("User");
+  const [table, setTable] = useState("User");
   const { username } = props.user;
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
-  const handleViewSelect = (event) => setView(event);
+  const handleTableSelect = (event) => setTable(event);
 
   const switchViewOptions = {
-    handleSelect: handleViewSelect,
-    buttonName: view,
+    handleSelect: handleTableSelect,
+    buttonName: table,
     options: Object.keys(dataLists),
   };
 
@@ -43,7 +43,7 @@ const AdminView = (props) => {
   };
 
   const renderUserModal = renderModals(UserDataFormModal);
-  const renderWeatherModal = renderModals(WeatherDataFormModal);
+  const renderWeatherModal = renderModals(WeatherAdminDataFormModal);
 
   const updateUserData = (resultJson) => {
     const newUserList = parseUserDataFrontendView(resultJson);
@@ -62,10 +62,10 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch user data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/user/all`;
+      const url = `${BACKEND_WEBSERVER_HOST}/resources/data/users`;
       const requestBody = {
         username,
-        token: localStorage.getItem("token"),
+        accessToken: localStorage.getItem("accessToken"),
       };
       const payload = {
         method: "POST",
@@ -92,10 +92,10 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch weather data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/weather/all`;
+      const url = `${BACKEND_WEBSERVER_HOST}/resources/data/weathers`;
       const requestBody = {
         username,
-        token: localStorage.getItem("token"),
+        accessToken: localStorage.getItem("accessToken"),
       };
       const payload = {
         method: "POST",
@@ -121,7 +121,7 @@ const AdminView = (props) => {
 
   return (
     <>
-      {view === "User" ? (
+      {table === "User" ? (
         <ResourceManagementTable
           key="user"
           dataList={dataLists.User}

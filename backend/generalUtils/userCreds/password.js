@@ -1,17 +1,29 @@
 const bcrypt = require("bcrypt");
+const { PasswordError } = require("../../errorConfig");
 const logger = require("../getLogger").getLogger();
 const { connectUserDB } = require("../database");
 const userSchema = require("../../backendConfig.js").databaseConfig.userSchema;
 
 exports.passwordHash = async (password) => {
-  const salt = await bcrypt.genSalt(10);
-  const newPassword = await bcrypt.hash(password, salt);
-  return newPassword;
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const newPassword = await bcrypt.hash(password, salt);
+    return newPassword;
+  } catch (error) {
+    throw new PasswordError("Invalid password format!");
+  }
 };
 
 exports.comparePassword = async (typedPassword, hashedPassword) => {
-  const isPasswordCorrect = await bcrypt.compare(typedPassword, hashedPassword);
-  return isPasswordCorrect;
+  try {
+    const isPasswordCorrect = await bcrypt.compare(
+      typedPassword,
+      hashedPassword
+    );
+    return isPasswordCorrect;
+  } catch (error) {
+    throw new PasswordError("Invalid password format!");
+  }
 };
 
 exports.updatePassword = async (userInfo) => {

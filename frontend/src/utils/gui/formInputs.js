@@ -1,4 +1,5 @@
 import { Form } from "react-bootstrap";
+import camelToCapitalize from "../input/camelToCapitalize";
 
 const FormInputWithError = ({ error, ...styles }) => {
   return (
@@ -16,4 +17,15 @@ const FormInputWithError = ({ error, ...styles }) => {
   );
 };
 
+const FormRowHeader = (props) => {
+  const displayString = props.updated ? " *" : "";
+  return (
+    <Form.Label>
+      {camelToCapitalize(props.field)}
+      <span style={{ color: "red" }}> {displayString}</span>
+    </Form.Label>
+  );
+};
+
 export default FormInputWithError;
+export { FormRowHeader };

@@ -15,8 +15,8 @@ const DropDownButton = (props) => {
       </Dropdown.Toggle>
 
       <Dropdown.Menu>
-        {props.optionsType
-          ? props.options
+        {props.optionsType // if the user specify the type of options
+          ? props.options // as in the table search bar only string type data can be chosen
               .filter(
                 (key) =>
                   props.optionsAllowedTypes.indexOf(props.optionsType[key]) !==
@@ -29,13 +29,18 @@ const DropDownButton = (props) => {
                   display={`${camelToCapitalize(key)}`}
                 />
               ))
-          : props.options.map((key, index) => (
-              <DropDownButtonRow
-                key={index}
-                eventKey={`${key}`}
-                display={`${camelToCapitalize(key)}`}
-              />
-            ))}
+          : props.options.map(
+              (
+                key,
+                index //If the user doesn't specify the type of options
+              ) => (
+                <DropDownButtonRow //either use in normal drop down button where the type of data doesn't really matter or all are in string type
+                  key={index}
+                  eventKey={`${key}`}
+                  display={`${camelToCapitalize(key)}`}
+                />
+              )
+            )}
       </Dropdown.Menu>
     </Dropdown>
   );

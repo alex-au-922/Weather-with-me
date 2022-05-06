@@ -1,3 +1,5 @@
+const { DatabaseError } = require("../../errorConfig");
+
 const logger = require("../../generalUtils/getLogger").getLogger();
 const connectWeatherDB =
   require("../../generalUtils/database").connectWeatherDB;
@@ -7,15 +9,14 @@ const geolocationSchema = require("../../backendConfig").databaseConfig
   .geolocationSchema;
 
 const getLatestData = async function () {
-  const weatherDB = await connectWeatherDB();
   try {
+    const weatherDB = await connectWeatherDB();
     const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
     const Weather = weatherDB.model("Weather", weatherSchema);
-    const allData = await Weather.find().populate("locationId");
-    return { success: true, result: allData, error: null };
+    const result = await Weather.find().populate("locationId");
+    return result;
   } catch (error) {
-    console.log(error);
-    return { success: false, result: null, error };
+    throw new DatabaseError(error);
   }
 };
 

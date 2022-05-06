@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
-const decrypt = (token) => {
-  const result = jwt.verify(token, process.env.JWT_SECRET);
+const decrypt = (jsonWebToken) => {
+  const result = jwt.verify(jsonWebToken, process.env.JWT_SECRET);
   return result;
 };
 

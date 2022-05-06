@@ -4,4 +4,9 @@ const offsetTime = (timeOffset) => {
   return offsetTime;
 };
 
+const dateExpired = (time) => {
+  return Date() > time;
+};
+
 exports.offsetTime = offsetTime;
+exports.dateExpired = dateExpired;

@@ -12,7 +12,7 @@ const {
 } = require("./databaseUtils/weatherDatabase/updateWeatherCol");
 const fetchAPIConfig = require("./backendConfig").fetchAPIConfig;
 const getLatestWeatherData =
-  require("./databaseUtils/weatherDatabase/getLatestWeatherData").getLatestData;
+  require("./databaseUtils/weatherDatabase/getLatestData").getLatestData;
 const getLatestUserData =
   require("./databaseUtils/userDatabase/getLatestData").getLatestData;
   
