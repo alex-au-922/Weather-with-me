@@ -2,6 +2,7 @@ import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
 import { FormRowHeader } from "../../../../utils/gui/formInputs";
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import { InputFormModalRow } from ".";
 import UnsavedModal from "../../../../utils/gui/modals/unsavedModal";
 
 const SelectFormModalRow = (props) => {
@@ -35,42 +36,6 @@ const SelectFormModalRow = (props) => {
           <option key={index}>{option}</option>
         ))}
       </Form.Select>
-    </>
-  );
-};
-
-const InputFormModalRow = (props) => {
-  const originalValue = props.blank ? "" : props.value;
-  const [updateValue, setUpdateValue] = useState(originalValue);
-  const [valueChanged, setValueChanged] = useState(
-    updateValue === originalValue
-  );
-  const handleChangeValue = (event) => {
-    setUpdateValue(event.target.value);
-  };
-
-  useEffect(() => {
-    setValueChanged(updateValue !== originalValue);
-  }, [updateValue]);
-
-  useEffect(() => {
-    props.onChange(props.field, valueChanged);
-  }, [valueChanged]);
-
-  return (
-    <>
-      <FormRowHeader
-        field={props.field}
-        updated={updateValue !== originalValue}
-      />
-
-      <input
-        className="form-control"
-        type={props.type}
-        placeholder={props.placeholder}
-        value={updateValue}
-        onChange={handleChangeValue}
-      />
     </>
   );
 };

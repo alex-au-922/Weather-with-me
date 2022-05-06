@@ -1,7 +1,7 @@
 const signup = require("./signup/signup");
 const login = require("./credentials/login");
 const resourcesData = require("./resources/data");
-const resetPw = require("./resetpw/resetPw");
+// const resetPw = require("./resetpw/resetPw");
 const resetPwEmail = require("./resetpw/sendResetPwEmail");
 const userHash = require("./resetpw/userHash");
 const refreshToken = require("./credentials/refreshToken");
@@ -18,7 +18,7 @@ const api = (app) => {
   app.use("/signup", signup);
   app.use("/login", login);
   app.use("/token/refresh", refreshToken);
-  app.use("/resetpw", resetPw);
+  // app.use("/resetpw", resetPw);
   app.use("/resetpw/email", resetPwEmail);
   app.use("/userhash", userHash);
   app.use("/resources/data", resourcesData);
