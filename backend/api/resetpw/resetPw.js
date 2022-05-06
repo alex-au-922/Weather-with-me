@@ -15,17 +15,8 @@ const { HTTP_STATUS } = require("../../backendConfig");
 const eventEmitter = require("../_eventEmitter");
 const router = express.Router();
 
-router.post("/", async (req, res) => {
-  res.setHeader("Content-Type", "application/json");
-  let status = HTTP_STATUS.serverError.internalServerError.status;
-
-  const response = {
-    success: false,
-    error: null,
-    errorType: null,
-    result: null,
-  };
-
+router.post("/", async (req, res, next) => {
+  const response = res.locals.response;
   const { username, password, accessToken, hash } = req.body;
   try {
     if (!accessToken && !hash) {
@@ -101,11 +92,7 @@ router.post("/", async (req, res) => {
         }
       }
     }
-  } catch (error) {
-  } finally {
-    const jsonResponse = JSON.stringify(response);
-    res.status(status).send(jsonResponse);
-  }
+
 });
 
 module.exports = router;
