@@ -4,13 +4,15 @@ import { WeatherWebSocketContext } from "../../middleware/websocket";
 import { registerMessageListener } from "../../utils/listeners/webSocketMessage";
 import parseWeatherDataFrontendView from "../../utils/data/weather";
 import { Typeahead } from "react-bootstrap-typeahead";
+import ListGroup from 'react-bootstrap/ListGroup';
 import { GoogleMap, LoadScript, InfoBox, OverlayView } from '@react-google-maps/api';
+import { Marker } from '@react-google-maps/api';
 import GOOGLE_API_KEY from "../../keys/googleAPI";
 
 // MAP SIZE ON SCREEN
 const containerStyle = {
-  width: '700px',
-  height: '700px'
+  width: '98vw',
+  height: '98vh'
 };
 
 // MAP CENTER LOCATION
@@ -55,22 +57,39 @@ const UserView = (props) => {
   }, [webSocket]);
   return (
     <LoadScript googleMapsApiKey={GOOGLE_API_KEY}>
-      <Container>
         <Row>
           <div> Hello {username}!</div>
         </Row>
         <GoogleMap mapContainerStyle={containerStyle}
           center={center}
           zoom={10} >
-          <InfoBox options={options} position={center}>
-            <div style={{ backgroundColor: 'yellow', opacity: 0.75, padding: 12 }}>
+          {/* <InfoBox options={options} position={center}>
+            <div>
+              <ListGroup horizontal>
+                <ListGroup.Item>Temperature</ListGroup.Item>
+                <ListGroup.Item>29&#176;C</ListGroup.Item>
+              </ListGroup>
+              <ListGroup horizontal>
+                <ListGroup.Item>Relative Humidity</ListGroup.Item>
+                <ListGroup.Item>29&#37;</ListGroup.Item>
+              </ListGroup>       
+              <ListGroup horizontal>
+                <ListGroup.Item>Wind Speed</ListGroup.Item>
+                <ListGroup.Item>17km/h</ListGroup.Item>
+              </ListGroup>                     
+            </div> */}
+   
+            {/* <div style={{ backgroundColor: 'yellow', opacity: 0.75, padding: 12 }}>
               <div style={{ fontSize: 16, fontColor: `#08233B` }}>
-                Cloudy day!
+                Cloudy day!!!
               </div>
-            </div>
-          </InfoBox>
+            </div> */}
+          {/* </InfoBox> */}
+          <Marker
+            // onMouseOver={}
+            position={center}
+          />      
         </GoogleMap>
-      </Container>
     </LoadScript>
   );
 };
