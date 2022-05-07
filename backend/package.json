@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
+    "start": "node --experimental-json-modules index.js",
     "crawl": "node demo.js",
     "dev": "nodemon -x \"npm run start\""
   },
@@ -22,8 +22,10 @@
     "node-fetch": "^2.6.7",
     "nodemailer": "^6.7.3",
     "nodemon": "^2.0.15",
+    "swagger-ui-express": "^4.3.0",
     "winston": "^3.6.0",
     "winston-daily-rotate-file": "^4.6.1",
-    "ws": "^8.5.0"
+    "ws": "^8.5.0",
+    "yamljs": "^0.3.0"
   }
 }

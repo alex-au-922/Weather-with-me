@@ -20,15 +20,13 @@ const initFetchUserData = async () => {
     result: null,
     invalidated: null,
   };
-  const userDataURL = `${BACKEND_WEBSERVER_HOST}/resources/data/user`;
+  const userDataURL = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/user`;
   const userDataPayload = {
-    method: "POST",
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
+      authorization: localStorage.getItem("accessToken"),
     },
-    body: JSON.stringify({
-      accessToken: localStorage.getItem("accessToken"),
-    }),
   };
 
   try {
