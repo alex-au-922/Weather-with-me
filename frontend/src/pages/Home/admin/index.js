@@ -62,17 +62,14 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch user data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/resources/data/users`;
-      const requestBody = {
-        username,
-        accessToken: localStorage.getItem("accessToken"),
-      };
+      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/users`;
       const payload = {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
+          authorization: localStorage.getItem("accessToken"),
+          username,
         },
-        body: JSON.stringify(requestBody),
       };
       const fetchResult = await fetch(url, payload);
       const { success, result } = await fetchResult.json();
@@ -92,17 +89,14 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch weather data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/resources/data/weathers`;
-      const requestBody = {
-        username,
-        accessToken: localStorage.getItem("accessToken"),
-      };
+      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/weathers`;
       const payload = {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
+          authorization: localStorage.getItem("accessToken"),
+          username,
         },
-        body: JSON.stringify(requestBody),
       };
       const fetchResult = await fetch(url, payload);
       const { success, result } = await fetchResult.json();

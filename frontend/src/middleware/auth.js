@@ -1,7 +1,7 @@
 import { useState, useContext, createContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { WeatherWebSocketContext, UserWebSocketContext } from "./websocket";
-import tokensRefresh from "../utils/authUtils/tokenRefresh";
+import tokenLogin from "../utils/authUtils/tokenLogin";
 import { initFetchUserData } from "../utils/data/user";
 
 const AuthContext = createContext({});
@@ -23,7 +23,7 @@ const AuthProvider = (props) => {
   useEffect(() => {
     (async () => {
       if (fetching) {
-        const { success: validateSuccess } = await tokensRefresh();
+        const { success: validateSuccess } = await tokenLogin();
         if (validateSuccess) {
           const { success: fetchSuccess, result } = await initFetchUserData();
           if (fetchSuccess) {

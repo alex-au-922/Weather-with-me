@@ -30,7 +30,7 @@ const Login = () => {
       setError({ ...bufferError, password: passwordCheckResult.error });
       return;
     }
-    const url = `${BACKEND_WEBSERVER_HOST}/login`;
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/login`;
     const payload = {
       method: "POST",
       headers: {
@@ -45,7 +45,7 @@ const Login = () => {
       success,
       errorType,
       error: errorMessage,
-      result: { refreshToken, accessToken },
+      result: loginResult,
     } = await result.json();
     if (!success) {
       if (errorType === "UNKNOWN_ERROR") {
@@ -58,6 +58,7 @@ const Login = () => {
       setError({ ...bufferError, password: errorMessage });
       return;
     } else {
+      const { refreshToken, accessToken } = loginResult;
       localStorage.setItem("refreshToken", refreshToken);
       localStorage.setItem("accessToken", accessToken);
       login();

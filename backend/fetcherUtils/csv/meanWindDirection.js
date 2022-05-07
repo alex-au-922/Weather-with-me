@@ -8,7 +8,6 @@ exports.parsedFetch = async function parsedFetch() {
   const response = await fetch(fetchAPIConfig.meanWeatherData.meanWindData.url);
   const responseText = await response.text();
   const windDirectionArray = csvToObject(responseText);
-  console.log(parseGovtTimeString);
   return cleanWindDirectionText(windDirectionArray);
 };
 
