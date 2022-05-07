@@ -4,9 +4,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 const LoadingModal = (props) => {
   return (
     <>
-    {
-        props.show && <Spinner animation = "border" variant = "dark"/>
-    }
+      {
+        // TODO: review the UI of the spinner
+        props.show && <Spinner animation="border" variant="dark" />
+      }
       <Modal
         show={props.show}
         onHide={props.onHide}
