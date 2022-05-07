@@ -10,7 +10,7 @@ import { registerMessageListener } from "../../../utils/listeners/webSocketMessa
 import { renderModals } from "./modals";
 import { UserDataFormModal, userModalOptions } from "./modals/userAdminModal";
 import {
-  WeatherDataFormModal,
+  WeatherAdminDataFormModal,
   weatherModalOptions,
 } from "./modals/weatherAdminModal";
 import DropDownButton from "../../../utils/gui/dropDown";
@@ -24,15 +24,15 @@ const AdminView = (props) => {
     User: null,
     Weather: null,
   });
-  const [view, setView] = useState("User");
+  const [table, setTable] = useState("User");
   const { username } = props.user;
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
-  const handleViewSelect = (event) => setView(event);
+  const handleTableSelect = (event) => setTable(event);
 
   const switchViewOptions = {
-    handleSelect: handleViewSelect,
-    buttonName: view,
+    handleSelect: handleTableSelect,
+    buttonName: table,
     options: Object.keys(dataLists),
   };
 
@@ -43,7 +43,7 @@ const AdminView = (props) => {
   };
 
   const renderUserModal = renderModals(UserDataFormModal);
-  const renderWeatherModal = renderModals(WeatherDataFormModal);
+  const renderWeatherModal = renderModals(WeatherAdminDataFormModal);
 
   const updateUserData = (resultJson) => {
     const newUserList = parseUserDataFrontendView(resultJson);
@@ -115,7 +115,7 @@ const AdminView = (props) => {
 
   return (
     <>
-      {view === "User" ? (
+      {table === "User" ? (
         <ResourceManagementTable
           key="user"
           dataList={dataLists.User}
