@@ -14,10 +14,10 @@ router.get("/", async (req, res, next) => {
     const refreshTokenUserId = await findValidRefreshToken(refreshToken);
     if (refreshTokenUserId === null)
       throw new InvalidRefreshTokenError("Refresh token invalid!");
-    const newRefreshToken = await refreshTokenRotation(
-      refreshTokenUserId,
-      refreshToken
-    );
+    // const newRefreshToken = await refreshTokenRotation(
+    //   refreshTokenUserId,
+    //   refreshToken
+    // );
     const newAccessToken = signNewAccessToken(refreshTokenUserId);
     response.result = {
       refreshToken: newRefreshToken,
