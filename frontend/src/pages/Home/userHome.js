@@ -27,6 +27,8 @@ const onClick = () => {
   console.info('I have been clicked!')
 };
 
+
+
 const divStyle = {
   background: 'white',
   border: '1px solid #ccc',
@@ -55,6 +57,15 @@ const UserView = (props) => {
     };
     return registerMessageListener(webSocket, handler);
   }, [webSocket]);
+
+  const onMouseOverMarker = () => {
+    console.log(weatherList);
+  }
+
+  const onLoad = marker => {
+    console.log('marker: ', marker)
+  }
+
   return (
     <LoadScript googleMapsApiKey={GOOGLE_API_KEY}>
         <Row>
@@ -85,8 +96,12 @@ const UserView = (props) => {
               </div>
             </div> */}
           {/* </InfoBox> */}
+          {/* <Marker
+            onLoad={onLoad}
+            position={center}
+          />           */}
           <Marker
-            // onMouseOver={}
+            onMouseOver={onMouseOverMarker}
             position={center}
           />      
         </GoogleMap>
