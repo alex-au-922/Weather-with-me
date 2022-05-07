@@ -8,6 +8,7 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import { GoogleMap, LoadScript, InfoBox, OverlayView } from '@react-google-maps/api';
 import { Marker } from '@react-google-maps/api';
 import GOOGLE_API_KEY from "../../keys/googleAPI";
+import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 
 // MAP SIZE ON SCREEN
 const containerStyle = {
@@ -19,6 +20,11 @@ const containerStyle = {
 const center = {
   lat: 22.30,
   lng: 114.177216
+};
+
+const position = {
+  lat: 24.4,
+  lng: 115.1231
 };
 
 const options = { closeBoxURL: '', enableEventPropagation: true };
@@ -36,7 +42,7 @@ const divStyle = {
 };
 
 const UserView = (props) => {
-  const { username, logout } = props;
+  const { username } = props.user;
   const [weatherList, setWeatherList] = useState();
   const [descending, setDescending] = useState({
     name: false,
@@ -58,8 +64,56 @@ const UserView = (props) => {
     return registerMessageListener(webSocket, handler);
   }, [webSocket]);
 
+  useEffect(() => {
+    //initial fetch weather data
+    (async () => {
+      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/weathers`;
+      const payload = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: localStorage.getItem("accessToken"),
+          username,
+        },
+      };
+      const fetchResult = await fetch(url, payload);
+      const { success, result } = await fetchResult.json();
+      if (success) updateWeatherData(result);
+    })();
+  }, []);  
+
+  const updateWeatherData = (resultJson) => {
+    const newWeatherList = parseWeatherDataFrontendView(resultJson);
+    setWeatherList(newWeatherList);
+  };  
+
   const onMouseOverMarker = () => {
     console.log(weatherList);
+  }
+
+  const position = {
+    lat: 24.4,
+    lng: 115.1231
+  };
+  
+
+  const renderMarker = () => {
+    weatherList.map((items) => {
+      console.log(items.latitude, items.longitude);
+      // return (
+      //   <Marker onMouseOver={onMouseOverMarker} position={ {lat: items.latitude, lng: items.longitude} }/>
+      // )
+    });    
+    // return (
+    // // //   weatherList.map((items) => {
+    // // //     <Marker onMouseOver={onMouseOverMarker} position={ {lat: items.latitude, lng: items.longitude} }/>
+    // // //   })
+      <Marker
+      onLoad={onLoad}
+      onMouseOver={onMouseOverMarker}
+      position={position}
+      />         
+    // );
   }
 
   const onLoad = marker => {
@@ -68,42 +122,17 @@ const UserView = (props) => {
 
   return (
     <LoadScript googleMapsApiKey={GOOGLE_API_KEY}>
-        <Row>
+        {/* <Row>
           <div> Hello {username}!</div>
-        </Row>
+        </Row> */}
         <GoogleMap mapContainerStyle={containerStyle}
           center={center}
           zoom={10} >
-          {/* <InfoBox options={options} position={center}>
-            <div>
-              <ListGroup horizontal>
-                <ListGroup.Item>Temperature</ListGroup.Item>
-                <ListGroup.Item>29&#176;C</ListGroup.Item>
-              </ListGroup>
-              <ListGroup horizontal>
-                <ListGroup.Item>Relative Humidity</ListGroup.Item>
-                <ListGroup.Item>29&#37;</ListGroup.Item>
-              </ListGroup>       
-              <ListGroup horizontal>
-                <ListGroup.Item>Wind Speed</ListGroup.Item>
-                <ListGroup.Item>17km/h</ListGroup.Item>
-              </ListGroup>                     
-            </div> */}
-   
-            {/* <div style={{ backgroundColor: 'yellow', opacity: 0.75, padding: 12 }}>
-              <div style={{ fontSize: 16, fontColor: `#08233B` }}>
-                Cloudy day!!!
-              </div>
-            </div> */}
-          {/* </InfoBox> */}
-          {/* <Marker
-            onLoad={onLoad}
-            position={center}
-          />           */}
-          <Marker
-            onMouseOver={onMouseOverMarker}
-            position={center}
-          />      
+            {/* {weatherList !== undefined && weatherList.map((items, i) => {
+                <Marker key={i} onMouseOver={onMouseOverMarker} position={ {lat: items.latitude, lng: items.longitude} }/>
+            })
+            } */}
+            {renderMarker()}
         </GoogleMap>
     </LoadScript>
   );
