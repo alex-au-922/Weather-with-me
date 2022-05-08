@@ -48,6 +48,7 @@ const InputFormModalRow = (props) => {
         type={props.type}
         placeholder={props.placeholder}
         value={updateValue}
+        readOnly = {!props.mutable}
         onChange={handleChangeValue}
       />
     </>
