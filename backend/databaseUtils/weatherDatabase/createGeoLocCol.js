@@ -22,7 +22,6 @@ exports.createLocation = async function () {
       logger.info("The collection geolocations already exists");
     }
   } catch (error) {
-    console.log(error);
     logger.error(error);
   }
 };

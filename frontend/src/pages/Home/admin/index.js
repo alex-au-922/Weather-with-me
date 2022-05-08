@@ -3,6 +3,7 @@ import {
   UserWebSocketContext,
   WeatherWebSocketContext,
 } from "../../../middleware/websocket";
+import { FetchStateContext } from "../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import parseUserDataFrontendView from "../../../utils/data/user";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
@@ -28,8 +29,14 @@ const AdminView = (props) => {
   const { username } = props.user;
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
-  const handleTableSelect = (event) => setTable(event);
+  const { fetchFactory } = useContext(FetchStateContext);
+  const dataFetch = fetchFactory({
+    success: false,
+    error: true,
+    loading: false,
+  });
 
+  const handleTableSelect = (event) => setTable(event);
   const switchViewOptions = {
     handleSelect: handleTableSelect,
     buttonName: table,
@@ -62,21 +69,17 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch user data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/resources/data/users`;
-      const requestBody = {
-        username,
-        accessToken: localStorage.getItem("accessToken"),
-      };
+      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/users`;
       const payload = {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
+          authorization: localStorage.getItem("accessToken"),
+          username,
         },
-        body: JSON.stringify(requestBody),
       };
-      const fetchResult = await fetch(url, payload);
-      const { success, result } = await fetchResult.json();
-      if (success) updateUserData(result);
+      const { success, result, fetching } = await dataFetch(url, payload);
+      if (success && !fetching) updateUserData(result);
     })();
   }, []);
 
@@ -92,21 +95,17 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch weather data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/resources/data/weathers`;
-      const requestBody = {
-        username,
-        accessToken: localStorage.getItem("accessToken"),
-      };
+      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/weathers`;
       const payload = {
-        method: "POST",
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
+          authorization: localStorage.getItem("accessToken"),
+          username,
         },
-        body: JSON.stringify(requestBody),
       };
-      const fetchResult = await fetch(url, payload);
-      const { success, result } = await fetchResult.json();
-      if (success) updateWeatherData(result);
+      const { success, result, fetching } = await dataFetch(url, payload);
+      if (success && !fetching) updateWeatherData(result);
     })();
   }, []);
 

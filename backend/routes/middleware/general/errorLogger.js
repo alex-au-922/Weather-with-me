@@ -1,0 +1,9 @@
+const logger = require("../../../generalUtils/getLogger").getLogger();
+
+const errorLogger = async (error, req, res, next) => {
+  console.log("inlogger!");
+  const errorString = `[${error.name}] > ${error.stack}`;
+  logger.error(errorString);
+  next(error);
+};
+module.exports = errorLogger;

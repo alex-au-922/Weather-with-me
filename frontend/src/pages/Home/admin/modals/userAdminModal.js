@@ -106,6 +106,7 @@ const UserDataFormModal = (props) => {
                       key={`${props.modalIndex},${field}`}
                       field={field}
                       options={props.modalConfig[field].selectOptions}
+                      readOnly = {props.modalConfig[field].mutable}
                       chosenOption={props.data[field]}
                       onChange={handleChangeFields}
                     />

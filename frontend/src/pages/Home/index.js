@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { AuthContext } from "../../middleware/auth";
 import AdminView from "./admin";
-import UserView from "./userHome";
+import UserView from "./user";
 import NavBar from "../../components/navbar";
 
 const Home = () => {

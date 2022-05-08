@@ -12,7 +12,6 @@ const getLatestData = async function () {
     const allData = await GeoLocation.find();
     return { success: true, result: allData, error: null };
   } catch (error) {
-    console.log(error);
     return { success: false, result: null, error };
   }
 };

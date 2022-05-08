@@ -23,7 +23,7 @@ services:
     ports:
       - ${FRONTEND_REAL_HOST_PORT}:${FRONTEND_VIRTUAL_HOST_PORT}
     restart: ${RESTART_POLICY}
-    command: npm start
+    # command: npm start
 
   backend:
     image: node-backend
@@ -57,11 +57,11 @@ services:
       - ./backend/errorConfig.js:${APP_HOME}/errorConfig.js
       - ./backend/generalUtils:${APP_HOME}/generalUtils
       - ./backend/fetcherUtils:${APP_HOME}/fetcherUtils
-      - ./backend/api:${APP_HOME}/api
+      - ./backend/routes:${APP_HOME}/routes
+      - ./backend/apiSpec.json:${APP_HOME}/apiSpec.json
       - ./backend/databaseUtils:${APP_HOME}/databaseUtils
       - ./backend/logs:${APP_HOME}/logs
       - ./backend/websocket:${APP_HOME}/websocket
-      - ./backend/demo.js:${APP_HOME}/demo.js
     ports:
       - ${BACKEND_REAL_WEBSERVER_HOST_PORT}:${BACKEND_VIRTUAL_WEBSERVER_HOST_PORT}
       - ${BACKEND_REAL_USERWS_HOST_PORT}:${BACKEND_VIRTUAL_USERWS_HOST_PORT}

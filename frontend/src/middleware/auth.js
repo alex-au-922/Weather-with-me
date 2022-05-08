@@ -1,7 +1,8 @@
 import { useState, useContext, createContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { WeatherWebSocketContext, UserWebSocketContext } from "./websocket";
-import tokensRefresh from "../utils/authUtils/tokenRefresh";
+import { FetchStateContext } from "./fetch";
+import tokenLogin from "../utils/authUtils/tokenLogin";
 import { initFetchUserData } from "../utils/data/user";
 
 const AuthContext = createContext({});
@@ -18,27 +19,43 @@ const AuthProvider = (props) => {
   });
   const weatherWSContext = useContext(WeatherWebSocketContext);
   const userWSContext = useContext(UserWebSocketContext);
+  const { fetchFactory } = useContext(FetchStateContext);
+  const loginFetch = fetchFactory({
+    loading: false,
+    success: false,
+    error: false,
+  });
 
   const navigate = useNavigate();
   useEffect(() => {
     (async () => {
       if (fetching) {
-        const { success: validateSuccess } = await tokensRefresh();
-        if (validateSuccess) {
-          const { success: fetchSuccess, result } = await initFetchUserData();
-          if (fetchSuccess) {
-            setUser({
-              username: result.username,
-              isAdmin: result.role === "admin",
-              viewMode: result.viewMode,
-              email: result.email,
-              authenticated: true,
-            });
-          } else {
-            navigate("/login");
+        const { success: validateSuccess, fetching: tokenFetching } =
+          await tokenLogin(loginFetch);
+        if (!tokenFetching) {
+          if (validateSuccess) {
+            const {
+              success: userFetchSuccess,
+              result: userData,
+              fetching: userFetching,
+            } = await initFetchUserData(loginFetch);
+            console.log(userFetchSuccess, userData, userFetching);
+            if (!userFetching) {
+              if (userFetchSuccess) {
+                setUser({
+                  username: userData.username,
+                  isAdmin: userData.role === "admin",
+                  viewMode: userData.viewMode,
+                  email: userData.email,
+                  authenticated: true,
+                });
+              } else {
+                navigate("/login");
+              }
+            }
           }
+          setFetching(false);
         }
-        setFetching(false);
       }
     })();
   }, [fetching]);
