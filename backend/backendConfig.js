@@ -105,7 +105,7 @@ exports.databaseConfig = {
         },
       },
     }
-  )
+  ),
   userSchema: new mongoose.Schema(
     {
       username: String,
