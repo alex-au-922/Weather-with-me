@@ -80,13 +80,26 @@ const FetchStateProvider = (props) => {
         if (success && showConfig.success)
           setOpenSuccessModal(successMessage.title, successMessage.body);
         else if (showConfig.error && error) setOpenErrorModal(errorType, error);
-        return { success, error, errorType, result };
+        return {
+          success,
+          error,
+          errorType,
+          result,
+          fetching: fetching.current,
+        };
       }
+      return {
+        success: null,
+        error: null,
+        errorType: null,
+        result: null,
+        fetching: true,
+      };
     };
   };
 
   return (
-    <FetchStateProvider.Provider
+    <FetchStateContext.Provider
       value={{
         fetchFactory,
       }}
@@ -103,9 +116,9 @@ const FetchStateProvider = (props) => {
         errorType={fetchErrorInfo.errorType}
         errorMessage={fetchErrorInfo.errorMessage}
       />
-      <LoadingModal show={fetchState.fetching} />
+      <LoadingModal show={fetching.current} />
       {props.children}
-    </FetchStateProvider.Provider>
+    </FetchStateContext.Provider>
   );
 };
 

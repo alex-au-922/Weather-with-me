@@ -3,6 +3,7 @@ import {
   UserWebSocketContext,
   WeatherWebSocketContext,
 } from "../../../middleware/websocket";
+import { FetchStateContext } from "../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import parseUserDataFrontendView from "../../../utils/data/user";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
@@ -28,8 +29,14 @@ const AdminView = (props) => {
   const { username } = props.user;
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
-  const handleTableSelect = (event) => setTable(event);
+  const { fetchFactory } = useContext(FetchStateContext);
+  const dataFetch = fetchFactory({
+    success: false,
+    error: true,
+    loading: false,
+  });
 
+  const handleTableSelect = (event) => setTable(event);
   const switchViewOptions = {
     handleSelect: handleTableSelect,
     buttonName: table,
@@ -71,9 +78,8 @@ const AdminView = (props) => {
           username,
         },
       };
-      const fetchResult = await fetch(url, payload);
-      const { success, result } = await fetchResult.json();
-      if (success) updateUserData(result);
+      const { success, result, fetching } = await dataFetch(url, payload);
+      if (success && !fetching) updateUserData(result);
     })();
   }, []);
 
@@ -98,9 +104,8 @@ const AdminView = (props) => {
           username,
         },
       };
-      const fetchResult = await fetch(url, payload);
-      const { success, result } = await fetchResult.json();
-      if (success) updateWeatherData(result);
+      const { success, result, fetching } = await dataFetch(url, payload);
+      if (success && !fetching) updateWeatherData(result);
     })();
   }, []);
 
