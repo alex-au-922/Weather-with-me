@@ -10,6 +10,7 @@ router.get("/", async (req, res, next) => {
   const result = await getLatestWeatherData();
   response.success = true;
   response.result = result;
+  console.log(response);
   res.send(JSON.stringify(response));
 });
 

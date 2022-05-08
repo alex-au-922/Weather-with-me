@@ -106,7 +106,7 @@ const UserDataFormModal = (props) => {
                       key={`${props.modalIndex},${field}`}
                       field={field}
                       options={props.modalConfig[field].selectOptions}
-                      readOnly = {props.modalConfig[field].mutable}
+                      readOnly={props.modalConfig[field].mutable}
                       chosenOption={props.data[field]}
                       onChange={handleChangeFields}
                     />
@@ -115,6 +115,7 @@ const UserDataFormModal = (props) => {
                       key={`${props.modalIndex},${field}`}
                       field={field}
                       type={props.modalConfig[field].type}
+                      mutable={props.modalConfig[field].mutable}
                       placeholder={camelToCapitalize(field)}
                       blank={props.modalConfig[field].blank}
                       value={props.data[field]}

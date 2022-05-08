@@ -67,15 +67,16 @@ const FetchStateProvider = (props) => {
     successMessage = {
       title: "Success",
       body: "Successful Fetch",
-    }
+    },
+    parallelFetch = false
   ) => {
     return async (url, payload) => {
       if (!fetching.current) {
-        fetching.current = true;
+        if (!parallelFetch) fetching.current = true;
         if (showConfig.loading) setShowLoading(true);
         const fetchResult = await fetch(url, payload);
         const { success, error, errorType, result } = await fetchResult.json();
-        fetching.current = false;
+        if (!parallelFetch) fetching.current = false;
         if (showConfig.loading) setShowLoading(false);
         if (success && showConfig.success)
           setOpenSuccessModal(successMessage.title, successMessage.body);

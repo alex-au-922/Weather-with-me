@@ -111,10 +111,10 @@ const WeatherAdminDataFormModal = (props) => {
                     />
                   ) : (
                     <InputFormModalRow
-                      mutable={props.modalConfig[field].mutable}
                       key={`${props.modalIndex},${field}`}
                       field={field}
                       type={props.modalConfig[field].type}
+                      mutable={props.modalConfig[field].mutable}
                       placeholder={camelToCapitalize(field)}
                       blank={props.modalConfig[field].blank}
                       value={props.data[field]}

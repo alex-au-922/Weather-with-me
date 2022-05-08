@@ -30,11 +30,15 @@ const AdminView = (props) => {
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
   const { fetchFactory } = useContext(FetchStateContext);
-  const dataFetch = fetchFactory({
-    success: false,
-    error: true,
-    loading: false,
-  });
+  const dataFetch = fetchFactory(
+    {
+      success: false,
+      error: true,
+      loading: false,
+    },
+    null,
+    true
+  );
 
   const handleTableSelect = (event) => setTable(event);
   const switchViewOptions = {
@@ -54,6 +58,7 @@ const AdminView = (props) => {
 
   const updateUserData = (resultJson) => {
     const newUserList = parseUserDataFrontendView(resultJson);
+    console.log("newUserList", newUserList);
     setDataLists((dataLists) => {
       return { ...dataLists, User: newUserList };
     });
@@ -61,6 +66,7 @@ const AdminView = (props) => {
 
   const updateWeatherData = (resultJson) => {
     const newWeatherList = parseWeatherDataFrontendView(resultJson);
+    console.log("newWeatherList", newWeatherList);
     setDataLists((dataLists) => {
       return { ...dataLists, Weather: newWeatherList };
     });
@@ -86,8 +92,8 @@ const AdminView = (props) => {
   useEffect(() => {
     //user data update
     const handler = (event) => {
-      const { success, result } = JSON.parse(event.data);
-      if (success) updateUserData(result);
+      const result = JSON.parse(event.data);
+      updateUserData(result);
     };
     return registerMessageListener(userWebSocket, handler);
   }, [userWebSocket]);
@@ -105,6 +111,7 @@ const AdminView = (props) => {
         },
       };
       const { success, result, fetching } = await dataFetch(url, payload);
+      console.log("weatherResult", result);
       if (success && !fetching) updateWeatherData(result);
     })();
   }, []);
@@ -112,8 +119,8 @@ const AdminView = (props) => {
   useEffect(() => {
     //weather data update
     const handler = (event) => {
-      const { success, result } = JSON.parse(event.data);
-      if (success) updateWeatherData(result);
+      const result = JSON.parse(event.data);
+      updateWeatherData(result);
     };
     return registerMessageListener(weatherWebSocket, handler);
   }, [weatherWebSocket]);
