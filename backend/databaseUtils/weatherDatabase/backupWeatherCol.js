@@ -34,6 +34,7 @@ const updateWind = async function () {
 const updateData = async function (fetchFunction) {
   const weatherDB = await connectWeatherDB();
   try {
+    //TODO: Change the collection model name
     if (!(await collectionExists(weatherDB, "weathers"))) {
       const Weather = weatherDB.model("Weather", weatherSchema);
       await Weather.createCollection();
