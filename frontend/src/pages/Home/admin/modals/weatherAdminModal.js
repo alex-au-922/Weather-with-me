@@ -1,6 +1,7 @@
+import { InputFormModalRow } from "./";
 const { Modal, Button, Form } = require("react-bootstrap");
 
-const WeatherDataFormModal = (props) => {
+const WeatherAdminDataFormModal = (props) => {
   return (
     <Modal
       show={props.show}
@@ -57,4 +58,4 @@ const weatherModalOptions = [
   },
 ];
 
-export { WeatherDataFormModal, weatherModalOptions };
+export { WeatherAdminDataFormModal, weatherModalOptions };

@@ -1,5 +1,5 @@
 const app = require("./generalUtils/createExpressApp").createExpressApp();
-const api = require("./api");
+const api = require("./routes");
 const logger = require("./generalUtils/getLogger").getLogger();
 const createWeatherWebSocketServer =
   require("./websocket/weather").createWeatherWebSocketServer;
@@ -15,8 +15,8 @@ const getLatestWeatherData =
   require("./databaseUtils/weatherDatabase/getLatestData").getLatestData;
 const getLatestUserData =
   require("./databaseUtils/userDatabase/getLatestData").getLatestData;
-  
-const eventEmitter = require("./api/_eventEmitter");
+
+const eventEmitter = require("./routes/_eventEmitter");
 api(app);
 
 const server = app.listen(process.env.WEBSER_PORT, () => {

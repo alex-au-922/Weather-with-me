@@ -9,8 +9,7 @@ const { dateExpired, offsetTime } = require("../time/offsetTime");
 const refreshTokenSchema = require("../../backendConfig").databaseConfig
   .refreshTokenSchema;
 const userSchema = require("../../backendConfig").databaseConfig.userSchema;
-const HTTP_STATUS = require("../../backendConfig").HTTP_STATUS;
-const randomHash = require("./userHash").randomHash;
+const randomString = require("../randomString").randomString;
 
 const refreshTokenHash = async (refreshToken) => {
   try {
@@ -23,7 +22,7 @@ const refreshTokenHash = async (refreshToken) => {
 };
 
 const generateRefreshToken = async () => {
-  const refreshToken = randomHash(16);
+  const refreshToken = randomString(16);
   const hashedRefreshToken = await refreshTokenHash(refreshToken);
   const response = {
     refreshToken,
