@@ -11,10 +11,10 @@ import SuccessfulModal from "../../utils/gui/modals/successfulModal";
 import ErrorModal from "../../utils/gui/modals/errorModal";
 import FormInputWithError from "../../utils/gui/formInputs";
 import { FormRowHeader } from "../../utils/gui/formInputs";
+import { objectSetAll } from "../../utils/object";
 
 const ChangePassword = () => {
   const { user } = useContext(AuthContext);
-  const [userInvalidated, setUserInvalidated] = useState(false);
   const [unsaved, setUnsaved] = useState({
     password: false,
     repassword: false,
@@ -23,14 +23,9 @@ const ChangePassword = () => {
     password: "",
     repassword: "",
   });
-  const [updateInfo, setUpdateInfo] = useState({
-    password: { success: null, error: null, errorType: null },
-    repassword: { success: null, error: null, errorType: null },
-    system: { success: null, error: null, errorType: null },
-  });
-  const [showModals, setShowModals] = useState({
-    success: false,
-    error: false,
+  const [error, setError] = useState({
+    password: false,
+    repassword: false,
   });
 
   useEffect(() => {
@@ -56,52 +51,39 @@ const ChangePassword = () => {
 
   const onSubmitPw = async () => {
     const { password, repassword } = userInfo;
-    const {
-      success: passwordCheckSuccess,
-      error: passwordCheckError,
-      errorType: passwordCheckErrorType,
-    } = checkString(password);
+    const passwordCheckSuccess = checkString(password);
     if (!passwordCheckSuccess) {
-      setUpdateInfo({
-        ...updateInfo,
-        password: {
-          success: false,
-          error: passwordCheckError,
-          errorType: passwordCheckErrorType,
-        },
-      });
+      const newError = objectSetAll(error, false);
+      newError.password =
+        "Please input a password with length between 4 and 20 characters!";
+      setError(newError);
       return;
     }
     if (password !== repassword) {
-      setUpdateInfo({
-        ...updateInfo,
-        repassword: {
-          success: false,
-          error: "The re-entered password is incorrect",
-          errorType: "INVALID_INPUT",
-        },
-      });
+      const newError = objectSetAll(error, false);
+      newError.password = "Passwords are not the same!";
+      setError(newError);
       return;
     }
 
-    const api = `${BACKEND_WEBSERVER_HOST}/resetpw`;
+    const api = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/user`;
     const accessToken = localStorage.getItem("accessToken");
     const username = user.username;
     const payload = {
       method: "POST",
       headers: {
         "content-type": "application/json",
+        authorization: localStorage.getItem("accessToken");
+        username: user.username,
       },
       body: JSON.stringify({
-        username,
-        password,
-        accessToken,
+        password: userInfo.password
       }),
     };
-    const { success, error, errorType, invalidated } = await resourceFetch(
-      api,
-      payload
-    );
+    // const { success, error, errorType, invalidated } = await resourceFetch(
+    //   api,
+    //   payload
+    // );
     if (success) {
       setUserInfo({
         password: "",
