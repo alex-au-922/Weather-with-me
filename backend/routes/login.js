@@ -1,5 +1,5 @@
 const express = require("express");
-const { UsernameError } = require("../errorConfig");
+const { UsernameError, PasswordError } = require("../errorConfig");
 const { signNewAccessToken } = require("../generalUtils/userCreds/accessToken");
 const router = express.Router();
 const tokenAuthentication = require("./middleware/loginRedirect/tokenAuth");
