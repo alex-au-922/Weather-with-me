@@ -1,6 +1,7 @@
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
-
-const tokenLogin = async () => {
+import { StateContext } from "../../middleware/fetch";
+import { useContext } from "react";
+const tokenLogin = async (fetchFunction = fetch) => {
   const response = {
     success: false,
     error: null,
@@ -19,13 +20,11 @@ const tokenLogin = async () => {
   };
 
   // get the payload from the backend
-  const validateRefreshTokenResult = await fetch(
+  const { success, result, error, errorType } = await fetchFunction(
     validateRefreshTokenURL,
     validateRefreshTokenPayload
   );
 
-  const { success, result, error, errorType } =
-    await validateRefreshTokenResult.json();
   if (!success) {
     response.error = error;
     response.errorType = errorType;

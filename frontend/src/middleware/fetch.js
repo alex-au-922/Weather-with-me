@@ -1,7 +1,7 @@
-import { useState, createContext } from "react";
-import { ErrorModal } from "../utils/gui/modals/errorModal.js";
-import { SuccessfulModal } from "../utils/gui/modals/successfulModal.js";
-import { LoadingModal } from "../utils/gui/modals/loadingModal.js";
+import { useState, createContext, useRef } from "react";
+import ErrorModal from "../utils/gui/modals/errorModal.js";
+import SuccessfulModal from "../utils/gui/modals/successfulModal.js";
+import LoadingModal from "../utils/gui/modals/loadingModal.js";
 import setAll from "../utils/setAll";
 const StateContext = createContext({});
 
@@ -9,8 +9,9 @@ const StateProvider = (props) => {
   const [fetchState, setFetchState] = useState({
     success: false,
     error: false,
-    fetching: false,
+    showLoading: false,
   });
+  const fetching = useRef(false);
   const [fetchSuccessInfo, setFetchSuccessInfo] = useState({
     title: "",
     body: "",
@@ -50,14 +51,44 @@ const StateProvider = (props) => {
     newFetchState.error = true;
     setFetchState(newFetchState);
   };
+  const setShowLoading = (showLoadingState) => {
+    setFetchState({
+      ...fetchState,
+      showLoading: showLoadingState,
+    });
+  };
+
+  const fetchFactory = (
+    showConfig = {
+      loading: true,
+      success: true,
+      error: true,
+    },
+    successMessage = {
+      title: "Success",
+      body: "Successful Fetch",
+    }
+  ) => {
+    return async (url, payload) => {
+      if (!fetching.current) {
+        fetching.current = true;
+        if (showConfig.loading) setShowLoading(true);
+        const fetchResult = await fetch(url, payload);
+        const { success, error, errorType, result } = await fetchResult.json();
+        fetching.current = false;
+        if (showConfig.loading) setShowLoading(false);
+        if (success && showConfig.success)
+          setOpenSuccessModal(successMessage.title, successMessage.body);
+        else if (showConfig.error && error) setOpenErrorModal(errorType, error);
+        return { success, error, errorType, result };
+      }
+    };
+  };
 
   return (
     <StateContext.Provider
       value={{
-        setOpenSuccessModal,
-        handleSuccessfulClose,
-        setOpenErrorModal,
-        handleErrorClose,
+        fetchFactory,
       }}
     >
       <SuccessfulModal
