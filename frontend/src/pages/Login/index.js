@@ -7,7 +7,7 @@ import { AuthContext } from "../../middleware/auth";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
-import objectSetAll from "../../utils/setAll";
+import { objectSetAll } from "../../utils/object";
 
 const Login = () => {
   const [userInfo, setUserInfo] = useState({ username: "", password: "" });

@@ -1,14 +1,15 @@
 import { useContext, useEffect, useState } from "react";
-import { Container, Row, Button } from "react-bootstrap";
 import { WeatherWebSocketContext } from "../../../middleware/websocket";
 import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
 import MapView from "./mapView";
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import { FetchStateContext } from "../../../middleware/fetch";
+import DropDownButton from "../../../utils/gui/dropDown";
 
 const UserView = (props) => {
   const { username } = props.user;
+  const [view, setView] = useState("Map");
   const [weatherList, setWeatherList] = useState();
   const { fetchFactory } = useContext(FetchStateContext);
   const dataFetch = fetchFactory({
@@ -16,22 +17,25 @@ const UserView = (props) => {
     success: false,
     error: false,
   });
-  const [descending, setDescending] = useState({
-    name: false,
-    longitude: false,
-    latitude: false,
-  });
-  const [searchField, setSearchField] = useState({
-    name: "name",
-    input: "",
-  });
   const { webSocket } = useContext(WeatherWebSocketContext);
+
+  const handleViewSelect = (event) => setView(event);
+  const switchViewOptions = {
+    handleSelect: handleViewSelect,
+    buttonName: view,
+    options: ["Map", "Table"],
+  };
+
+  const renderSwitchView = (switchViewOptions) => {
+    if (switchViewOptions !== undefined && switchViewOptions !== null) {
+      return <DropDownButton {...switchViewOptions} />;
+    }
+  };
+
   useEffect(() => {
     const handler = (event) => {
-      const newWeatherJson = JSON.parse(event.data).result;
-      const newWeatherList = parseWeatherDataFrontendView(newWeatherJson);
-      console.log(newWeatherList);
-      setWeatherList(newWeatherList);
+      const result = JSON.parse(event.data);
+      updateWeatherData(result);
     };
     return registerMessageListener(webSocket, handler);
   }, [webSocket]);
@@ -60,7 +64,33 @@ const UserView = (props) => {
 
   return (
     <>
-      <MapView weatherList={weatherList} />
+      <MapView
+        weatherList={weatherList}
+        switchViewOptions={switchViewOptions}
+        renderSwitchView={renderSwitchView}
+        options={[
+          "name",
+          "latitude",
+          "longitude",
+          "temperature",
+          "relativeHumidity",
+          "tenMinMaxGust",
+          "TenMinMeanWindDir",
+          "TenMinMeanWindSpeed",
+          "time",
+        ]}
+        optionsType={{
+          name: String,
+          latitude: Number,
+          longitude: Number,
+          temperature: Number,
+          relativeHumidity: Number,
+          tenMinMaxGust: Number,
+          tenMinMeanWindDir: String,
+          tenMinMeanWindSpeed: Number,
+          time: String,
+        }}
+      />
     </>
   );
 };

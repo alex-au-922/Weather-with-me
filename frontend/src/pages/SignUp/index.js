@@ -4,7 +4,7 @@ import checkString from "../../utils/input/checkString";
 import { Form, Card, Button } from "react-bootstrap";
 import FormInputWithError from "../../utils/gui/formInputs";
 import { useNavigate } from "react-router-dom";
-import objectSetAll from "../../utils/setAll";
+import { objectSetAll } from "../../utils/object";
 const SignUp = () => {
   const [userInfo, setUserInfo] = useState({
     username: "",

@@ -5,7 +5,7 @@ import camelToCapitalize from "../../input/camelToCapitalize";
 import { ReactComponent as DescendingIcon } from "./descending.svg";
 import { ReactComponent as AscendingIcon } from "./ascending.svg";
 import { ReactComponent as Filter } from "./filter.svg";
-import objectSetAll from "../../setAll";
+import { objectSetAll } from "../../object";
 import sortOnKey from "../../sortOnKey";
 import useForceUpdate from "../../forceUpdate";
 

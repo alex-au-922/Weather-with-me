@@ -2,7 +2,7 @@ import { useState, createContext, useRef } from "react";
 import ErrorModal from "../utils/gui/modals/errorModal.js";
 import SuccessfulModal from "../utils/gui/modals/successfulModal.js";
 import LoadingModal from "../utils/gui/modals/loadingModal.js";
-import setAll from "../utils/setAll";
+import { objectSetAll } from "../utils/object";
 const FetchStateContext = createContext({});
 
 const FetchStateProvider = (props) => {
@@ -38,7 +38,7 @@ const FetchStateProvider = (props) => {
       title,
       body,
     });
-    const newFetchState = setAll(fetchState, false);
+    const newFetchState = objectSetAll(fetchState, false);
     newFetchState.success = true;
     setFetchState(newFetchState);
   };
@@ -47,7 +47,7 @@ const FetchStateProvider = (props) => {
       errorType,
       errorMessage,
     });
-    const newFetchState = setAll(fetchState, false);
+    const newFetchState = objectSetAll(fetchState, false);
     newFetchState.error = true;
     setFetchState(newFetchState);
   };

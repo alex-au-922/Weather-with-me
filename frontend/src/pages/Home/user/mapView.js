@@ -1,7 +1,9 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
 import { registerMarkerListener } from "../../../utils/listeners/googleMapMarkerListener";
+import TableTitleBar from "../../../utils/gui/resourceManageSystem/tableTitleBar";
 import GOOGLE_API_KEY from "../../../keys/googleAPI";
+import { objectEqual } from "../../../utils/object";
 
 const loader = new Loader({
   apiKey: GOOGLE_API_KEY,
@@ -37,11 +39,11 @@ const Marker = (props) => {
 
   const handleMouseOver = () => {
     infoWindow.infoWindow.setContent(infoWindow.content);
-    infoWindow.infoWindow.open(props.map, marker.marker);
+    infoWindow.infoWindow.open(props.googleMap, marker.marker);
   };
 
   const handleMouseOut = () => {
-    infoWindow.infoWindow.close(props.map, marker.marker);
+    infoWindow.infoWindow.close(props.googleMap, marker.marker);
   };
 
   const handleMouseClick = () => {
@@ -58,55 +60,65 @@ const Marker = (props) => {
             props.data.longitude,
             props.data.latitude
           ),
+          visible: props.visible,
+          optimized: false,
         },
       });
     }
   }, [props.google, props.data]);
   useEffect(() => {
-    if (props.map !== null && marker.option) {
-      if (!marker.marker) {
-        setMarker({
-          ...marker,
-          marker: new props.google.maps.Marker(marker.option),
-        });
-        setInfoWindow({
-          infoWindow: new props.google.maps.InfoWindow(),
-          content: WeatherContent(props.data),
-        });
+    if (props.visible) {
+      if (props.googleMap !== null && marker.option) {
+        if (!marker.marker) {
+          setMarker({
+            ...marker,
+            marker: new props.google.maps.Marker(marker.option),
+          });
+          setInfoWindow({
+            infoWindow: new props.google.maps.InfoWindow(),
+            content: WeatherContent(props.data),
+          });
+        }
       }
     }
-  }, [props.map, marker.option]);
+  }, [props.googleMap, marker.option, props.visible]);
 
   useEffect(() => {
-    if (marker.marker) {
-      marker.marker.setMap(props.map);
-      const unregisterMouseOver = registerMarkerListener(
-        props.google,
-        marker.marker,
-        "mouseover",
-        handleMouseOver
-      );
-      const unregisterMouseOut = registerMarkerListener(
-        props.google,
-        marker.marker,
-        "mouseout",
-        handleMouseOut
-      );
+    if (props.visible) {
+      if (marker.marker) {
+        marker.marker.setMap(props.googleMap);
+        const unregisterMouseOver = registerMarkerListener(
+          props.google,
+          marker.marker,
+          "mouseover",
+          handleMouseOver
+        );
+        const unregisterMouseOut = registerMarkerListener(
+          props.google,
+          marker.marker,
+          "mouseout",
+          handleMouseOut
+        );
 
-      const unregisterMouseClick = registerMarkerListener(
-        props.google,
-        marker.marker,
-        "click",
-        handleMouseClick
-      );
+        const unregisterMouseClick = registerMarkerListener(
+          props.google,
+          marker.marker,
+          "click",
+          handleMouseClick
+        );
 
-      return () => {
-        unregisterMouseOver();
-        unregisterMouseOut();
-        unregisterMouseClick();
-      };
+        return () => {
+          console.log("remove!");
+          unregisterMouseOver();
+          unregisterMouseOut();
+          unregisterMouseClick();
+        };
+      }
+    } else {
+      console.log("remove due to visibility!");
+      marker.marker?.setMap(null);
     }
-  }, [marker.marker]);
+  }, [marker.marker, props.visible]);
   return null;
 };
 
@@ -118,15 +130,21 @@ const Map = (props) => {
       // set google map
       setGoogleMap(new props.google.maps.Map(ref.current, defaultMapOptions));
     }
+    return () => console.log("removed map!");
   }, [ref, props.google, googleMap]);
   return (
     <div ref={ref} style={{ width: "100vw", height: "100vh" }}>
-      {props.weatherList?.map((weatherData, index) => (
+      {props.weatherList?.map((weatherData) => (
         <Marker
-          key={index}
           google={props.google}
-          map={googleMap}
+          googleMap={googleMap}
+          key={weatherData.name}
           data={weatherData}
+          visible={props.filteredWeatherList?.reduce(
+            (prevBool, currWeatherData) =>
+              objectEqual(currWeatherData, weatherData) || prevBool,
+            false
+          )}
         />
       ))}
     </div>
@@ -134,6 +152,9 @@ const Map = (props) => {
 };
 
 const MapView = (props) => {
+  const [filteredWeatherList, setFilteredWeatherList] = useState(
+    props.weatherList
+  );
   const [google, setGoogle] = useState(null);
   useEffect(() => {
     // initial load google
@@ -142,7 +163,32 @@ const MapView = (props) => {
     });
   }, []);
 
-  return <Map google={google} weatherList={props.weatherList} />;
+  return (
+    <>
+      <TableTitleBar
+        dataList={props.weatherList}
+        filteredDataList={filteredWeatherList}
+        setFilteredDataList={setFilteredWeatherList}
+        options={props.options}
+        optionsType={
+          props.optionsType &&
+          props.options.reduce(
+            (obj, key) => ((obj[key] = props.optionsType[key]), obj),
+            {}
+          )
+        }
+        optionsAllowedTypes={[String]}
+        switchViewOptions={props.switchViewOptions}
+        renderSwitchView={props.renderSwitchView}
+      />
+      <Map
+        google={google}
+        weatherList={props.weatherList}
+        filteredWeatherList={filteredWeatherList}
+      />
+      ;
+    </>
+  );
 };
 
 export default MapView;
