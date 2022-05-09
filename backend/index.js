@@ -15,7 +15,14 @@ const {
 const {
   updateWeather,
 } = require("./databaseUtils/weatherDatabase/updateWeatherCol");
+<<<<<<< HEAD
 const { fetchAPIConfig } = require("./backendConfig");
+=======
+const {
+  updateBackUpWeather,
+} = require("./databaseUtils/weatherDatabase/backupWeatherCol");
+const fetchAPIConfig = require("./backendConfig").fetchAPIConfig;
+>>>>>>> 2d81a7ede9c03dffe3e616ddb0dbf6d6a15cbef9
 const getLatestWeatherData =
   require("./databaseUtils/weatherDatabase/getLatestData").getLatestData;
 const getLatestUserData =
@@ -47,6 +54,11 @@ eventEmitter.on("userUpdate", async (ip) => {
   const cleantUserInfo = cleanUserData(newUserInfo);
   sendUserData(JSON.stringify({ type: "auth", data: cleantUserInfo }), ip);
 });
+const updateBackUpWeatherData = async () => {
+  await updateBackUpWeather();
+  const latestData = await getLatestWeatherData();
+  sendWeatherData(JSON.stringify(latestData));
+};
 
 eventEmitter.on("updateUserData", async () => {
   const latestData = await getLatestUserData();
@@ -56,4 +68,8 @@ eventEmitter.on("updateUserData", async () => {
 (async () => {
   await createLocation();
   setInterval(updateWeatherData, fetchAPIConfig.meanWeatherData.fetchDuration);
+  setInterval(
+    updateBackUpWeatherData,
+    fetchAPIConfig.meanWeatherData.fetchDuration
+  );
 })();
