@@ -11,9 +11,9 @@ import { registerMessageListener } from "../../../utils/listeners/webSocketMessa
 import { renderModals } from "./modals";
 import { UserDataFormModal, userModalOptions } from "./modals/userAdminModal";
 import {
-  WeatherAdminDataFormModal,
-  weatherModalOptions,
-} from "./modals/weatherAdminModal";
+  LocationAdminDataFormModal,
+  locationModalOptions,
+} from "./modals/locationAdminModal";
 import DropDownButton from "../../../utils/gui/dropDown";
 import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
 
@@ -23,7 +23,7 @@ import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/tab
 const AdminView = (props) => {
   const [dataLists, setDataLists] = useState({
     User: null,
-    Weather: null,
+    Location: null,
   });
   const [table, setTable] = useState("User");
   const { username } = props.user;
@@ -54,7 +54,7 @@ const AdminView = (props) => {
   };
 
   const renderUserModal = renderModals(UserDataFormModal);
-  const renderWeatherModal = renderModals(WeatherAdminDataFormModal);
+  const renderWeatherModal = renderModals(LocationAdminDataFormModal);
 
   const updateUserData = (resultJson) => {
     const newUserList = parseUserDataFrontendView(resultJson);
@@ -66,7 +66,7 @@ const AdminView = (props) => {
   const updateWeatherData = (resultJson) => {
     const newWeatherList = parseWeatherDataFrontendView(resultJson);
     setDataLists((dataLists) => {
-      return { ...dataLists, Weather: newWeatherList };
+      return { ...dataLists, Location: newWeatherList };
     });
   };
 
@@ -137,12 +137,12 @@ const AdminView = (props) => {
         />
       ) : (
         <ResourceManagementTable
-          key="weather"
+          key="location"
           dataUniqueKey={"name"}
-          dataList={dataLists.Weather}
+          dataList={dataLists.Location}
           switchViewOptions={switchViewOptions}
           renderSwitchView={renderSwitchView}
-          modalConfig={weatherModalOptions}
+          modalConfig={locationModalOptions}
           renderModals={renderWeatherModal}
           options={["name", "latitude", "longitude"]}
           optionsType={{ name: String, latitude: Number, longitude: Number }}

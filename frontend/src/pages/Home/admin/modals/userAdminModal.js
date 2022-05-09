@@ -52,10 +52,7 @@ const UserDataFormModal = (props) => {
     `Successfully deleted user ${username}!`
   );
   const resetUnsaved = () => {
-    const resetUnsaved = Object.keys(props.data).reduce(
-      (obj, key) => ((obj[key] = false), obj),
-      {}
-    );
+    const resetUnsaved = objectSetAll(props.data, false);
     setUnsaved(resetUnsaved);
   };
 
@@ -252,11 +249,11 @@ const UserDataFormModal = (props) => {
           <Button variant="danger" onClick={handleShowDeleteModal}>
             Delete
           </Button>
-          <Button variant="secondary" onClick={handleProperCloseModal}>
-            Close
-          </Button>
           <Button variant="primary" onClick={handleSaveChange}>
             Save Change
+          </Button>
+          <Button variant="secondary" onClick={handleProperCloseModal}>
+            Close
           </Button>
         </Modal.Footer>
       </Modal>
