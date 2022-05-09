@@ -82,6 +82,29 @@ exports.databaseConfig = {
       },
     }
   ),
+  backupWeatherSchema: new mongoose.Schema(
+    {
+      time: Date,
+      locationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "GeoLocation",
+      },
+      temperature: Number,
+      relativeHumidity: { type: Number, min: 0, max: 100 },
+      tenMinMeanWindDir: String,
+      tenMinMeanWindSpeed: Number,
+      tenMinMaxGust: Number,
+      updatedTime: Date,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
   userSchema: new mongoose.Schema(
     {
       username: String,

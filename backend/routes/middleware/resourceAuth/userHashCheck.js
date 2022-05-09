@@ -2,6 +2,7 @@ const { UnauthorizationError } = require("../../../errorConfig");
 const {
   findUserByHash,
 } = require("../../../databaseUtils/userDatabase/resetPw");
+
 const userHashCheck = async (req, res, next) => {
   try {
     const userHash = req.params.userHash;

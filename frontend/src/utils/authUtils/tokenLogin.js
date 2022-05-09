@@ -1,11 +1,10 @@
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
-import { StateContext } from "../../middleware/fetch";
-import { useContext } from "react";
 const tokenLogin = async (fetchFunction = fetch) => {
   const response = {
     success: false,
     error: null,
     errorType: null,
+    fetching: false,
   };
   const localRefreshToken = localStorage.getItem("refreshToken");
 
@@ -18,12 +17,15 @@ const tokenLogin = async (fetchFunction = fetch) => {
       authentication: localRefreshToken,
     },
   };
-
   // get the payload from the backend
-  const { success, result, error, errorType } = await fetchFunction(
+  const { success, result, error, errorType, fetching } = await fetchFunction(
     validateRefreshTokenURL,
     validateRefreshTokenPayload
   );
+  if (fetching) {
+    response.fetching = fetching;
+    return response;
+  }
 
   if (!success) {
     response.error = error;

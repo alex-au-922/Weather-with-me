@@ -1,28 +1,34 @@
 import tokensRefresh from "./tokenRefresh";
 
-const resourceFetch = async (...fetchParams) => {
+const resourceFetch = async (fetchFunction, ...fetchParams) => {
   const response = {
     success: false,
     result: null,
     error: null,
     errorType: null,
     invalidated: false,
+    fetching: false,
   };
   try {
-    const result = await fetch(...fetchParams);
     const {
       success: fetchSuccess,
       errorType: fetchErrorType,
       error: fetchError,
       result: fetchResult,
-    } = await result.json();
+      fetching: fetchFetching,
+    } = await fetchFunction(...fetchParams);
+    if (fetchFetching) {
+      response.fetching = true;
+      return response;
+    }
 
     if (fetchSuccess) {
       response.success = true;
       response.result = fetchResult;
       return response;
     }
-    if (fetchErrorType !== "ACCESS_TOKEN_EXPIRED_ERROR") {
+
+    if (fetchErrorType !== "InvalidAccessTokenError") {
       response.error = fetchError;
       response.errorType = fetchErrorType;
       return response;
@@ -32,21 +38,53 @@ const resourceFetch = async (...fetchParams) => {
       success: tokensRefreshSuccess,
       error: tokensRefreshError,
       errorType: tokenRefreshErrorType,
+      fetching: tokenFetching,
     } = await tokensRefresh();
+
+    if (tokenFetching) {
+      response.fetching = true;
+      return response;
+    }
 
     if (!tokensRefreshSuccess) {
       response.error = tokensRefreshError;
       response.errorType = tokenRefreshErrorType;
-      if (tokenRefreshErrorType === "INVALID_TOKEN_ERROR") {
+      if (tokenRefreshErrorType === "InvalidRefreshTokenError") {
         response.invalidated = true;
       }
       return response;
     }
-    const newResult = await fetch(...fetchParams);
-    return await newResult.json();
+
+    const {
+      fetching: newFetchFetching,
+      success: newFetcuSuccess,
+      error: newFetchError,
+      errorType: newFetchErrorType,
+      result: newFetchResult,
+    } = await fetchFunction(...fetchParams);
+
+    if (newFetchFetching) {
+      response.fetching = true;
+      return response;
+    }
+
+    if (newFetcuSuccess) {
+      response.success = true;
+      response.result = newFetchResult;
+      return response;
+    }
+
+    if (!newFetcuSuccess) {
+      response.error = newFetchError;
+      response.errorType = newFetchErrorType;
+      if (tokenRefreshErrorType === "InvalidRefreshTokenError") {
+        response.invalidated = true;
+      }
+      return response;
+    }
   } catch (error) {
     response.error = error;
-    response.errorType = "UNKNOWN_ERROR";
+    response.errorType = "UnknownError";
     return response;
   }
 };

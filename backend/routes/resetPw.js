@@ -1,7 +1,7 @@
 const express = require("express");
-const { UnauthorizationError } = require("../errorConfig");
-const findUserInfoByEmail =
-  require("../generalUtils/userCreds/username").findUserInfoByEmail;
+const { EmailError } = require("../errorConfig");
+const { findUserInfoByEmail } =
+  require("../generalUtils/userCreds/username");
 const randomString = require("../generalUtils/randomString").randomString;
 const {
   sendResetPwEmail,
@@ -22,7 +22,7 @@ router.post("/", async (req, res, next) => {
     const { email } = req.body;
     const existUser = await findUserInfoByEmail(email);
     if (existUser === null)
-      throw new UnauthorizationError("User does not exist!");
+      throw new EmailError("User does not exist!");
     const { userId, username } = existUser;
     const randomUserString = randomString(12);
     const userHashString = await userHash(randomUserString);
@@ -45,9 +45,13 @@ router.post("/", async (req, res, next) => {
 
 router.use(userHashCheck);
 router.get("/:userHash", async (req, res, next) => {
-  const response = res.locals.response;
-  response.success = true;
-  res.send(JSON.stringify(response));
+  try {
+    const response = res.locals.response;
+    response.success = true;
+    res.send(JSON.stringify(response));
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.put("/:userHash", async (req, res, next) => {

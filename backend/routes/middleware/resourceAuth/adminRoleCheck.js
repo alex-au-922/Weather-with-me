@@ -1,4 +1,5 @@
 const { UnauthorizationError } = require("../../../errorConfig");
+
 const adminRoleCheck = async (req, res, next) => {
   try {
     const user = res.locals.user;

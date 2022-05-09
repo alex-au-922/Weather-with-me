@@ -4,7 +4,7 @@ import "./index.css";
 import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./middleware/auth";
-import { StateProvider } from "./middleware/fetch";
+import { FetchStateProvider } from "./middleware/fetch";
 import {
   WeatherWebSocketProvider,
   UserWebSocketProvider,
@@ -15,11 +15,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <BrowserRouter>
       <WeatherWebSocketProvider>
         <UserWebSocketProvider>
-          <StateProvider>
+          <FetchStateProvider>
             <AuthProvider>
               <App />
             </AuthProvider>
-          </StateProvider>
+          </FetchStateProvider>
         </UserWebSocketProvider>
       </WeatherWebSocketProvider>
     </BrowserRouter>

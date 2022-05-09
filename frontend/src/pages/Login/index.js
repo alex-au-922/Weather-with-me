@@ -1,33 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Form, Card, Button } from "react-bootstrap";
 import FormInputWithError from "../../utils/gui/formInputs";
 import checkString from "../../utils/input/checkString";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import { AuthContext } from "../../middleware/auth";
-import { useContext } from "react";
+import { FetchStateContext } from "../../middleware/fetch";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
-import objectSetAll from "../../utils/setAll";
+import { objectSetAll } from "../../utils/object";
 
 const Login = () => {
   const [userInfo, setUserInfo] = useState({ username: "", password: "" });
   const [error, setError] = useState({ username: false, password: false });
   const { login } = useContext(AuthContext);
+  const { fetchFactory } = useContext(FetchStateContext);
+  const loginFetch = fetchFactory(
+    {
+      success: false,
+      error: true,
+      loading: false,
+    },
+    null,
+    false,
+    ["UsernameError", "PasswordError"]
+  );
   const navigate = useNavigate();
 
   const validateLogin = async () => {
     const bufferError = objectSetAll(error, false);
 
     const { username, password } = userInfo;
-    const usernameCheckResult = checkString(username);
-    const passwordCheckResult = checkString(password);
+    const { success: usernameCheckSuccess, error: usernameCheckError } =
+      checkString(username);
+    const { success: passwordCheckSuccess, error: passwordCheckError } =
+      checkString(password);
 
-    if (!usernameCheckResult.success) {
-      setError({ ...bufferError, username: usernameCheckResult.error });
+    if (!usernameCheckSuccess) {
+      setError({ ...bufferError, username: usernameCheckError });
       return;
     }
-    if (!passwordCheckResult.success) {
-      setError({ ...bufferError, password: passwordCheckResult.error });
+    if (!passwordCheckSuccess) {
+      setError({ ...bufferError, password: passwordCheckError });
       return;
     }
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/login`;
@@ -40,23 +53,22 @@ const Login = () => {
         ...userInfo,
       }),
     };
-    const result = await fetch(url, payload);
     const {
-      success,
-      errorType,
-      error: errorMessage,
+      success: loginSuccess,
+      errorType: loginErrorType,
+      error: loginErrorMessage,
       result: loginResult,
-    } = await result.json();
-    if (!success) {
-      if (errorType === "UNKNOWN_ERROR") {
-        console.log("Unknown error occurs!");
+    } = await loginFetch(url, payload);
+    if (!loginSuccess) {
+      if (loginErrorType === "UsernameError") {
+        setError({ ...bufferError, username: loginErrorMessage });
         return;
-      } else if (errorType === "username") {
-        setError({ ...bufferError, username: errorMessage });
+      } else if (loginErrorType === "PasswordError") {
+        setError({ ...bufferError, password: loginErrorMessage });
         return;
+      } else {
+        console.log(loginErrorType, loginErrorMessage);
       }
-      setError({ ...bufferError, password: errorMessage });
-      return;
     } else {
       const { refreshToken, accessToken } = loginResult;
       localStorage.setItem("refreshToken", refreshToken);

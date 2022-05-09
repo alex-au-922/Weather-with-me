@@ -2,19 +2,18 @@ import React, { useState, useContext, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { AuthContext } from "../../middleware/auth";
+import { FetchStateContext } from "../../middleware/fetch";
 import NavBar from "../../components/navbar";
 import { Container } from "react-bootstrap";
 import checkString from "../../utils/input/checkString";
 import resourceFetch from "../../utils/authUtils/resourceFetch";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
-import SuccessfulModal from "../../utils/gui/modals/successfulModal";
-import ErrorModal from "../../utils/gui/modals/errorModal";
 import FormInputWithError from "../../utils/gui/formInputs";
 import { FormRowHeader } from "../../utils/gui/formInputs";
+import { objectSetAll } from "../../utils/object";
 
 const ChangePassword = () => {
   const { user } = useContext(AuthContext);
-  const [userInvalidated, setUserInvalidated] = useState(false);
   const [unsaved, setUnsaved] = useState({
     password: false,
     repassword: false,
@@ -23,16 +22,21 @@ const ChangePassword = () => {
     password: "",
     repassword: "",
   });
-  const [updateInfo, setUpdateInfo] = useState({
-    password: { success: null, error: null, errorType: null },
-    repassword: { success: null, error: null, errorType: null },
-    system: { success: null, error: null, errorType: null },
+  const [error, setError] = useState({
+    password: "",
+    repassword: "",
   });
-  const [showModals, setShowModals] = useState({
-    success: false,
-    error: false,
-  });
-
+  const { fetchFactory } = useContext(FetchStateContext);
+  const passwordUpdateFetch = fetchFactory(
+    {
+      success: true,
+      error: true,
+      loading: true,
+    },
+    "Successfully updated the password!",
+    false,
+    ["PasswordError"]
+  );
   useEffect(() => {
     setUnsaved({
       password: userInfo.password,
@@ -56,94 +60,52 @@ const ChangePassword = () => {
 
   const onSubmitPw = async () => {
     const { password, repassword } = userInfo;
-    const {
-      success: passwordCheckSuccess,
-      error: passwordCheckError,
-      errorType: passwordCheckErrorType,
-    } = checkString(password);
+    const { success: passwordCheckSuccess, error: passwordCheckError } =
+      checkString(password);
     if (!passwordCheckSuccess) {
-      setUpdateInfo({
-        ...updateInfo,
-        password: {
-          success: false,
-          error: passwordCheckError,
-          errorType: passwordCheckErrorType,
-        },
-      });
+      const newError = objectSetAll(error, false);
+      newError.password = passwordCheckError;
+      setError(newError);
       return;
     }
     if (password !== repassword) {
-      setUpdateInfo({
-        ...updateInfo,
-        repassword: {
-          success: false,
-          error: "The re-entered password is incorrect",
-          errorType: "INVALID_INPUT",
-        },
-      });
+      const newError = objectSetAll(error, false);
+      newError.repassword = "Passwords are not the same!";
+      setError(newError);
       return;
     }
 
-    const api = `${BACKEND_WEBSERVER_HOST}/resetpw`;
-    const accessToken = localStorage.getItem("accessToken");
-    const username = user.username;
+    const api = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/user`;
     const payload = {
-      method: "POST",
+      method: "PUT",
       headers: {
         "content-type": "application/json",
+        authorization: localStorage.getItem("accessToken"),
+        username: user.username,
       },
       body: JSON.stringify({
-        username,
-        password,
-        accessToken,
+        password: userInfo.password,
       }),
     };
-    const { success, error, errorType, invalidated } = await resourceFetch(
-      api,
-      payload
-    );
-    if (success) {
-      setUserInfo({
-        password: "",
-        repassword: "",
-      });
-      handleShowSuccessModal();
-    } else {
-      if (errorType === "password") {
-        setUpdateInfo({
-          ...updateInfo,
-          password: { success, error: error || "", errorType },
-        });
-      } else {
-        setUpdateInfo({
-          ...updateInfo,
-          system: { success, error: error || "", errorType },
-        });
-        handleShowErrorModal();
+    const {
+      success: updatePasswordSuccess,
+      error: updatePasswordError,
+      errorType: updatePasswordErrorType,
+      fetching: updatePasswordFetching,
+    } = await resourceFetch(passwordUpdateFetch, api, payload);
+    if (!updatePasswordFetching) {
+      if (updatePasswordSuccess) {
+        const newUserInfo = objectSetAll(userInfo, "");
+        const newError = objectSetAll(error, false);
+        setUserInfo(newUserInfo);
+        setError(newError);
+      } else if (updatePasswordErrorType === "PasswordError") {
+        const newUserInfo = objectSetAll(userInfo, "");
+        newUserInfo.password = updatePasswordError;
+        setError(newUserInfo);
       }
     }
-    setUserInvalidated(invalidated);
   };
-  const handleShowSuccessModal = () =>
-    setShowModals({
-      ...showModals,
-      success: true,
-    });
-  const handleCloseSuccessModal = () =>
-    setShowModals({
-      ...showModals,
-      success: false,
-    });
-  const handleShowErrorModal = () =>
-    setShowModals({
-      ...showModals,
-      error: true,
-    });
-  const handleCloseErrorModal = () =>
-    setShowModals({
-      ...showModals,
-      error: false,
-    });
 
   return (
     <>
@@ -161,7 +123,7 @@ const ChangePassword = () => {
                 placeholder="Enter your new password"
                 onChange={onChangePw}
                 value={userInfo.password}
-                error={updateInfo.password.error}
+                error={error.password}
                 required
               />
             </Form.Group>
@@ -175,7 +137,7 @@ const ChangePassword = () => {
                 placeholder="Enter your new password"
                 onChange={onChangeRePw}
                 value={userInfo.repassword}
-                error={updateInfo.repassword.error}
+                error={error.repassword}
                 required
               />
             </Form.Group>
@@ -185,18 +147,6 @@ const ChangePassword = () => {
           </Form>
         </Container>
       </NavBar>
-      <SuccessfulModal
-        show={showModals.success}
-        onHide={handleCloseSuccessModal}
-        title={"Success"}
-        body={"Password changed successfully."}
-      />
-      <ErrorModal
-        show={showModals.error}
-        onHide={handleCloseErrorModal}
-        errorType={updateInfo.system.errorType}
-        errorMessage={updateInfo.system.error}
-      />
     </>
   );
 };

@@ -1,11 +1,11 @@
 import TableTitleBar from "./tableTitleBar";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import { Table, Modal, Button, Form } from "react-bootstrap";
 import camelToCapitalize from "../../input/camelToCapitalize";
 import { ReactComponent as DescendingIcon } from "./descending.svg";
 import { ReactComponent as AscendingIcon } from "./ascending.svg";
 import { ReactComponent as Filter } from "./filter.svg";
-import objectSetAll from "../../setAll";
+import { objectSetAll } from "../../object";
 import sortOnKey from "../../sortOnKey";
 import useForceUpdate from "../../forceUpdate";
 
@@ -26,6 +26,10 @@ const ResourceManagementTableRow = (props) => {
   const [showModal, setShowModal] = useState(false);
   const handleShowModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+  const forceUpdate = useForceUpdate();
+  useEffect(() => {
+    forceUpdate();
+  }, [props.data]);
 
   return (
     <tr style={{ cursor: props.renderModals ? "pointer" : "initial" }}>
@@ -35,7 +39,7 @@ const ResourceManagementTableRow = (props) => {
           props.modalConfig,
           showModal,
           handleCloseModal,
-          props.rowIndex
+          props.data[props.dataUniqueKey]
         )}
       {props.fieldNames.map((fieldName, index) => (
         <td
@@ -133,7 +137,7 @@ const ResourceManagementTable = (props) => {
     setChangedOrderKey(tableOption);
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (filteredDataList) {
       const newFilteredDataList = sortOnKey(
         filteredDataList,
@@ -190,10 +194,11 @@ const ResourceManagementTable = (props) => {
         <tbody>
           {filteredDataList?.map((row, index) => (
             <ResourceManagementTableRow
-              key={index}
+              key={`${index},row`}
               rowIndex={index}
               fieldNames={displayOptions}
               data={row}
+              dataUniqueKey={props.dataUniqueKey}
               modalConfig={props.modalConfig}
               renderModals={props.renderModals}
             />

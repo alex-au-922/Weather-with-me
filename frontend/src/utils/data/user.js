@@ -12,13 +12,14 @@ const parseUserDataFrontendView = (userJson) => {
   return userList;
 };
 
-const initFetchUserData = async () => {
+const initFetchUserData = async (fetchFunction = fetch) => {
   const response = {
     success: false,
     error: null,
     errorType: null,
     result: null,
     invalidated: null,
+    fetching: false,
   };
   const userDataURL = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/user`;
   const userDataPayload = {
@@ -30,8 +31,10 @@ const initFetchUserData = async () => {
   };
 
   try {
-    const { success, error, errorType, result, invalidated } =
-      await resourceFetch(userDataURL, userDataPayload);
+    const { success, error, errorType, result, invalidated, fetching } =
+      await resourceFetch(fetchFunction, userDataURL, userDataPayload);
+    console.log(success, error, errorType, result, invalidated, fetching);
+    response.fetching = fetching;
     if (success) {
       response.success = true;
       response.result = result;
@@ -42,7 +45,7 @@ const initFetchUserData = async () => {
     }
   } catch (error) {
     response.error = error;
-    response.errorType = "UNKNOWN_ERROR";
+    response.errorType = "UnknownError";
   } finally {
     return response;
   }
