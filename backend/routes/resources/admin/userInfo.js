@@ -80,7 +80,7 @@ router.delete("/", async (req, res, next) => {
     const existsUser = await findUserInfoByUsername(username);
     if (existsUser === null) throw UnauthorizationError("Unauthorized Action!");
     const userId = existsUser.userId;
-    // await deleteUser(userId);
+    await deleteUser(userId);
     response.success = true;
     res.status(HTTP_STATUS.success.ok.status);
     res.send(JSON.stringify(response));

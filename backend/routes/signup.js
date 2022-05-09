@@ -8,7 +8,8 @@ const addNewUser =
 const passwordHash = require("../generalUtils/userCreds/password").passwordHash;
 const issueNewRefreshToken =
   require("../generalUtils/userCreds/refreshToken").issueNewRefreshToken;
-const eventEmitter = require("./_emitEvent");
+const { signNewAccessToken } = require("../generalUtils/userCreds/accessToken");
+const { eventEmitter } = require("./_emitEvent");
 
 router.post("/", async (req, res, next) => {
   try {
