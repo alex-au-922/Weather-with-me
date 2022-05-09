@@ -12,7 +12,6 @@ const parseWeatherDataFrontendView = (weatherJson) => {
     newWeatherObject["relativeHumidity"] = obj.relativeHumidity ?? null;
     return newWeatherObject;
   });
-  console.log("weatherList", weatherList);
   return weatherList;
 };
 

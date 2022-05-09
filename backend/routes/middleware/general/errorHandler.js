@@ -1,6 +1,7 @@
 const {
   UsernameError,
   PasswordError,
+  EmailError,
   InvalidRefreshTokenError,
   InvalidAccessTokenError,
   UnauthorizationError,
@@ -13,7 +14,8 @@ const errorHandler = async (error, req, res, next) => {
   switch (error.constructor) {
     case UsernameError:
     case PasswordError:
-      res.status(HTTP_STATUS.clientError.notFound.status);
+    case EmailError:
+      res.status(HTTP_STATUS.clientError.notAccepted.status);
       break;
     case InvalidRefreshTokenError:
       res.status(HTTP_STATUS.clientError.forbidden.status);

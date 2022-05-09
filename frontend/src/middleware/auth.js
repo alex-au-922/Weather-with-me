@@ -4,12 +4,12 @@ import { WeatherWebSocketContext, UserWebSocketContext } from "./websocket";
 import { FetchStateContext } from "./fetch";
 import tokenLogin from "../utils/authUtils/tokenLogin";
 import { initFetchUserData } from "../utils/data/user";
+import { registerMessageListener } from "../utils/listeners/webSocketMessage";
 
 const AuthContext = createContext({});
 
 const AuthProvider = (props) => {
   const [fetching, setFetching] = useState(true);
-  const [logined, setLogined] = useState(false);
   const [user, setUser] = useState({
     username: null,
     isAdmin: null,
@@ -17,8 +17,15 @@ const AuthProvider = (props) => {
     email: null,
     authenticated: false,
   });
-  const weatherWSContext = useContext(WeatherWebSocketContext);
-  const userWSContext = useContext(UserWebSocketContext);
+  const {
+    webSocket: userWebSocket,
+    connectWebSocket: connectUserWebSocket,
+    disconnectWebSocket: disconnectUserWebSocket,
+  } = useContext(UserWebSocketContext);
+  const {
+    connectWebSocket: connectWeatherWebSocket,
+    disconnectWebSocket: disconnectWeatherWebSocket,
+  } = useContext(WeatherWebSocketContext);
   const { fetchFactory } = useContext(FetchStateContext);
   const loginFetch = fetchFactory({
     loading: false,
@@ -39,7 +46,6 @@ const AuthProvider = (props) => {
               result: userData,
               fetching: userFetching,
             } = await initFetchUserData(loginFetch);
-            console.log(userFetchSuccess, userData, userFetching);
             if (!userFetching) {
               if (userFetchSuccess) {
                 setUser({
@@ -61,21 +67,34 @@ const AuthProvider = (props) => {
   }, [fetching]);
 
   useEffect(() => {
-    if (user.authenticated && logined) {
-      weatherWSContext.connectWebSocket();
-      if (user.isAdmin) {
-        userWSContext.connectWebSocket();
-      }
+    if (user.authenticated) {
+      connectWeatherWebSocket();
+      connectUserWebSocket();
     } else {
-      weatherWSContext?.disconnectWebSocket();
-      userWSContext?.disconnectWebSocket();
+      disconnectWeatherWebSocket();
+      disconnectUserWebSocket();
     }
-  }, [user.authenticated, logined]);
+  }, [user.authenticated]);
+
+  useEffect(() => {
+    const handler = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "auth") {
+        setUser({
+          ...user,
+          username: message.data.username,
+          isAdmin: message.data.role === "admin",
+          viewMode: message.data.viewMode,
+          email: message.data.email,
+        });
+      }
+    };
+    return registerMessageListener(userWebSocket, handler);
+  }, [userWebSocket]);
 
   const login = () => {
     navigate("/");
     setFetching(true);
-    setLogined(true);
   };
   const logout = async () => {
     setUser({
@@ -86,10 +105,17 @@ const AuthProvider = (props) => {
       authenticated: false,
     });
     navigate("/login");
-    setLogined(false);
   };
+
   return (
-    <AuthContext.Provider value={{ user, fetching, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        fetching,
+        login,
+        logout,
+      }}
+    >
       {props.children}
     </AuthContext.Provider>
   );

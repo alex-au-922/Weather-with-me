@@ -2,50 +2,16 @@ import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
 import { FormRowHeader } from "../../../../utils/gui/formInputs";
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { InputFormModalRow } from ".";
-import UnsavedModal from "../../../../utils/gui/modals/unsavedModal";
-
-const SelectFormModalRow = (props) => {
-  const originalValue = props.chosenOption;
-  const [updateValue, setUpdateValue] = useState(originalValue);
-  const [valueChanged, setValueChanged] = useState(
-    updateValue === originalValue
-  );
-
-  const handleChangeValue = (event) => {
-    setUpdateValue(event.target.value);
-  };
-
-  useEffect(() => {
-    setValueChanged(updateValue !== originalValue);
-  }, [updateValue]);
-
-  useEffect(() => {
-    props.onChange(props.field, valueChanged);
-  }, [valueChanged]);
-
-  return (
-    <>
-      <FormRowHeader
-        originalBlank={false}
-        updated={updateValue !== props.chosenOption}
-        field={props.field}
-      />
-      <Form.Select defaultValue={updateValue} onChange={handleChangeValue}>
-        {props.options.map((option, index) => (
-          <option key={index}>{option}</option>
-        ))}
-      </Form.Select>
-    </>
-  );
-};
+import { InputFormModalRow, SelectFormModalRow } from ".";
+import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
 
 const WeatherAdminDataFormModal = (props) => {
-
   const [unsaved, setUnsaved] = useState(
     Object.keys(props.data).reduce((obj, key) => ((obj[key] = false), obj), {})
   );
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [value, setValue] = useState(props.data);
 
   const resetUnsaved = () => {
     const resetUnsaved = Object.keys(props.data).reduce(
@@ -55,14 +21,22 @@ const WeatherAdminDataFormModal = (props) => {
     setUnsaved(resetUnsaved);
   };
 
-  const handleChangeFields = (field, changed) => {
-    let newUnsaved = { ...unsaved };
+  const handleChangeUnsaved = (field, changed) => {
+    const newUnsaved = { ...unsaved };
     newUnsaved[field] = changed;
     setUnsaved(newUnsaved);
   };
 
+  const handleChangeValue = (field, changedValue) => {
+    const newValue = { ...value };
+    newValue[field] = changedValue;
+    setValue(newValue);
+  };
+
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
   const handleCloseUnsavedModal = () => setShowUnsavedModal(false);
+  const handleShowDeleteModal = () => setShowDeleteModal(true);
+  const handleCloseDeleteModal = () => setShowDeleteModal(false);
 
   const handleInnerCloseModal = () => {
     resetUnsaved();
@@ -103,22 +77,24 @@ const WeatherAdminDataFormModal = (props) => {
                 <>
                   {props.modalConfig[field].type === "select" ? (
                     <SelectFormModalRow
-                      key={`${props.modalIndex},${field}`}
+                      key={`${field}`}
                       field={field}
                       options={props.modalConfig[field].selectOptions}
                       chosenOption={props.data[field]}
-                      onChange={handleChangeFields}
+                      onChangeUnsaved={handleChangeUnsaved}
+                      onChangeValue={handleChangeValue}
                     />
                   ) : (
                     <InputFormModalRow
-                      key={`${props.modalIndex},${field}`}
+                      key={`${field}`}
                       field={field}
                       type={props.modalConfig[field].type}
                       mutable={props.modalConfig[field].mutable}
                       placeholder={camelToCapitalize(field)}
                       blank={props.modalConfig[field].blank}
                       value={props.data[field]}
-                      onChange={handleChangeFields}
+                      onChangeUnsaved={handleChangeUnsaved}
+                      onChangeValue={handleChangeValue}
                     />
                   )}
                   <div className="mb-2" />
@@ -133,11 +109,21 @@ const WeatherAdminDataFormModal = (props) => {
         </Modal.Footer>
       </Modal>
       <UnsavedModal
+        key={`${props.uniqueKey},unsaved_modal`}
+        modalIndex={`${props.uniqueKey},unsaved_modal,modal`}
         show={showUnsavedModal}
         onHide={handleCloseUnsavedModal}
         title={"Unsaved Data"}
         body={"You have unsaved data. Are you sure you want to close the form?"}
         forceClose={handleInnerCloseModal}
+      />
+      <DeleteModal
+        key={`${props.uniqueKey},delete_modal`}
+        modalIndex={`${props.uniqueKey},delete_modal,modal`}
+        show={showDeleteModal}
+        onHide={handleCloseDeleteModal}
+        title={"Notice"}
+        body={`Are you sure to delete user ${props.data.username}?`}
       />
     </>
   );
@@ -188,8 +174,7 @@ const weatherModalOptions = {
     mutable: false,
     blank: false,
     type: "text",
-  }
+  },
 };
-
 
 export { WeatherAdminDataFormModal, weatherModalOptions };

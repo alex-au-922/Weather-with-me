@@ -58,7 +58,6 @@ const AdminView = (props) => {
 
   const updateUserData = (resultJson) => {
     const newUserList = parseUserDataFrontendView(resultJson);
-    console.log("newUserList", newUserList);
     setDataLists((dataLists) => {
       return { ...dataLists, User: newUserList };
     });
@@ -66,7 +65,6 @@ const AdminView = (props) => {
 
   const updateWeatherData = (resultJson) => {
     const newWeatherList = parseWeatherDataFrontendView(resultJson);
-    console.log("newWeatherList", newWeatherList);
     setDataLists((dataLists) => {
       return { ...dataLists, Weather: newWeatherList };
     });
@@ -111,7 +109,6 @@ const AdminView = (props) => {
         },
       };
       const { success, result, fetching } = await dataFetch(url, payload);
-      console.log("weatherResult", result);
       if (success && !fetching) updateWeatherData(result);
     })();
   }, []);
@@ -130,6 +127,7 @@ const AdminView = (props) => {
       {table === "User" ? (
         <ResourceManagementTable
           key="user"
+          dataUniqueKey={"username"}
           dataList={dataLists.User}
           switchViewOptions={switchViewOptions}
           renderSwitchView={renderSwitchView}
@@ -140,6 +138,7 @@ const AdminView = (props) => {
       ) : (
         <ResourceManagementTable
           key="weather"
+          dataUniqueKey={"name"}
           dataList={dataLists.Weather}
           switchViewOptions={switchViewOptions}
           renderSwitchView={renderSwitchView}

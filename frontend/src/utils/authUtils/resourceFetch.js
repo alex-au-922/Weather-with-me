@@ -17,7 +17,6 @@ const resourceFetch = async (fetchFunction, ...fetchParams) => {
       result: fetchResult,
       fetching: fetchFetching,
     } = await fetchFunction(...fetchParams);
-
     if (fetchFetching) {
       response.fetching = true;
       return response;

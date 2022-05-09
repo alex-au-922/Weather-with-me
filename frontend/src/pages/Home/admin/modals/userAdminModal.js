@@ -1,51 +1,49 @@
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
-import { FormRowHeader } from "../../../../utils/gui/formInputs";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import { InputFormModalRow } from ".";
-import UnsavedModal from "../../../../utils/gui/modals/unsavedModal";
-
-const SelectFormModalRow = (props) => {
-  const originalValue = props.chosenOption;
-  const [updateValue, setUpdateValue] = useState(originalValue);
-  const [valueChanged, setValueChanged] = useState(
-    updateValue === originalValue
-  );
-
-  const handleChangeValue = (event) => {
-    setUpdateValue(event.target.value);
-  };
-
-  useEffect(() => {
-    setValueChanged(updateValue !== originalValue);
-  }, [updateValue]);
-
-  useEffect(() => {
-    props.onChange(props.field, valueChanged);
-  }, [valueChanged]);
-
-  return (
-    <>
-      <FormRowHeader
-        originalBlank={false}
-        updated={updateValue !== props.chosenOption}
-        field={props.field}
-      />
-      <Form.Select defaultValue={updateValue} onChange={handleChangeValue}>
-        {props.options.map((option, index) => (
-          <option key={index}>{option}</option>
-        ))}
-      </Form.Select>
-    </>
-  );
-};
+import { InputFormModalRow, SelectFormModalRow } from ".";
+import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
+import resourceFetch from "../../../../utils/authUtils/resourceFetch";
+import { FetchStateContext } from "../../../../middleware/fetch";
+import { AuthContext } from "../../../../middleware/auth";
+import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
+import { objectSetAll } from "../../../../utils/object";
+import checkString from "../../../../utils/input/checkString";
+import validateEmail from "../../../../utils/input/checkEmail";
 
 const UserDataFormModal = (props) => {
+  const { user } = useContext(AuthContext);
+  const { username } = props.data;
   const [unsaved, setUnsaved] = useState(
     Object.keys(props.data).reduce((obj, key) => ((obj[key] = false), obj), {})
   );
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userInfo, setUserInfo] = useState(props.data);
+  const [userInfoError, setUserInfoError] = useState(
+    Object.keys(props.data).reduce((obj, key) => ((obj[key] = ""), obj), {})
+  );
 
+  const { fetchFactory } = useContext(FetchStateContext);
+  const updateFetch = fetchFactory(
+    {
+      success: true,
+      error: true,
+      loading: true,
+    },
+    `Successfully updated user ${username} info!`,
+    false,
+    ["UsernameError", "PasswordError", "EmailError"]
+  );
+
+  const deleteFetch = fetchFactory(
+    {
+      success: true,
+      error: true,
+      loading: true,
+    },
+    `Successfully deleted user ${username}!`
+  );
   const resetUnsaved = () => {
     const resetUnsaved = Object.keys(props.data).reduce(
       (obj, key) => ((obj[key] = false), obj),
@@ -54,14 +52,114 @@ const UserDataFormModal = (props) => {
     setUnsaved(resetUnsaved);
   };
 
-  const handleChangeFields = (field, changed) => {
-    let newUnsaved = { ...unsaved };
+  const handleSaveChange = async () => {
+    const { success: usernameCheckSuccess, error: usernameCheckError } =
+      checkString(userInfo.username);
+    const { success: passwordCheckSuccess, error: passwordCheckError } =
+      checkString(userInfo.password);
+    const { success: emailCheckSuccess, error: emailCheckError } =
+      validateEmail(userInfo.password);
+    if (!usernameCheckSuccess) {
+      const newUserInfoError = objectSetAll(userInfoError, "");
+      newUserInfoError.username = usernameCheckError;
+      setUserInfoError(newUserInfoError);
+      return;
+    }
+    if (!passwordCheckSuccess) {
+      const newUserInfoError = objectSetAll(userInfoError, "");
+      newUserInfoError.password = passwordCheckError;
+      setUserInfoError(newUserInfoError);
+      return;
+    }
+    if (!emailCheckSuccess) {
+      const newUserInfoError = objectSetAll(userInfoError, "");
+      newUserInfoError.email = emailCheckError;
+      setUserInfoError(newUserInfoError);
+      return;
+    }
+
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/users`;
+    const payload = {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+        authorization: localStorage.getItem("accessToken"),
+        username: user.username,
+      },
+      body: JSON.stringify({
+        oldUsername: username,
+        newData: {
+          username: userInfo.username,
+          password: userInfo.password,
+          email: userInfo.email,
+          viewMode: userInfo.viewMode,
+        },
+      }),
+    };
+    const {
+      success: updateUserInfoSuccess,
+      error: updateUserInfoError,
+      errorType: updateUserInfoErrorType,
+      fetching: updateUserInfoFetching,
+    } = await resourceFetch(updateFetch, url, payload);
+    if (!updateUserInfoFetching) {
+      if (updateUserInfoSuccess) {
+        const noError = objectSetAll(userInfoError, false);
+        setUserInfoError(noError);
+      } else if (updateUserInfoErrorType === "UsernameError") {
+        const newUserInfoError = objectSetAll(userInfoError, "");
+        newUserInfoError.username = updateUserInfoError;
+        setUserInfoError(newUserInfoError);
+      } else if (updateUserInfoErrorType === "PasswordError") {
+        const newUserInfoError = objectSetAll(userInfoError, "");
+        newUserInfoError.password = updateUserInfoError;
+        setUserInfoError(newUserInfoError);
+      } else if (updateUserInfoErrorType === "EmailError") {
+        const newUserInfoError = objectSetAll(userInfoError, "");
+        newUserInfoError.email = updateUserInfoError;
+        setUserInfoError(newUserInfoError);
+      }
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/users`;
+    const payload = {
+      method: "DELETE",
+      headers: {
+        "content-type": "application/json",
+        authorization: localStorage.getItem("accessToken"),
+        username: user.username,
+      },
+      body: JSON.stringify({
+        username,
+      }),
+    };
+    const fetchResult = await fetch(url, payload);
+    const { success: deleteUserSuccess } = await fetchResult.json();
+    console.log("deleteUser", deleteUserSuccess);
+    // if (!deleteUserFetching) {
+    if (deleteUserSuccess) handleInnerCloseModal();
+    // }
+  };
+
+  const handleChangeUnsaved = (field, changed) => {
+    const newUnsaved = { ...unsaved };
     newUnsaved[field] = changed;
     setUnsaved(newUnsaved);
   };
 
+  const handleChangeValue = (userField, changedUserInfo) => {
+    const newUserInfo = { ...userInfo };
+    newUserInfo[userField] = changedUserInfo;
+    setUserInfo(newUserInfo);
+  };
+
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
   const handleCloseUnsavedModal = () => setShowUnsavedModal(false);
+
+  const handleShowDeleteModal = () => setShowDeleteModal(true);
+  const handleCloseDeleteModal = () => setShowDeleteModal(false);
 
   const handleInnerCloseModal = () => {
     resetUnsaved();
@@ -89,7 +187,13 @@ const UserDataFormModal = (props) => {
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         backdrop="static"
-        style={{ opacity: props.show ? (showUnsavedModal ? 0.8 : 1) : 0 }}
+        style={{
+          opacity: props.show
+            ? showUnsavedModal || showDeleteModal
+              ? 0.7
+              : 1
+            : 0,
+        }}
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
@@ -103,23 +207,25 @@ const UserDataFormModal = (props) => {
                 <>
                   {props.modalConfig[field].type === "select" ? (
                     <SelectFormModalRow
-                      key={`${props.modalIndex},${field}`}
+                      key={`${field}`}
                       field={field}
                       options={props.modalConfig[field].selectOptions}
                       readOnly={props.modalConfig[field].mutable}
                       chosenOption={props.data[field]}
-                      onChange={handleChangeFields}
+                      onChangeUnsaved={handleChangeUnsaved}
+                      onChangeValue={handleChangeValue}
                     />
                   ) : (
                     <InputFormModalRow
-                      key={`${props.modalIndex},${field}`}
+                      key={`${field}`}
                       field={field}
                       type={props.modalConfig[field].type}
                       mutable={props.modalConfig[field].mutable}
                       placeholder={camelToCapitalize(field)}
                       blank={props.modalConfig[field].blank}
                       value={props.data[field]}
-                      onChange={handleChangeFields}
+                      onChangeUnsaved={handleChangeUnsaved}
+                      onChangeValue={handleChangeValue}
                     />
                   )}
                   <div className="mb-2" />
@@ -129,16 +235,34 @@ const UserDataFormModal = (props) => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={() => {}}>Save</Button>
-          <Button onClick={handleProperCloseModal}>Close</Button>
+          <Button variant="danger" onClick={handleShowDeleteModal}>
+            Delete
+          </Button>
+          <Button variant="secondary" onClick={handleProperCloseModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSaveChange}>
+            Save Change
+          </Button>
         </Modal.Footer>
       </Modal>
       <UnsavedModal
+        key={`${props.uniqueKey},unsaved_modal`}
+        modalIndex={`${props.uniqueKey},unsaved_modal,modal`}
         show={showUnsavedModal}
         onHide={handleCloseUnsavedModal}
         title={"Unsaved Data"}
         body={"You have unsaved data. Are you sure you want to close the form?"}
         forceClose={handleInnerCloseModal}
+      />
+      <DeleteModal
+        key={`${props.uniqueKey},delete_modal`}
+        modalIndex={`${props.uniqueKey},delete_modal,modal`}
+        show={showDeleteModal}
+        onHide={handleCloseDeleteModal}
+        title={"Notice"}
+        body={`Are you sure to delete user ${props.data.username}?`}
+        delete={handleDeleteUser}
       />
     </>
   );

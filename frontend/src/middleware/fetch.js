@@ -1,7 +1,5 @@
 import { useState, createContext, useRef } from "react";
-import ErrorModal from "../utils/gui/modals/errorModal.js";
-import SuccessfulModal from "../utils/gui/modals/successfulModal.js";
-import LoadingModal from "../utils/gui/modals/loadingModal.js";
+import { SuccessModal, ErrorModal } from "../utils/gui/modals";
 import { objectSetAll } from "../utils/object";
 const FetchStateContext = createContext({});
 
@@ -12,10 +10,7 @@ const FetchStateProvider = (props) => {
     showLoading: false,
   });
   const fetching = useRef(false);
-  const [fetchSuccessInfo, setFetchSuccessInfo] = useState({
-    title: "",
-    body: "",
-  });
+  const [fetchSuccessMessage, setFetchSuccessMessage] = useState("");
   const [fetchErrorInfo, setFetchErrorInfo] = useState({
     errorType: "",
     errorMessage: "",
@@ -33,11 +28,8 @@ const FetchStateProvider = (props) => {
       error: false,
     });
   };
-  const setOpenSuccessModal = (title, body) => {
-    setFetchSuccessInfo({
-      title,
-      body,
-    });
+  const setOpenSuccessModal = (body) => {
+    setFetchSuccessMessage(body);
     const newFetchState = objectSetAll(fetchState, false);
     newFetchState.success = true;
     setFetchState(newFetchState);
@@ -64,11 +56,9 @@ const FetchStateProvider = (props) => {
       success: true,
       error: true,
     },
-    successMessage = {
-      title: "Success",
-      body: "Successful Fetch",
-    },
-    parallelFetch = false
+    successfulBody = "Successful Fetch",
+    parallelFetch = false,
+    errorTypeBypass = []
   ) => {
     return async (url, payload) => {
       if (!fetching.current) {
@@ -76,11 +66,17 @@ const FetchStateProvider = (props) => {
         if (showConfig.loading) setShowLoading(true);
         const fetchResult = await fetch(url, payload);
         const { success, error, errorType, result } = await fetchResult.json();
-        if (!parallelFetch) fetching.current = false;
+        console.log(success, error, errorType, result);
+        fetching.current = false;
+        console.log("fetching.current", fetching.current);
         if (showConfig.loading) setShowLoading(false);
-        if (success && showConfig.success)
-          setOpenSuccessModal(successMessage.title, successMessage.body);
-        else if (showConfig.error && error) setOpenErrorModal(errorType, error);
+        if (success && showConfig.success) setOpenSuccessModal(successfulBody);
+        else if (
+          showConfig.error &&
+          error &&
+          errorTypeBypass.indexOf(errorType) === -1
+        )
+          setOpenErrorModal(errorType, error);
         return {
           success,
           error,
@@ -105,11 +101,10 @@ const FetchStateProvider = (props) => {
         fetchFactory,
       }}
     >
-      <SuccessfulModal
+      <SuccessModal
         show={fetchState.success}
         onHide={handleSuccessfulClose}
-        title={fetchSuccessInfo.title}
-        body={fetchSuccessInfo.body}
+        body={fetchSuccessMessage}
       />
       <ErrorModal
         show={fetchState.error}
@@ -117,7 +112,7 @@ const FetchStateProvider = (props) => {
         errorType={fetchErrorInfo.errorType}
         errorMessage={fetchErrorInfo.errorMessage}
       />
-      <LoadingModal show={fetching.current} />
+      {/* <LoadingModal show={fetching.current} /> */}
       {props.children}
     </FetchStateContext.Provider>
   );

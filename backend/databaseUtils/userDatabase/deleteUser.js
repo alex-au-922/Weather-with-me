@@ -3,13 +3,13 @@ const userSchema = require("../../backendConfig.js").databaseConfig.userSchema;
 const { ObjectId } = require("mongoose").Types;
 const { connectUserDB } = require("../../generalUtils/database");
 
-const updateUser = async (userId, updatedUserInfo) => {
+const deleteUser = async (userId) => {
   const userDB = await connectUserDB();
   const UserModel = userDB.model("User", userSchema);
   const existsUser = await UserModel.findById(userId);
   if (existsUser === null) throw new DatabaseError("No user record!");
-  await UserModel.updateOne({ _id: ObjectId(userId) }, updatedUserInfo);
+  await UserModel.deleteOne({ _id: ObjectId(userId) });
   return true;
 };
 
-exports.updateUser = updateUser;
+exports.deleteUser = deleteUser;
