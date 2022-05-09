@@ -88,7 +88,6 @@ exports.databaseConfig = {
       locationId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "GeoLocation",
-        unique: true,
       },
       temperature: Number,
       relativeHumidity: { type: Number, min: 0, max: 100 },

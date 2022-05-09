@@ -2,15 +2,15 @@ const logger = require("../../generalUtils/getLogger").getLogger();
 const connectWeatherDB =
   require("../../generalUtils/database").connectWeatherDB;
 const { collectionExists } = require("../../generalUtils/database");
-const weatherSchema = require("../../backendConfig.js").databaseConfig
-  .weatherSchema;
+const backupWeatherSchema = require("../../backendConfig.js").databaseConfig
+  .backupWeatherSchema;
 const geolocationSchema = require("../../backendConfig.js").databaseConfig
   .geolocationSchema;
 const fetchAirTemp = require("../../fetcherUtils/csv/meanAirTemp");
 const fetchRelHumid = require("../../fetcherUtils/csv/meanRelHumid");
 const fetchWindDirection = require("../../fetcherUtils/csv/meanWindDirection");
 
-const updateWeather = async function () {
+const updateBackUpWeather = async function () {
   await updateTemp();
   await updateRelHumid();
   await updateWind();
@@ -34,38 +34,35 @@ const updateWind = async function () {
 const updateData = async function (fetchFunction) {
   const weatherDB = await connectWeatherDB();
   try {
-    //TODO: Change the collection model name
-    if (!(await collectionExists(weatherDB, "weathers"))) {
-      const Weather = weatherDB.model("Weather", weatherSchema);
-      await Weather.createCollection();
+    if (!(await collectionExists(weatherDB, "backupweathers"))) {
+      const BackUpWeather = weatherDB.model(
+        "BackUpWeather",
+        backupWeatherSchema
+      );
+      await BackUpWeather.createCollection();
     }
     const weatherData = await fetchFunction();
     const transformedData = await transformLocField(weatherDB, weatherData);
-    //TODO: use the backupWeatherSchema in backendConfig
-    await insertOrUpdateWeatherData(weatherDB, transformedData);
+    await insertOnlyNewWeatherData(weatherDB, transformedData);
   } catch (error) {
-    logger.error(error);
+    logger.error(error.message);
   }
 };
 
-async function insertOrUpdateWeatherData(weatherDB, weatherData) {
-  //TODO: to update the insert weather data if the time and locationId does not exist
+async function insertOnlyNewWeatherData(weatherDB, weatherData) {
   await Promise.all(
     weatherData.map(
-      async (weatherDatum) =>
-        await insertOrUpdateWeatherDatum(weatherDB, weatherDatum)
+      async (weatherDatum) => await insertOnlyNewDatum(weatherDB, weatherDatum)
     )
   );
 }
 
-async function insertOrUpdateWeatherDatum(weatherDB, weatherDatum) {
-  const Weather = weatherDB.model("Weather", weatherSchema);
-  const { locationId } = weatherDatum;
-  const recordExists = await Weather.findOne({ locationId });
-  if (recordExists !== null) {
-    const result = await Weather.updateOne({ locationId }, weatherDatum);
-  } else {
-    await Weather.create(weatherDatum);
+async function insertOnlyNewDatum(weatherDB, weatherDatum) {
+  const BackUpWeather = weatherDB.model("BackupWeather", backupWeatherSchema);
+  const { time, locationId } = weatherDatum;
+  const recordExists = await BackUpWeather.findOne({ locationId, time });
+  if (recordExists === null) {
+    const result = await BackUpWeather.create(weatherDatum);
   }
 }
 
@@ -93,4 +90,4 @@ async function transformLocId(weatherDB, datum) {
   return newDatum;
 }
 
-module.exports = { updateWeather };
+module.exports = { updateBackUpWeather };
