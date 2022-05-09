@@ -6,11 +6,11 @@ import {
 import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
 import MapView from "./mapView";
-import { renderModals } from "../admin/modals";
+import { renderModals } from "./modals";
+import { WeatherUserLocationViewModal } from "./modals/weatherUserModal";
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import { FetchStateContext } from "../../../middleware/fetch";
 import DropDownButton from "../../../utils/gui/dropDown";
-import { WeatherAdminDataFormModal, weatherModalOptions } from "../admin/modals/weatherAdminModal";
 import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
 
 const UserView = (props) => {
@@ -42,8 +42,6 @@ const UserView = (props) => {
     }
   };
 
-  const renderWeatherModal = renderModals(WeatherAdminDataFormModal);
-
   useEffect(() => {
     const handler = (event) => {
       const result = JSON.parse(event.data);
@@ -69,16 +67,15 @@ const UserView = (props) => {
     })();
   }, []);
 
+  const renderWeatherModal = renderModals(WeatherUserLocationViewModal);
+
   const updateWeatherData = (resultJson) => {
     const newWeatherList = parseWeatherDataFrontendView(resultJson);
+    setWeatherList(newWeatherList);
     setDataLists((dataLists) => {
       return { ...dataLists, Weather: newWeatherList };
     });
   };
-
-  const checkDataList = () => {
-    console.log(dataLists.Weather);
-  }
 
   return (
     <>
@@ -93,8 +90,8 @@ const UserView = (props) => {
           "temperature",
           "relativeHumidity",
           "tenMinMaxGust",
-          "TenMinMeanWindDir",
-          "TenMinMeanWindSpeed",
+          "tenMinMeanWindDir",
+          "tenMinMeanWindSpeed",
           "time",
         ]}
         optionsType={{
@@ -110,14 +107,13 @@ const UserView = (props) => {
         }}
       />) : (
         <>
-        <h1 onClick={checkDataList}>Hello!</h1>
         <ResourceManagementTable
           key="weather"
           dataUniqueKey={"name"}
           dataList={dataLists.Weather}
           switchViewOptions={switchViewOptions}
           renderSwitchView={renderSwitchView}
-          modalConfig={weatherModalOptions}
+          //modalConfig={weatherModalOptions}
           renderModals={renderWeatherModal}
           options={[
             "name",
@@ -126,8 +122,8 @@ const UserView = (props) => {
             "temperature",
             "relativeHumidity",
             "tenMinMaxGust",
-            "TenMinMeanWindDir",
-            "TenMinMeanWindSpeed",
+            "tenMinMeanWindDir",
+            "tenMinMeanWindSpeed",
             "time"
           ]}
           optionsType={{
@@ -141,9 +137,7 @@ const UserView = (props) => {
             tenMinMeanWindSpeed: Number,
             time: String,
           }} />
-        </>
-      )
-      
+        </>)
       }
     </>
   );
