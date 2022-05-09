@@ -29,7 +29,9 @@ const UserView = (props) => {
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
 
-  const handleViewSelect = (event) => {setView(event)};
+  const handleViewSelect = (event) => {
+    setView(event);
+  };
   const switchViewOptions = {
     handleSelect: handleViewSelect,
     buttonName: view,
@@ -79,42 +81,11 @@ const UserView = (props) => {
 
   return (
     <>
-      { view == "Map" ? (<MapView
-        weatherList={weatherList}
-        switchViewOptions={switchViewOptions}
-        renderSwitchView={renderSwitchView}
-        options={[
-          "name",
-          "latitude",
-          "longitude",
-          "temperature",
-          "relativeHumidity",
-          "tenMinMaxGust",
-          "tenMinMeanWindDir",
-          "tenMinMeanWindSpeed",
-          "time",
-        ]}
-        optionsType={{
-          name: String,
-          latitude: Number,
-          longitude: Number,
-          temperature: Number,
-          relativeHumidity: Number,
-          tenMinMaxGust: Number,
-          tenMinMeanWindDir: String,
-          tenMinMeanWindSpeed: Number,
-          time: String,
-        }}
-      />) : (
-        <>
-        <ResourceManagementTable
-          key="weather"
-          dataUniqueKey={"name"}
-          dataList={dataLists.Weather}
+      {view === "Map" ? (
+        <MapView
+          weatherList={weatherList}
           switchViewOptions={switchViewOptions}
           renderSwitchView={renderSwitchView}
-          //modalConfig={weatherModalOptions}
-          renderModals={renderWeatherModal}
           options={[
             "name",
             "latitude",
@@ -124,7 +95,7 @@ const UserView = (props) => {
             "tenMinMaxGust",
             "tenMinMeanWindDir",
             "tenMinMeanWindSpeed",
-            "time"
+            "time",
           ]}
           optionsType={{
             name: String,
@@ -136,9 +107,43 @@ const UserView = (props) => {
             tenMinMeanWindDir: String,
             tenMinMeanWindSpeed: Number,
             time: String,
-          }} />
-        </>)
-      }
+          }}
+        />
+      ) : (
+        <>
+          <ResourceManagementTable
+            key="weather"
+            dataUniqueKey={"name"}
+            dataList={dataLists.Weather}
+            switchViewOptions={switchViewOptions}
+            renderSwitchView={renderSwitchView}
+            //modalConfig={weatherModalOptions}
+            renderModals={renderWeatherModal}
+            options={[
+              "name",
+              "latitude",
+              "longitude",
+              "temperature",
+              "relativeHumidity",
+              "tenMinMaxGust",
+              "tenMinMeanWindDir",
+              "tenMinMeanWindSpeed",
+              "time",
+            ]}
+            optionsType={{
+              name: String,
+              latitude: Number,
+              longitude: Number,
+              temperature: Number,
+              relativeHumidity: Number,
+              tenMinMaxGust: Number,
+              tenMinMeanWindDir: String,
+              tenMinMeanWindSpeed: Number,
+              time: String,
+            }}
+          />
+        </>
+      )}
     </>
   );
 };

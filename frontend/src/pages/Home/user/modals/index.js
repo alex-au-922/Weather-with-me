@@ -3,7 +3,7 @@ import { FormRowHeader } from "../../../../utils/gui/formInputs";
 import { Modal, Button, Form } from "react-bootstrap";
 
 const renderModals = (ModalComponent) => {
-  return (data, show, onHide, uniqueKey) => {
+  return (data, modalConfig, show, onHide, uniqueKey) => {
     return (
       <ModalComponent
         key={uniqueKey}
