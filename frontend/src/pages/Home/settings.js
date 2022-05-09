@@ -2,6 +2,7 @@ import React, { useState, useContext, useReducer, useEffect } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { AuthContext } from "../../middleware/auth";
+import { FetchStateContext } from "../../middleware/fetch";
 import NavBar from "../../components/navbar";
 import SwitchButton from "../../utils/gui/switch";
 import { Container } from "react-bootstrap";
@@ -12,108 +13,145 @@ import FormInputWithError from "../../utils/gui/formInputs";
 import { FormRowHeader } from "../../utils/gui/formInputs";
 
 const Settings = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+  const { fetchFactory } = useContext(FetchStateContext);
   const [unsaved, setUnsaved] = useState({
-    email: false,
-    viewMode: false,
+    email: "",
+    viewMode: "",
   });
-  const [userInvalidated, setUserInvalidated] = useState(false);
-  const [updateInfo, setUpdateInfo] = useState({
-    email: { success: null, error: null, errorType: null },
-    viewMode: { success: null, error: null, errorType: null },
-    system: { success: null, error: null, errorType: null },
+  const [error, setError] = useState({
+    email: "",
+    viewMode: "",
   });
-  const [currentViewMode, toggleCurrentViewMode] = useReducer((viewMode) =>
-    viewMode === "default" ? "dark" : "default"
-  );
-  const [email, setEmail] = useState(user.email);
 
-  const clickSwitch = () => {
-    toggleCurrentViewMode();
+  const [email, setEmail] = useState(user.email);
+  const [viewMode, setViewMode] = useState(user.viewMode);
+
+  const handleToggleViewMode = () => {
+    setViewMode((viewMode) => (viewMode === "default" ? "dark" : "default"));
   };
+
+  const emailUpdateFetch = fetchFactory(
+    {
+      success: true,
+      error: true,
+      loading: true,
+    },
+    "Successfully updated the email!",
+    null,
+    ["EmailError"]
+  );
+
+  const viewModeUpdateFetch = fetchFactory(
+    {
+      success: true,
+      error: true,
+      loading: true,
+    },
+    "Successfully updated the view mode!"
+  );
 
   const onChangeEmail = (event) => {
     const newEmailInput = event.target.value;
-    setEmail({
-      ...email,
-      userEmail: newEmailInput,
-    });
+    setEmail(newEmailInput);
   };
 
   useEffect(() => {
+    setEmail(user.email);
+    setViewMode(user.viewMode);
+  }, [user]);
+
+  useEffect(() => {
     setUnsaved({
-      email: email.emailInput === user.email,
-      viewMode: currentViewMode === user.viewMode,
+      email: email !== user.email,
+      viewMode: viewMode !== user.viewMode,
     });
-  }, [email.emailInput, currentViewMode]);
+  }, [email, viewMode, user]);
 
   const onSubmitEmail = async () => {
-    const accessToken = localStorage.getItem("accessToken");
-    const api = `${BACKEND_WEBSERVER_HOST}/setting/update`;
+    if (!unsaved.email) return;
+    const api = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/user`;
     const payload = {
-      method: "POST",
+      method: "PUT",
       headers: {
         "content-type": "application/json",
+        authorization: localStorage.getItem("accessToken"),
+        username: user.username,
       },
       body: JSON.stringify({
-        accessToken: accessToken,
-        username: user.username,
-        email: email.userEmail,
+        email,
       }),
     };
-    const emailValid = validateEmail(email.emailInput);
-    if (!emailValid) {
-      const emailError = "Invalid email format!";
-      const emailErrorType = "INVALID_INPUT";
-      setUpdateInfo({
-        ...updateInfo,
-        email: { success: false, error: emailError, errorType: emailErrorType },
+    const { success: emailValidateSuccess, error: emailValidateError } =
+      validateEmail(email);
+    if (!emailValidateSuccess) {
+      setError({
+        ...error,
+        email: emailValidateError,
       });
     } else {
-      const { success, error, errorType, invalidated } = await resourceFetch(
-        api,
-        payload
-      );
-      setUpdateInfo({ ...updateInfo, email: { success, error, errorType } });
-      setUserInvalidated(invalidated);
+      const {
+        success: updateEmailSuccess,
+        error: updateEmailError,
+        errorType: updateEmailErrorType,
+        fetching: updateEmailFetching,
+      } = await resourceFetch(emailUpdateFetch, api, payload);
+      if (!updateEmailFetching) {
+        if (updateEmailSuccess) {
+          setError({
+            ...error,
+            email: "",
+          });
+        } else if (updateEmailErrorType === "EmailError") {
+          setError({
+            ...error,
+            email: updateEmailError,
+          });
+        }
+      }
     }
   };
 
   const onSaveMode = async () => {
-    const accessToken = localStorage.getItem("accessToken");
-    const api = `${BACKEND_WEBSERVER_HOST}/setting/update`;
+    if (!unsaved.viewMode) return;
+    const api = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/user`;
     const payload = {
-      method: "POST",
+      method: "PUT",
       headers: {
         "content-type": "application/json",
+        authorization: localStorage.getItem("accessToken"),
+        username: user.username,
       },
       body: JSON.stringify({
-        accessToken: accessToken,
-        username: user.username,
-        viewMode: currentViewMode.mode,
+        viewMode,
       }),
     };
-    const { success, error, errorType, invalidated } = await resourceFetch(
-      api,
-      payload
-    );
-    setUpdateInfo({ ...updateInfo, viewMode: { success, error, errorType } });
-    setUserInvalidated(invalidated);
+    const { success: updateViewModeSuccess, fetching: updateViewModeFetching } =
+      await resourceFetch(viewModeUpdateFetch, api, payload);
+    if (!updateViewModeFetching) {
+      if (updateViewModeSuccess) {
+        setError({
+          ...error,
+          viewMode: "",
+        });
+      }
+    }
   };
 
   return (
     <>
-      <NavBar user={user} logout={logout}>
+      <NavBar>
         <Container style={{ justifyContent: "center" }}>
           <h2>Email Setting</h2>
           <Form>
             <Form.Group>
-              <Form.Label>Email Address</Form.Label>
+              <FormRowHeader field={"Email Address"} updated={unsaved.email} />
               <FormInputWithError
                 type="email"
                 placeholder="Enter your email"
                 onChange={onChangeEmail}
-                error={updateInfo.email.error}
+                value={email}
+                error={error.email}
                 required
               />
               <Button
@@ -121,16 +159,16 @@ const Settings = () => {
                 variant="outline-success"
                 onClick={onSubmitEmail}
               >
-                Bind Email
+                {user.email ? "Change Email" : "Bind Email"}
               </Button>
             </Form.Group>
           </Form>
           <hr />
-          <h2>View Mode Setting</h2>
+          <FormRowHeader field={"View Mode"} updated={unsaved.viewMode} />
           <SwitchButton
             type="button"
-            active={currentViewMode === "default"}
-            clicked={clickSwitch}
+            active={viewMode === "default"}
+            clicked={handleToggleViewMode}
           ></SwitchButton>
           <Button
             className="my-2"

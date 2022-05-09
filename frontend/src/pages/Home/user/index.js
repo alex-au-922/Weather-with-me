@@ -1,5 +1,8 @@
 import { useContext, useEffect, useState } from "react";
-import { WeatherWebSocketContext } from "../../../middleware/websocket";
+import {
+  WeatherWebSocketContext,
+  UserWebSocketContext,
+} from "../../../middleware/websocket";
 import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
 import MapView from "./mapView";
@@ -17,7 +20,8 @@ const UserView = (props) => {
     success: false,
     error: false,
   });
-  const { webSocket } = useContext(WeatherWebSocketContext);
+  const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
+  const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
 
   const handleViewSelect = (event) => setView(event);
   const switchViewOptions = {
@@ -37,8 +41,8 @@ const UserView = (props) => {
       const result = JSON.parse(event.data);
       updateWeatherData(result);
     };
-    return registerMessageListener(webSocket, handler);
-  }, [webSocket]);
+    return registerMessageListener(weatherWebSocket, handler);
+  }, [weatherWebSocket]);
 
   useEffect(() => {
     //initial fetch weather data

@@ -1,12 +1,17 @@
 const app = require("./generalUtils/createExpressApp").createExpressApp();
 const api = require("./routes");
 const logger = require("./generalUtils/getLogger").getLogger();
-const createWeatherWebSocketServer =
-  require("./websocket/weather").createWeatherWebSocketServer;
-const createUserWebSocketServer =
-  require("./websocket/user").createUserWebSocketServer;
-const createLocation =
-  require("./databaseUtils/weatherDatabase/createGeoLocCol.js").createLocation;
+const {
+  createWeatherWebSocketServer,
+  weatherWebSocketClients,
+} = require("./websocket/weather");
+const {
+  createUserWebSocketServer,
+  userWebSocketClients,
+} = require("./websocket/user");
+const {
+  createLocation,
+} = require("./databaseUtils/weatherDatabase/createGeoLocCol.js");
 const {
   updateWeather,
 } = require("./databaseUtils/weatherDatabase/updateWeatherCol");
@@ -18,8 +23,12 @@ const getLatestWeatherData =
   require("./databaseUtils/weatherDatabase/getLatestData").getLatestData;
 const getLatestUserData =
   require("./databaseUtils/userDatabase/getLatestData").getLatestData;
-
-const eventEmitter = require("./routes/_eventEmitter");
+const { eventEmitter } = require("./routes/_emitEvent");
+const {
+  checkUserCredentialsById,
+  cleanUserData,
+} = require("./generalUtils/userCreds/username");
+const { ObjectId } = require("mongoose").Types;
 api(app);
 
 const server = app.listen(process.env.WEBSER_PORT, () => {
@@ -35,6 +44,12 @@ const updateWeatherData = async () => {
   sendWeatherData(JSON.stringify(latestData));
 };
 
+eventEmitter.on("userUpdate", async (ip) => {
+  const updatedUserId = userWebSocketClients[ip].userId;
+  const newUserInfo = await checkUserCredentialsById(updatedUserId);
+  const cleantUserInfo = cleanUserData(newUserInfo);
+  sendUserData(JSON.stringify({ type: "auth", data: cleantUserInfo }), ip);
+});
 const updateBackUpWeatherData = async () => {
   await updateBackUpWeather();
   const latestData = await getLatestWeatherData();

@@ -8,21 +8,26 @@ const addNewUser =
 const passwordHash = require("../generalUtils/userCreds/password").passwordHash;
 const issueNewRefreshToken =
   require("../generalUtils/userCreds/refreshToken").issueNewRefreshToken;
-const eventEmitter = require("./_eventEmitter");
+const { signNewAccessToken } = require("../generalUtils/userCreds/accessToken");
+const { eventEmitter } = require("./_emitEvent");
 
 router.post("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
-    const { username, password, email } = req.body;
+    const { username, password, email, viewMode } = req.body;
     const newUsernameUnique = await uniqueUsername(username);
-    if (!newUsernameUnique) throw new UsernameError("Username already exists");
+    if (!newUsernameUnique) throw new UsernameError("Username already exists!");
     const hashedPassword = await passwordHash(password);
+    if (email) {
+      const existUser = findUserInfoByEmail(email);
+      if (existUser) throw new EmailError("Email already exists!");
+    }
     const newUser = {
       username: username,
       password: hashedPassword,
       email: email,
       role: "user",
-      viewMode: "default",
+      viewMode: viewMode ?? "default",
     };
     const userId = await addNewUser(newUser);
     const newRefreshToken = await issueNewRefreshToken(userId);

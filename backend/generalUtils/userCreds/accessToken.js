@@ -7,7 +7,6 @@ const {
   InternalServerError,
   InvalidAccessTokenError,
 } = require("../../errorConfig");
-const HTTP_STATUS = require("../../backendConfig").HTTP_STATUS;
 
 const signNewAccessToken = (userId) => {
   try {

@@ -1,4 +1,5 @@
 const { InvalidRefreshTokenError } = require("../../../errorConfig");
+
 const tokenAuthentication = async (req, res, next) => {
   try {
     const refreshToken = req.headers.authentication;

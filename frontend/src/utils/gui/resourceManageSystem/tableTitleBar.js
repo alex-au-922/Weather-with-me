@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import { Typeahead } from "react-bootstrap-typeahead";
 import escapeRegExp from "../../input/escapeRegExp";
 import DropDownButton from "../dropDown";
@@ -66,7 +66,7 @@ const TableTitleBar = (props) => {
     searchBarRef.ref.current.clear();
   }, [searchField.name]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     /*
         When the data source changes, or the searchbar input changes,
         then the filtered user list also changes
