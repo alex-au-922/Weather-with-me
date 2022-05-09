@@ -1,5 +1,6 @@
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import resourceFetch from "../authUtils/resourceFetch";
+import sortOnKey from "../sortOnKey";
 
 const parseUserDataFrontendView = (userJson) => {
   const userList = userJson
@@ -9,7 +10,8 @@ const parseUserDataFrontendView = (userJson) => {
       delete newUserObject.role;
       return newUserObject;
     });
-  return userList;
+  const newUserList = sortOnKey(userList, "username", true);
+  return newUserList;
 };
 
 const initFetchUserData = async (fetchFunction = fetch) => {

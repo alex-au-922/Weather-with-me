@@ -19,6 +19,9 @@ const WeatherWebSocketProvider = (props) => {
           console.log("open connection");
           console.log(newWebSocket);
         };
+        newWebSocket.onmessage = () => {
+          console.log("received message!");
+        };
         newWebSocket.onclose = () => {
           console.log("close connection!");
         };

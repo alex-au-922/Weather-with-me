@@ -3,6 +3,9 @@ const {
   findLocationInfoByName,
   uniqueLocationName,
 } = require("../../../generalUtils/location/locationName");
+const {
+  updateLocation,
+} = require("../../../databaseUtils/weatherDatabase/updateLocation");
 const { eventEmitter } = require("../../_emitEvent");
 const router = express.Router();
 

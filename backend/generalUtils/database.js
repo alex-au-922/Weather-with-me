@@ -5,9 +5,6 @@ let weatherDB = null;
 let userDB = null;
 let locationDB = null;
 
-exports.connectLocationDB = async () =>
-  await connectDB(locationDB, process.env.LOCATION_DATABASE_NAME);
-
 exports.connectWeatherDB = async () =>
   await connectDB(weatherDB, process.env.WEATHER_DATABASE_NAME);
 

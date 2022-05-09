@@ -44,9 +44,7 @@ const LocationAdminDataFormModal = (props) => {
     setUnsaved(resetUnsaved);
   };
 
-  const handleSaveChange = () => {
-    
-  }
+  const handleSaveChange = () => {};
 
   const handleChangeUnsaved = (field, changed) => {
     const newUnsaved = { ...unsaved };
@@ -90,7 +88,14 @@ const LocationAdminDataFormModal = (props) => {
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         backdrop="static"
-        style={{ opacity: props.show ? (showUnsavedModal ? 0.8 : 1) : 0 }}
+        animation={false}
+        style={{
+          opacity: props.show
+            ? showUnsavedModal || showDeleteModal
+              ? 0.8
+              : 1
+            : 0,
+        }}
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">

@@ -78,7 +78,7 @@ const UserDataFormModal = (props) => {
     }
     if (userInfo.email) {
       const { success: emailCheckSuccess, error: emailCheckError } =
-        validateEmail(userInfo.password);
+        validateEmail(userInfo.email);
       if (!emailCheckSuccess) {
         const newUserInfoError = objectSetAll(userInfoError, "");
         newUserInfoError.email = emailCheckError;
@@ -199,7 +199,7 @@ const UserDataFormModal = (props) => {
         style={{
           opacity: props.show
             ? showUnsavedModal || showDeleteModal
-              ? 0.7
+              ? 0.8
               : 1
             : 0,
         }}

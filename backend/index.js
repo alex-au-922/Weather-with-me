@@ -51,8 +51,6 @@ eventEmitter.on("userUpdate", async (ip) => {
 });
 const updateBackUpWeatherData = async () => {
   await updateBackUpWeather();
-  const latestData = await getLatestWeatherData();
-  sendWeatherData(JSON.stringify(latestData));
 };
 
 eventEmitter.on("updateUserData", async () => {
