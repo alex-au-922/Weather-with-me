@@ -28,7 +28,6 @@ const {
   checkUserCredentialsById,
   cleanUserData,
 } = require("./generalUtils/userCreds/username");
-const { ObjectId } = require("mongoose").Types;
 api(app);
 
 const server = app.listen(process.env.WEBSER_PORT, () => {

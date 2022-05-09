@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import checkString from "../../utils/input/checkString";
 import { Form, Card, Button } from "react-bootstrap";
-import FormInputWithError from "../../utils/gui/formInputs";
+import { FormInputWithError } from "../../utils/gui/formInputs";
 import { useNavigate } from "react-router-dom";
 import { objectSetAll } from "../../utils/object";
 import validateEmail from "../../utils/input/checkEmail";

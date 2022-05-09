@@ -9,8 +9,7 @@ import { Container } from "react-bootstrap";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import validateEmail from "../../utils/input/checkEmail";
 import resourceFetch from "../../utils/authUtils/resourceFetch";
-import FormInputWithError from "../../utils/gui/formInputs";
-import { FormRowHeader } from "../../utils/gui/formInputs";
+import { FormRowHeader, FormInputWithError } from "../../utils/gui/formInputs";
 
 const Settings = () => {
   const { user } = useContext(AuthContext);

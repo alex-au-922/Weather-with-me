@@ -17,6 +17,24 @@ const FormInputWithError = ({ error, ...styles }) => {
   );
 };
 
+const FormSelectWithError = ({ error, children, ...styles }) => {
+  return (
+    <>
+      <Form.Select {...styles} isInvalid={error}>
+        {children}
+      </Form.Select>
+      {error && (
+        <Form.Control.Feedback
+          type="invalid"
+          style={{ color: "red", opacity: 0.5 }}
+        >
+          {error}
+        </Form.Control.Feedback>
+      )}
+    </>
+  );
+};
+
 const FormRowHeader = (props) => {
   const displayString = props.updated ? " *" : "";
   return (
@@ -27,5 +45,4 @@ const FormRowHeader = (props) => {
   );
 };
 
-export default FormInputWithError;
-export { FormRowHeader };
+export { FormRowHeader, FormInputWithError, FormSelectWithError };

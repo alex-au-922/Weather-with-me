@@ -1,16 +1,25 @@
 const express = require("express");
 const { HTTP_STATUS } = require("../../../backendConfig");
-const { UsernameError, UnauthorizationError } = require("../../../errorConfig");
+const {
+  UsernameError,
+  UnauthorizationError,
+  EmailError,
+} = require("../../../errorConfig");
 const { passwordHash } = require("../../../generalUtils/userCreds/password");
 const {
   findUserInfoByUsername,
+  findUserInfoByEmail,
   uniqueUsername,
 } = require("../../../generalUtils/userCreds/username");
+const {
+  updateUser,
+} = require("../../../databaseUtils/userDatabase/updateUser");
 const {
   deleteUser,
 } = require("../../../databaseUtils/userDatabase/deleteUser");
 const getLatestUserData =
   require("../../../databaseUtils/userDatabase/getLatestData").getLatestData;
+const { eventEmitter } = require("../../_emitEvent");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
@@ -27,9 +36,8 @@ router.get("/", async (req, res, next) => {
 router.put("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
-    const { oldData, newData } = req.body;
-    const { oldUsername } = oldData;
-    const { userId } = findUserInfoByUsername(oldUsername);
+    const { oldUsername, newData } = req.body;
+    const { userId } = await findUserInfoByUsername(oldUsername);
     const {
       username: newUsername,
       password: newPassword,
@@ -45,10 +53,12 @@ router.put("/", async (req, res, next) => {
     }
     newUserInfo.username = newUsername;
 
-    const existsEmail = await findUserInfoByEmail(newEmail);
-    if (existsEmail !== null && existsEmail.userId !== userId)
-      throw new EmailError("Email already exists!");
-    newUserInfo.email = newEmail;
+    if (newEmail) {
+      const existsEmail = await findUserInfoByEmail(newEmail);
+      if (existsEmail !== null && existsEmail.userId !== userId)
+        throw new EmailError("Email already exists!");
+      newUserInfo.email = newEmail;
+    }
 
     if (newPassword) {
       //hash the password if the password has been changed
@@ -58,6 +68,7 @@ router.put("/", async (req, res, next) => {
 
     newUserInfo.viewMode = newViewMode;
     await updateUser(userId, newUserInfo);
+    eventEmitter.emit("updateUserData");
     response.success = true;
     res.send(JSON.stringify(response));
   } catch (error) {

@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
-import { FormRowHeader } from "../../../../utils/gui/formInputs";
-import { Modal, Button, Form } from "react-bootstrap";
+import {
+  FormRowHeader,
+  FormSelectWithError,
+} from "../../../../utils/gui/formInputs";
+import { Form } from "react-bootstrap";
+import { FormInputWithError } from "../../../../utils/gui/formInputs";
 
 const renderModals = (ModalComponent) => {
   return (data, modalConfig, show, onHide, uniqueKey) => {
@@ -45,9 +49,8 @@ const InputFormModalRow = (props) => {
         field={props.field}
         updated={updateValue !== originalValue}
       />
-
-      <input
-        className="form-control"
+      <FormInputWithError
+        error={props.error ?? ""}
         type={props.type}
         placeholder={props.placeholder}
         value={updateValue}
@@ -86,11 +89,15 @@ const SelectFormModalRow = (props) => {
         updated={updateValue !== props.chosenOption}
         field={props.field}
       />
-      <Form.Select defaultValue={updateValue} onChange={handleChangeValue}>
+      <FormSelectWithError
+        defaultValue={updateValue}
+        onChange={handleChangeValue}
+        error={props.error}
+      >
         {props.options.map((option, index) => (
           <option key={index}>{option}</option>
         ))}
-      </Form.Select>
+      </FormSelectWithError>
     </>
   );
 };

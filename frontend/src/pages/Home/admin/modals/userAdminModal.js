@@ -19,7 +19,14 @@ const UserDataFormModal = (props) => {
   );
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [userInfo, setUserInfo] = useState(props.data);
+  const [userInfo, setUserInfo] = useState(
+    Object.keys(props.data).reduce(
+      (obj, key) => (
+        (obj[key] = props.modalConfig[key].blank ? "" : props.data[key]), obj
+      ),
+      {}
+    )
+  );
   const [userInfoError, setUserInfoError] = useState(
     Object.keys(props.data).reduce((obj, key) => ((obj[key] = ""), obj), {})
   );
@@ -55,27 +62,32 @@ const UserDataFormModal = (props) => {
   const handleSaveChange = async () => {
     const { success: usernameCheckSuccess, error: usernameCheckError } =
       checkString(userInfo.username);
-    const { success: passwordCheckSuccess, error: passwordCheckError } =
-      checkString(userInfo.password);
-    const { success: emailCheckSuccess, error: emailCheckError } =
-      validateEmail(userInfo.password);
     if (!usernameCheckSuccess) {
       const newUserInfoError = objectSetAll(userInfoError, "");
       newUserInfoError.username = usernameCheckError;
       setUserInfoError(newUserInfoError);
       return;
     }
-    if (!passwordCheckSuccess) {
-      const newUserInfoError = objectSetAll(userInfoError, "");
-      newUserInfoError.password = passwordCheckError;
-      setUserInfoError(newUserInfoError);
-      return;
+
+    if (userInfo.password) {
+      const { success: passwordCheckSuccess, error: passwordCheckError } =
+        checkString(userInfo.password);
+      if (!passwordCheckSuccess) {
+        const newUserInfoError = objectSetAll(userInfoError, "");
+        newUserInfoError.password = passwordCheckError;
+        setUserInfoError(newUserInfoError);
+        return;
+      }
     }
-    if (!emailCheckSuccess) {
-      const newUserInfoError = objectSetAll(userInfoError, "");
-      newUserInfoError.email = emailCheckError;
-      setUserInfoError(newUserInfoError);
-      return;
+    if (userInfo.email) {
+      const { success: emailCheckSuccess, error: emailCheckError } =
+        validateEmail(userInfo.password);
+      if (!emailCheckSuccess) {
+        const newUserInfoError = objectSetAll(userInfoError, "");
+        newUserInfoError.email = emailCheckError;
+        setUserInfoError(newUserInfoError);
+        return;
+      }
     }
 
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/users`;
@@ -105,6 +117,7 @@ const UserDataFormModal = (props) => {
     if (!updateUserInfoFetching) {
       if (updateUserInfoSuccess) {
         const noError = objectSetAll(userInfoError, false);
+        handleInnerCloseModal();
         setUserInfoError(noError);
       } else if (updateUserInfoErrorType === "UsernameError") {
         const newUserInfoError = objectSetAll(userInfoError, "");
@@ -211,6 +224,7 @@ const UserDataFormModal = (props) => {
                       options={props.modalConfig[field].selectOptions}
                       readOnly={props.modalConfig[field].mutable}
                       chosenOption={props.data[field]}
+                      error={userInfoError[field]}
                       onChangeUnsaved={handleChangeUnsaved}
                       onChangeValue={handleChangeValue}
                     />
@@ -223,6 +237,7 @@ const UserDataFormModal = (props) => {
                       placeholder={camelToCapitalize(field)}
                       blank={props.modalConfig[field].blank}
                       value={props.data[field]}
+                      error={userInfoError[field]}
                       onChangeUnsaved={handleChangeUnsaved}
                       onChangeValue={handleChangeValue}
                     />

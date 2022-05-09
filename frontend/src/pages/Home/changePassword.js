@@ -8,8 +8,7 @@ import { Container } from "react-bootstrap";
 import checkString from "../../utils/input/checkString";
 import resourceFetch from "../../utils/authUtils/resourceFetch";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
-import FormInputWithError from "../../utils/gui/formInputs";
-import { FormRowHeader } from "../../utils/gui/formInputs";
+import { FormRowHeader, FormInputWithError } from "../../utils/gui/formInputs";
 import { objectSetAll } from "../../utils/object";
 
 const ChangePassword = () => {
