@@ -6,12 +6,18 @@ import {
 import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
 import MapView from "./mapView";
+import { renderModals } from "../admin/modals";
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import { FetchStateContext } from "../../../middleware/fetch";
 import DropDownButton from "../../../utils/gui/dropDown";
+import { WeatherAdminDataFormModal, weatherModalOptions } from "../admin/modals/weatherAdminModal";
+import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
 
 const UserView = (props) => {
   const { username } = props.user;
+  const [dataLists, setDataLists] = useState({
+    Weather: null,
+  });
   const [view, setView] = useState("Map");
   const [weatherList, setWeatherList] = useState();
   const { fetchFactory } = useContext(FetchStateContext);
@@ -23,7 +29,7 @@ const UserView = (props) => {
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
 
-  const handleViewSelect = (event) => setView(event);
+  const handleViewSelect = (event) => {setView(event)};
   const switchViewOptions = {
     handleSelect: handleViewSelect,
     buttonName: view,
@@ -35,6 +41,8 @@ const UserView = (props) => {
       return <DropDownButton {...switchViewOptions} />;
     }
   };
+
+  const renderWeatherModal = renderModals(WeatherAdminDataFormModal);
 
   useEffect(() => {
     const handler = (event) => {
@@ -63,12 +71,18 @@ const UserView = (props) => {
 
   const updateWeatherData = (resultJson) => {
     const newWeatherList = parseWeatherDataFrontendView(resultJson);
-    setWeatherList(newWeatherList);
+    setDataLists((dataLists) => {
+      return { ...dataLists, Weather: newWeatherList };
+    });
   };
+
+  const checkDataList = () => {
+    console.log(dataLists.Weather);
+  }
 
   return (
     <>
-      <MapView
+      { view == "Map" ? (<MapView
         weatherList={weatherList}
         switchViewOptions={switchViewOptions}
         renderSwitchView={renderSwitchView}
@@ -94,7 +108,43 @@ const UserView = (props) => {
           tenMinMeanWindSpeed: Number,
           time: String,
         }}
-      />
+      />) : (
+        <>
+        <h1 onClick={checkDataList}>Hello!</h1>
+        <ResourceManagementTable
+          key="weather"
+          dataUniqueKey={"name"}
+          dataList={dataLists.Weather}
+          switchViewOptions={switchViewOptions}
+          renderSwitchView={renderSwitchView}
+          modalConfig={weatherModalOptions}
+          renderModals={renderWeatherModal}
+          options={[
+            "name",
+            "latitude",
+            "longitude",
+            "temperature",
+            "relativeHumidity",
+            "tenMinMaxGust",
+            "TenMinMeanWindDir",
+            "TenMinMeanWindSpeed",
+            "time"
+          ]}
+          optionsType={{
+            name: String,
+            latitude: Number,
+            longitude: Number,
+            temperature: Number,
+            relativeHumidity: Number,
+            tenMinMaxGust: Number,
+            tenMinMeanWindDir: String,
+            tenMinMeanWindSpeed: Number,
+            time: String,
+          }} />
+        </>
+      )
+      
+      }
     </>
   );
 };
