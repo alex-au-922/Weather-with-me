@@ -135,12 +135,11 @@ const UserDataFormModal = (props) => {
         username,
       }),
     };
-    const fetchResult = await fetch(url, payload);
-    const { success: deleteUserSuccess } = await fetchResult.json();
-    console.log("deleteUser", deleteUserSuccess);
-    // if (!deleteUserFetching) {
-    if (deleteUserSuccess) handleInnerCloseModal();
-    // }
+    const { success: deleteUserSuccess, fetching: deleteUserFetching } =
+      await resourceFetch(deleteFetch, url, payload);
+    if (!deleteUserFetching) {
+      if (deleteUserSuccess) handleInnerCloseModal();
+    }
   };
 
   const handleChangeUnsaved = (field, changed) => {

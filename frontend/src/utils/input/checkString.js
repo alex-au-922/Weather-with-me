@@ -3,7 +3,7 @@ const checkString = (string) => {
     success: false,
     error: "",
   };
-  const stringValid = Boolean(String(string).match(/(?=.{4,20})/));
+  const stringValid = Boolean(String(string).match(/^.{4,20}$/));
   if (stringValid) response.success = true;
   else
     response.error =
