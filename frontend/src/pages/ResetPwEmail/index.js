@@ -5,9 +5,11 @@ import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 
 const ResetPasswordEmail = (props) => {
   const [email, setEmail] = useState();
+  const [initialClick, setInitialClick] = useState(true);
   const navigate = useNavigate();
 
   const handleSendResetPwEmail = async () => {
+    setInitialClick(false);
     const url = `${BACKEND_WEBSERVER_HOST}/resetpw/email`;
     const payload = {
       method: "POST",
@@ -23,8 +25,6 @@ const ResetPasswordEmail = (props) => {
         console.log("Unknown error occurs!");
         return;
       }
-    } else {
-      navigate("/reset/email/success");
     }
   };
 
@@ -41,8 +41,8 @@ const ResetPasswordEmail = (props) => {
                 Input your Email
               </Card.Title>
             </div>
-            <Form style={{ height: "50%"}}>
-              <div style = {{height: "30%"}}/>
+            <Form style={{ height: "50%" }}>
+              <div style={{ height: "30%" }} />
               <Form.Control
                 type="text"
                 placeholder="Email"
@@ -55,7 +55,7 @@ const ResetPasswordEmail = (props) => {
                 variant="primary"
                 onClick={handleSendResetPwEmail}
               >
-                Confirm
+                {initialClick ? "Confirm" : "Resend Email"}
               </Button>
             </div>
             <div
