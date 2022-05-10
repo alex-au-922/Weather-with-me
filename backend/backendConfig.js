@@ -140,6 +140,22 @@ exports.databaseConfig = {
       },
     }
   ),
+  requestLogSchema: new mongoose.Schema(
+    {
+      method: String,
+      userAgent: String,
+      date: String,
+      ip: String,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
   resetPwSchema: new mongoose.Schema(
     {
       userId: {
