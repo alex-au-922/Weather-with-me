@@ -2,8 +2,6 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import ResetPassword from "../pages/ResetPw";
 import ResetPasswordEmail from "../pages/ResetPwEmail";
-import ResetPasswordSuccess from "../pages/ResetPwSuccess";
-import ResetPasswordEmailSuccess from "../pages/ResetPwEmailSuccess";
 import SignUp from "../pages/SignUp";
 import SignUpSuccess from "../pages/SignUpSuccess";
 import ChangePassword from "../pages/Home/changePassword";
@@ -36,16 +34,6 @@ const routes = [
     protected: false,
   },
   {
-    path: "/reset/success",
-    component: <ResetPasswordSuccess />,
-    protected: false,
-  },
-  {
-    path: "/reset/email/success",
-    component: <ResetPasswordEmailSuccess />,
-    protected: false,
-  },
-  {
     path: "/signup/success",
     component: <SignUpSuccess />,
     protected: false,
@@ -59,6 +47,6 @@ const routes = [
     path: "/settings",
     component: <Settings />,
     protected: true,
-  }
+  },
 ];
 export default routes;

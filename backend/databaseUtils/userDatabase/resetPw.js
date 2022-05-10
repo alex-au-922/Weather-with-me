@@ -17,12 +17,9 @@ const addPendingResetPwUser = async (resetPwInfo) => {
         { userId: resetPwInfo.userId },
         resetPwInfo
       );
-      logger.info(result);
     } else {
       const result = await ResetPwModel.create(resetPwInfo);
-      logger.info(result);
     }
-    return result;
   } catch (error) {
     throw new DatabaseError(error);
   }
@@ -37,10 +34,12 @@ const deleteResetPasswordRecord = async (username) => {
 const findUserByHash = async (userHash) => {
   try {
     const userDB = await connectUserDB();
-    const UserModel = userDB.model("User", userSchema);
     const ResetPwModel = userDB.model("ResetPw", resetPwSchema);
-    const userId = await ResetPwModel.findOne({ userHash }, "userId");
-    return userId;
+    const resetUserInfo = await ResetPwModel.findOne(
+      { userHash },
+      "userId expiredTime"
+    );
+    return resetUserInfo;
   } catch (error) {
     throw new DatabaseError(error);
   }

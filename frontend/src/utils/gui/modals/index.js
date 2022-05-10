@@ -9,6 +9,9 @@ const BasicInfoModal = (props) => {
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
       backdrop="static"
+      style={{
+        zIndex: 1000000,
+      }}
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">

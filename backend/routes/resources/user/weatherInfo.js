@@ -1,6 +1,9 @@
 const express = require("express");
-const getLatestWeatherData =
-  require("../../../databaseUtils/weatherDatabase/getLatestData").getLatestData;
+const {
+  getLatestData: getLatestWeatherData,
+  getLatestGeoLocationData,
+  geoLocationToWeather,
+} = require("../../../databaseUtils/weatherDatabase/getLatestData");
 const usernameCheck = require("../../middleware/resourceAuth/usernameCheck");
 
 const router = express.Router();
@@ -9,9 +12,14 @@ router.use("/", usernameCheck);
 router.get("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
-    const result = await getLatestWeatherData();
+    const weatherResults = await getLatestWeatherData();
+    const geolocationResults = await getLatestGeoLocationData();
+    const newLatestWeatherData = geoLocationToWeather(
+      geolocationResults,
+      weatherResults
+    );
     response.success = true;
-    response.result = result;
+    response.result = newLatestWeatherData;
     res.send(JSON.stringify(response));
   } catch (error) {
     next(error);

@@ -1,5 +1,5 @@
 import TableTitleBar from "./tableTitleBar";
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Table, Modal, Button, Form } from "react-bootstrap";
 import camelToCapitalize from "../../input/camelToCapitalize";
 import { ReactComponent as DescendingIcon } from "./descending.svg";
@@ -118,10 +118,12 @@ const OptionsFilterModal = (props) => {
 };
 
 const ResourceManagementTable = (props) => {
+  const [initial, setInitial] = useState(true);
   const [filteredDataList, setFilteredDataList] = useState(props.dataList);
+
   const [displayOptions, setDisplayOptions] = useState(props.options);
   const [optionsDescending, setOptionsDescending] = useState(
-    props.options.reduce((obj, key) => ((obj[key] = false), obj), {})
+    props.options.reduce((obj, key) => ((obj[key] = null), obj), {})
   );
   const [changedOrderKey, setChangedOrderKey] = useState(null);
   const [filterModalShow, setFilterModalShow] = useState(false);
@@ -176,6 +178,8 @@ const ResourceManagementTable = (props) => {
         splitButtonOptions={{ onClick: handleFilterModalOpen }}
         switchViewOptions={props.switchViewOptions}
         renderSwitchView={props.renderSwitchView}
+        renderAddButton={props.renderAddButton}
+        addButtonOptions={props.addButtonOptions}
       />
       <Table striped bordered hover style={{ textAlign: "center" }}>
         <thead>

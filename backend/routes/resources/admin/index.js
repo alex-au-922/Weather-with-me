@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.use("/", usernameCheck);
 router.use("/", adminRoleCheck);
-router.use("/location", locationInfo);
+router.use("/locations", locationInfo);
 router.use("/users", userInfo);
 
 module.exports = router;

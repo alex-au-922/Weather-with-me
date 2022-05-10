@@ -1,4 +1,5 @@
 const { InternalServerError } = require("../../errorConfig");
+const bcrypt = require("bcrypt");
 
 const transporter = require("../../backendConfig").transporter;
 const logger = require("../getLogger").getLogger();
@@ -27,8 +28,7 @@ const sendResetPwEmail = async (resetPwInfo) => {
   const resetPwLink = `${FRONTEND_HOST}/reset/${userHash}`;
   const template = emailTemplate(email, username, resetPwLink);
   transporter.sendMail(template, (err, info) => {
-    if (err) logger.error(err);
-    else logger.info(info);
+    if (err) logger.error(err.message);
   });
 };
 

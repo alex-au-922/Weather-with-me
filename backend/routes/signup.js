@@ -25,9 +25,9 @@ router.post("/", async (req, res, next) => {
     const newUser = {
       username: username,
       password: hashedPassword,
-      email: email,
+      email: email || "",
       role: "user",
-      viewMode: viewMode ?? "default",
+      viewMode: viewMode || "default",
     };
     const userId = await addNewUser(newUser);
     const newRefreshToken = await issueNewRefreshToken(userId);

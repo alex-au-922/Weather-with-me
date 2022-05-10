@@ -66,7 +66,7 @@ const TableTitleBar = (props) => {
     searchBarRef.ref.current.clear();
   }, [searchField.name]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     /*
         When the data source changes, or the searchbar input changes,
         then the filtered user list also changes
@@ -151,6 +151,7 @@ const TableTitleBar = (props) => {
         }
         handleSelect={handleSearchFieldOptionChange}
       />
+      {props.renderAddButton && props.renderAddButton(props.addButtonOptions)}
     </div>
   );
 };

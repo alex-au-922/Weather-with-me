@@ -1,20 +1,19 @@
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import unixTimeExpired from "../time/unixExpired";
 
-const findUserHash = async (userHash) => {
+const findUserHash = async (fetchFunction, userHash) => {
   // Decrypt the jwt
-  const endPoint = `${BACKEND_WEBSERVER_HOST}/userhash`;
+  const endPoint = `${BACKEND_WEBSERVER_HOST}/api/v1/${userHash}`;
   const payload = {
-    method: "POST",
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ userHash }),
   };
 
   // Fetch the userhash
-  const apiResult = await fetch(endPoint, payload);
-  const { success, error, userInfo } = await apiResult.json();
+  const apiResult = await fetchFunction(endPoint, payload);
+  const { success, error, errorType, userInfo } = await apiResult.json();
   if (!success) {
     return { success: false, error };
   } else if (userInfo === null) {

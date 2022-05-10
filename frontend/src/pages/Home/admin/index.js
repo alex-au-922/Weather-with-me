@@ -9,12 +9,20 @@ import parseUserDataFrontendView from "../../../utils/data/user";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
 import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import { renderModals } from "./modals";
-import { UserDataFormModal, userModalOptions } from "./modals/userAdminModal";
+import { ReactComponent as AddIcon } from "./file-earmark-plus.svg";
 import {
+  UserDataFormModal,
+  userModalOptions,
+  BlankUserDataFormModal,
+} from "./modals/userAdminModal";
+import {
+  BlankLocationDataFormModal,
   LocationAdminDataFormModal,
   locationModalOptions,
 } from "./modals/locationAdminModal";
+import SwitchComponents from "../switchView";
 import DropDownButton from "../../../utils/gui/dropDown";
+import CreateButton from "../../../utils/gui/create";
 import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
 
 // a component that fetchs all the user and weather data at the top level
@@ -50,6 +58,28 @@ const AdminView = (props) => {
   const renderSwitchView = (switchViewOptions) => {
     if (switchViewOptions !== undefined && switchViewOptions !== null) {
       return <DropDownButton {...switchViewOptions} />;
+    }
+  };
+  const addUserButtonOptions = {
+    renderModal: renderModals(BlankUserDataFormModal),
+    data: { username: "", password: "", email: "", viewMode: "default" },
+    modalConfigs: userModalOptions,
+  };
+
+  const addLocationButtonOptions = {
+    renderModal: renderModals(BlankLocationDataFormModal),
+    data: { name: "", latitude: "", longitude: "" },
+    modalConfigs: locationModalOptions,
+  };
+
+  const renderAddButton = (addButtonOptions) => {
+    if (addButtonOptions !== undefined && addButtonOptions !== null) {
+      return (
+        <CreateButton {...addButtonOptions}>
+          <AddIcon />
+          Create
+        </CreateButton>
+      );
     }
   };
 
@@ -99,7 +129,7 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch weather data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/weathers`;
+      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/locations`;
       const payload = {
         method: "GET",
         headers: {
@@ -124,9 +154,10 @@ const AdminView = (props) => {
 
   return (
     <>
-      {table === "User" ? (
+      <SwitchComponents active={table}>
         <ResourceManagementTable
           key="user"
+          name="User"
           dataUniqueKey={"username"}
           dataList={dataLists.User}
           switchViewOptions={switchViewOptions}
@@ -134,10 +165,12 @@ const AdminView = (props) => {
           modalConfig={userModalOptions}
           renderModals={renderUserModal}
           options={["username", "email", "viewMode"]}
+          renderAddButton={renderAddButton}
+          addButtonOptions={addUserButtonOptions}
         />
-      ) : (
         <ResourceManagementTable
           key="location"
+          name="Location"
           dataUniqueKey={"name"}
           dataList={dataLists.Location}
           switchViewOptions={switchViewOptions}
@@ -146,8 +179,10 @@ const AdminView = (props) => {
           renderModals={renderWeatherModal}
           options={["name", "latitude", "longitude"]}
           optionsType={{ name: String, latitude: Number, longitude: Number }}
+          renderAddButton={renderAddButton}
+          addButtonOptions={addLocationButtonOptions}
         />
-      )}{" "}
+      </SwitchComponents>
     </>
   );
 };

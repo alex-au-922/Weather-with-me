@@ -6,9 +6,9 @@ import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 const ResetPasswordEmail = (props) => {
   const [email, setEmail] = useState();
   const navigate = useNavigate();
-
+  
   const handleSendResetPwEmail = async () => {
-    const url = `${BACKEND_WEBSERVER_HOST}/resetpw/email`;
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resetpw`;
     const payload = {
       method: "POST",
       headers: {
@@ -23,8 +23,6 @@ const ResetPasswordEmail = (props) => {
         console.log("Unknown error occurs!");
         return;
       }
-    } else {
-      navigate("/reset/email/success");
     }
   };
 
@@ -41,8 +39,8 @@ const ResetPasswordEmail = (props) => {
                 Input your Email
               </Card.Title>
             </div>
-            <Form style={{ height: "50%"}}>
-              <div style = {{height: "30%"}}/>
+            <Form style={{ height: "50%" }}>
+              <div style={{ height: "30%" }} />
               <Form.Control
                 type="text"
                 placeholder="Email"

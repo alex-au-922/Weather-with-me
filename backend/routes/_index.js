@@ -13,6 +13,7 @@ const errorLogger = require("./middleware/general/errorLogger");
 const allowCors = require("./middleware/general/allowCors");
 
 router.use(allowCors);
+
 router.use(initResponse);
 router.use("/signup", signup);
 router.use("/token/refresh", refreshToken);

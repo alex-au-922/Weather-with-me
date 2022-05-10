@@ -41,6 +41,8 @@ const resourceFetch = async (fetchFunction, ...fetchParams) => {
       fetching: tokenFetching,
     } = await tokensRefresh();
 
+    console.log("Refreshing the token due to expired access token!");
+
     if (tokenFetching) {
       response.fetching = true;
       return response;

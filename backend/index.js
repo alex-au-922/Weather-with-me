@@ -19,8 +19,11 @@ const {
   updateBackUpWeather,
 } = require("./databaseUtils/weatherDatabase/backupWeatherCol");
 const fetchAPIConfig = require("./backendConfig").fetchAPIConfig;
-const getLatestWeatherData =
-  require("./databaseUtils/weatherDatabase/getLatestData").getLatestData;
+const {
+  getLatestData: getLatestWeatherData,
+  getLatestGeoLocationData,
+  geoLocationToWeather,
+} = require("./databaseUtils/weatherDatabase/getLatestData");
 const getLatestUserData =
   require("./databaseUtils/userDatabase/getLatestData").getLatestData;
 const { eventEmitter } = require("./routes/_emitEvent");
@@ -39,8 +42,13 @@ const sendUserData = createUserWebSocketServer(server);
 
 const updateWeatherData = async () => {
   await updateWeather();
-  const latestData = await getLatestWeatherData();
-  sendWeatherData(JSON.stringify(latestData));
+  const weatherResults = await getLatestWeatherData();
+  const geolocationResults = await getLatestGeoLocationData();
+  const newLatestWeatherData = geoLocationToWeather(
+    geolocationResults,
+    weatherResults
+  );
+  sendWeatherData(JSON.stringify(newLatestWeatherData));
 };
 
 eventEmitter.on("userUpdate", async (ip) => {
