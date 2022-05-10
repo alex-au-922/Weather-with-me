@@ -4,6 +4,7 @@ import { registerMarkerListener } from "../../../utils/listeners/googleMapMarker
 import TableTitleBar from "../../../utils/gui/resourceManageSystem/tableTitleBar";
 import GOOGLE_API_KEY from "../../../keys/googleAPI";
 import { objectEqual } from "../../../utils/object";
+import TimeSeries from "./plotGraph";
 
 const loader = new Loader({
   apiKey: GOOGLE_API_KEY,
@@ -165,6 +166,7 @@ const MapView = (props) => {
 
   return (
     <>
+      <TimeSeries/>
       <TableTitleBar
         dataList={props.weatherList}
         filteredDataList={filteredWeatherList}
@@ -186,7 +188,6 @@ const MapView = (props) => {
         weatherList={props.weatherList}
         filteredWeatherList={filteredWeatherList}
       />
-      ;
     </>
   );
 };
