@@ -36,6 +36,9 @@ const Marker = (props) => {
     infoWindow: null,
     content: null,
   });
+  const [showModal, setShowModal] = useState(false);
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
 
   const handleMouseOver = () => {
     infoWindow.infoWindow.setContent(infoWindow.content);
@@ -44,11 +47,6 @@ const Marker = (props) => {
 
   const handleMouseOut = () => {
     infoWindow.infoWindow.close(props.googleMap, marker.marker);
-  };
-
-  const handleMouseClick = () => {
-    //TODO: change the handle mouse click to render a consistent data view
-    console.log(marker.option);
   };
 
   useEffect(() => {
@@ -104,11 +102,10 @@ const Marker = (props) => {
           props.google,
           marker.marker,
           "click",
-          handleMouseClick
+          handleShowModal
         );
 
         return () => {
-          console.log("remove!");
           unregisterMouseOver();
           unregisterMouseOut();
           unregisterMouseClick();
@@ -119,7 +116,19 @@ const Marker = (props) => {
       marker.marker?.setMap(null);
     }
   }, [marker.marker, props.visible]);
-  return null;
+  return (
+    <>
+      {showModal &&
+        props.renderModals &&
+        props.renderModals(
+          props.data,
+          null,
+          showModal,
+          handleCloseModal,
+          props.data.name
+        )}{" "}
+    </>
+  );
 };
 
 const Map = (props) => {
@@ -136,6 +145,7 @@ const Map = (props) => {
     <div ref={ref} style={{ width: "100vw", height: "100vh" }}>
       {props.weatherList?.map((weatherData) => (
         <Marker
+          renderModals={props.renderModals}
           google={props.google}
           googleMap={googleMap}
           key={weatherData.name}
@@ -183,10 +193,10 @@ const MapView = (props) => {
       />
       <Map
         google={google}
+        renderModals={props.renderModals}
         weatherList={props.weatherList}
         filteredWeatherList={filteredWeatherList}
       />
-      ;
     </>
   );
 };

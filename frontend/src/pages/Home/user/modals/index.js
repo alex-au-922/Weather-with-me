@@ -7,6 +7,7 @@ const renderModals = (ModalComponent) => {
     return (
       <ModalComponent
         key={uniqueKey}
+        modalConfig = {modalConfig}
         data={data}
         show={show}
         onHide={onHide}

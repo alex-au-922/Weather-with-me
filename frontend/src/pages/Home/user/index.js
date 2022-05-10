@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import {
   WeatherWebSocketContext,
   UserWebSocketContext,
@@ -28,7 +28,6 @@ const UserView = (props) => {
   });
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
-
   const handleViewSelect = (event) => {
     setView(event);
   };
@@ -85,6 +84,7 @@ const UserView = (props) => {
         <MapView
           weatherList={weatherList}
           switchViewOptions={switchViewOptions}
+          renderModals={renderWeatherModal}
           renderSwitchView={renderSwitchView}
           options={[
             "name",
@@ -117,7 +117,7 @@ const UserView = (props) => {
             dataList={dataLists.Weather}
             switchViewOptions={switchViewOptions}
             renderSwitchView={renderSwitchView}
-            //modalConfig={weatherModalOptions}
+            // modalConfig={weatherModalOptions}
             renderModals={renderWeatherModal}
             options={[
               "name",

@@ -124,7 +124,6 @@ const Map = (props) => {
         },
         zoom: 17,
       };
-      console.log(defaultMapOptions);
       setGoogleMap(new props.google.maps.Map(ref.current, defaultMapOptions));
     }
     return () => console.log("removed map!");
@@ -155,7 +154,7 @@ const LocationMapView = (props) => {
 
   return (
     <>
-      <Map google={google} weatherData={props.weatherData} />;
+      <Map google={google} weatherData={props.weatherData} />
     </>
   );
 };

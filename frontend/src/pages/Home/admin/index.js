@@ -153,37 +153,35 @@ const AdminView = (props) => {
   }, [weatherWebSocket]);
 
   return (
-    <>
-      <SwitchComponents active={table}>
-        <ResourceManagementTable
-          key="user"
-          name="User"
-          dataUniqueKey={"username"}
-          dataList={dataLists.User}
-          switchViewOptions={switchViewOptions}
-          renderSwitchView={renderSwitchView}
-          modalConfig={userModalOptions}
-          renderModals={renderUserModal}
-          options={["username", "email", "viewMode"]}
-          renderAddButton={renderAddButton}
-          addButtonOptions={addUserButtonOptions}
-        />
-        <ResourceManagementTable
-          key="location"
-          name="Location"
-          dataUniqueKey={"name"}
-          dataList={dataLists.Location}
-          switchViewOptions={switchViewOptions}
-          renderSwitchView={renderSwitchView}
-          modalConfig={locationModalOptions}
-          renderModals={renderWeatherModal}
-          options={["name", "latitude", "longitude"]}
-          optionsType={{ name: String, latitude: Number, longitude: Number }}
-          renderAddButton={renderAddButton}
-          addButtonOptions={addLocationButtonOptions}
-        />
-      </SwitchComponents>
-    </>
+    <SwitchComponents active={table}>
+      <ResourceManagementTable
+        key="user"
+        name="User"
+        dataUniqueKey={"username"}
+        dataList={dataLists.User}
+        switchViewOptions={switchViewOptions}
+        renderSwitchView={renderSwitchView}
+        modalConfig={userModalOptions}
+        renderModals={renderUserModal}
+        options={["username", "email", "viewMode"]}
+        renderAddButton={renderAddButton}
+        addButtonOptions={addUserButtonOptions}
+      />
+      <ResourceManagementTable
+        key="location"
+        name="Location"
+        dataUniqueKey={"name"}
+        dataList={dataLists.Location}
+        switchViewOptions={switchViewOptions}
+        renderSwitchView={renderSwitchView}
+        modalConfig={locationModalOptions}
+        renderModals={renderWeatherModal}
+        options={["name", "latitude", "longitude"]}
+        optionsType={{ name: String, latitude: Number, longitude: Number }}
+        renderAddButton={renderAddButton}
+        addButtonOptions={addLocationButtonOptions}
+      />
+    </SwitchComponents>
   );
 };
 

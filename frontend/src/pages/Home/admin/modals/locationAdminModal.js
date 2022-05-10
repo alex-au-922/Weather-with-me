@@ -1,11 +1,12 @@
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useLayoutEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { InputFormModalRow, SelectFormModalRow } from ".";
 import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
 import { objectAny, objectSetAll } from "../../../../utils/object";
 import { FetchStateContext } from "../../../../middleware/fetch";
 import { AuthContext } from "../../../../middleware/auth";
+import { FormBufferContext } from "../contexts/formBufferProvider";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
 
@@ -13,10 +14,27 @@ const BlankLocationDataFormModal = (props) => {
   const { user } = useContext(AuthContext);
   const [unsaved, setUnsaved] = useState(objectSetAll(props.data, false));
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
-  const [locationInfo, setLocationInfo] = useState(objectSetAll(props.data));
   const [locationInfoError, setLocationInfoError] = useState(
     objectSetAll(props.data, "")
   );
+  const { formBuffer, setFormBuffer, resetBuffer } =
+    useContext(FormBufferContext);
+  useLayoutEffect(() => {
+    setFormBuffer((formBuffer) => objectSetAll(props.data));
+  }, []);
+
+  useLayoutEffect(() => {
+    const newBuffer = Object.keys(unsaved).reduce(
+      (prevBuffer, currKey) => (
+        (prevBuffer[currKey] = unsaved[currKey]
+          ? formBuffer[currKey]
+          : props.data[currKey]),
+        prevBuffer
+      ),
+      {}
+    );
+    setFormBuffer(newBuffer);
+  }, [props.data]);
 
   const { fetchFactory } = useContext(FetchStateContext);
   const createFetch = fetchFactory(
@@ -25,7 +43,7 @@ const BlankLocationDataFormModal = (props) => {
       error: true,
       loading: true,
     },
-    `Successfully created location ${locationInfo.name}!`,
+    `Successfully created location ${formBuffer.name}!`,
     false,
     ["LocationNameError", "ValueError"]
   );
@@ -35,10 +53,10 @@ const BlankLocationDataFormModal = (props) => {
     setUnsaved(newUnsaved);
   };
 
-  const handleChangeValue = (locationField, changedLocationInfo) => {
-    const newLocationInfo = { ...locationInfo };
-    newLocationInfo[locationField] = changedLocationInfo;
-    setLocationInfo(newLocationInfo);
+  const handleChangeValue = (field, changedBuffer) => {
+    const newBuffer = { ...formBuffer };
+    newBuffer[field] = changedBuffer;
+    setFormBuffer(newBuffer);
   };
 
   const resetUnsaved = () => {
@@ -55,7 +73,7 @@ const BlankLocationDataFormModal = (props) => {
         authorization: localStorage.getItem("accessToken"),
         username: user.username,
       },
-      body: JSON.stringify(locationInfo),
+      body: JSON.stringify(formBuffer),
     };
     const {
       success: updateLocationInfoSuccess,
@@ -91,6 +109,7 @@ const BlankLocationDataFormModal = (props) => {
   const handleCloseUnsavedModal = () => setShowUnsavedModal(false);
 
   const handleInnerCloseModal = () => {
+    resetBuffer();
     resetUnsaved();
     props.onHide();
   };
@@ -191,11 +210,29 @@ const LocationAdminDataFormModal = (props) => {
   const [unsaved, setUnsaved] = useState(objectSetAll(locationData, false));
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [locationInfo, setLocationInfo] = useState(locationData);
   const { user } = useContext(AuthContext);
   const [locationInfoError, setLocationInfoError] = useState(
     objectSetAll(locationData, "")
   );
+
+  const { formBuffer, setFormBuffer, resetBuffer } =
+    useContext(FormBufferContext);
+  useLayoutEffect(() => {
+    setFormBuffer((formBuffer) => locationData);
+  }, []);
+
+  useLayoutEffect(() => {
+    const newBuffer = Object.keys(unsaved).reduce(
+      (prevBuffer, currKey) => (
+        (prevBuffer[currKey] = unsaved[currKey]
+          ? formBuffer[currKey]
+          : props.data[currKey]),
+        prevBuffer
+      ),
+      {}
+    );
+    setFormBuffer(newBuffer);
+  }, [props.data]);
 
   const { fetchFactory, fetchState } = useContext(FetchStateContext);
   const updateFetch = fetchFactory(
@@ -229,10 +266,10 @@ const LocationAdminDataFormModal = (props) => {
     setUnsaved(newUnsaved);
   };
 
-  const handleChangeValue = (field, changedValue) => {
-    const newLocationInfo = { ...locationInfo };
-    newLocationInfo[field] = changedValue;
-    setLocationInfo(newLocationInfo);
+  const handleChangeValue = (field, changedBuffer) => {
+    const newBuffer = { ...formBuffer };
+    newBuffer[field] = changedBuffer;
+    setFormBuffer(newBuffer);
   };
 
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
@@ -251,7 +288,7 @@ const LocationAdminDataFormModal = (props) => {
       },
       body: JSON.stringify({
         oldName: locationData.name,
-        newData: locationInfo,
+        newData: formBuffer,
       }),
     };
     const {
@@ -293,7 +330,7 @@ const LocationAdminDataFormModal = (props) => {
         username: user.username,
       },
       body: JSON.stringify({
-        name: locationInfo.name,
+        name: formBuffer.name,
       }),
     };
     const { success: deleteLocationSuccess, fetching: deleteLocationFetching } =
@@ -304,6 +341,7 @@ const LocationAdminDataFormModal = (props) => {
   };
 
   const handleInnerCloseModal = () => {
+    resetBuffer();
     resetUnsaved();
     props.onHide();
   };
