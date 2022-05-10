@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
-import { registerMarkerListener } from "../../../../utils/listeners/googleMapMarkerListener"
+import { registerMarkerListener } from "../../../../utils/listeners/googleMapMarkerListener";
 import GOOGLE_API_KEY from "../../../../keys/googleAPI";
 
 const loader = new Loader({
@@ -117,14 +117,14 @@ const Map = (props) => {
   const [googleMap, setGoogleMap] = useState(null);
   useEffect(() => {
     if (ref.current && googleMap === null && props.google !== null) {
-        const defaultMapOptions = {
-            center: {
-              lat: props.weatherData.latitude,
-              lng: props.weatherData.longitude,
-            },
-            zoom: 4,
-          };
-        console.log(defaultMapOptions);
+      const defaultMapOptions = {
+        center: {
+          lat: props.weatherData.longitude,
+          lng: props.weatherData.latitude,
+        },
+        zoom: 11,
+      };
+      console.log(defaultMapOptions);
       setGoogleMap(new props.google.maps.Map(ref.current, defaultMapOptions));
     }
     return () => console.log("removed map!");
@@ -153,11 +153,7 @@ const LocationMapView = (props) => {
 
   return (
     <>
-      <Map
-        google={google}
-        weatherData={props.weatherData}
-      />
-      ;
+      <Map google={google} weatherData={props.weatherData} />;
     </>
   );
 };

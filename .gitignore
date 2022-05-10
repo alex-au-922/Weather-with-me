@@ -26,6 +26,8 @@ yarn-error.log*
 
 .env
 
+lightsail_bitnami.pem
+
 keys/
 
 */data/*

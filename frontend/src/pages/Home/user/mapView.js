@@ -57,8 +57,8 @@ const Marker = (props) => {
         ...marker,
         option: {
           position: new props.google.maps.LatLng(
-            props.data.longitude,
-            props.data.latitude
+            props.data.latitude,
+            props.data.longitude
           ),
           visible: props.visible,
           optimized: false,
