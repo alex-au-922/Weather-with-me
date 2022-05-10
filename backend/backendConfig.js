@@ -122,6 +122,22 @@ exports.databaseConfig = {
       },
     }
   ),
+  commentSchema: new mongoose.Schema(
+    {
+      userId: String,
+      locationId: String,
+      createTime: String,
+      message: String,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
   loggerSchema: new mongoose.Schema(
     {
       time: String,
