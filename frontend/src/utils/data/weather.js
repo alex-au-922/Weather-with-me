@@ -1,3 +1,4 @@
+import sortOnKey from "../sortOnKey";
 const parseWeatherDataFrontendView = (weatherJson) => {
   const weatherList = weatherJson.map((obj) => {
     const newWeatherObject = {};
@@ -12,7 +13,8 @@ const parseWeatherDataFrontendView = (weatherJson) => {
     newWeatherObject["relativeHumidity"] = obj.relativeHumidity ?? null;
     return newWeatherObject;
   });
-  return weatherList;
+  const newWeatherList = sortOnKey(weatherList, "name", true);
+  return newWeatherList;
 };
 
 export default parseWeatherDataFrontendView;

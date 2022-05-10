@@ -1,25 +1,50 @@
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
 import { FormRowHeader } from "../../../../utils/gui/formInputs";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { InputFormModalRow, SelectFormModalRow } from ".";
 import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
+import { objectSetAll } from "../../../../utils/object";
+import { FetchStateContext } from "../../../../middleware/fetch";
 
-const WeatherAdminDataFormModal = (props) => {
-  const [unsaved, setUnsaved] = useState(
-    Object.keys(props.data).reduce((obj, key) => ((obj[key] = false), obj), {})
-  );
+const LocationAdminDataFormModal = (props) => {
+  const locationData = Object.keys(props.data)
+    .filter((key) => props.modalConfig[key].mutable)
+    .reduce((obj, key) => ((obj[key] = props.data[key]), obj), {});
+  const locationName = props.data.name;
+  const [unsaved, setUnsaved] = useState(objectSetAll(locationData, false));
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [value, setValue] = useState(props.data);
+  const [locationInfo, setLocationInfo] = useState(locationData);
+  const [locationInfoError, setLocationInfoError] = useState(
+    Object.keys(props.data).reduce((obj, key) => ((obj[key] = ""), obj), {})
+  );
+
+  const { fetchFactory } = useContext(FetchStateContext);
+  const updateFetch = fetchFactory(
+    {
+      success: true,
+      error: true,
+      loading: true,
+    },
+    `Successfully updated location ${locationName} info!`
+  );
+
+  const deleteFetch = fetchFactory(
+    {
+      success: true,
+      error: true,
+      loading: true,
+    },
+    `Successfully deleted user ${locationName}!`
+  );
 
   const resetUnsaved = () => {
-    const resetUnsaved = Object.keys(props.data).reduce(
-      (obj, key) => ((obj[key] = false), obj),
-      {}
-    );
+    const resetUnsaved = objectSetAll(locationData, false);
     setUnsaved(resetUnsaved);
   };
+
+  const handleSaveChange = () => {};
 
   const handleChangeUnsaved = (field, changed) => {
     const newUnsaved = { ...unsaved };
@@ -28,9 +53,9 @@ const WeatherAdminDataFormModal = (props) => {
   };
 
   const handleChangeValue = (field, changedValue) => {
-    const newValue = { ...value };
-    newValue[field] = changedValue;
-    setValue(newValue);
+    const newLocationInfo = { ...locationInfo };
+    newLocationInfo[field] = changedValue;
+    setLocationInfo(newLocationInfo);
   };
 
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
@@ -63,7 +88,14 @@ const WeatherAdminDataFormModal = (props) => {
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         backdrop="static"
-        style={{ opacity: props.show ? (showUnsavedModal ? 0.8 : 1) : 0 }}
+        animation={false}
+        style={{
+          opacity: props.show
+            ? showUnsavedModal || showDeleteModal
+              ? 0.8
+              : 1
+            : 0,
+        }}
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
@@ -104,8 +136,15 @@ const WeatherAdminDataFormModal = (props) => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={() => {}}>Save</Button>
-          <Button onClick={handleProperCloseModal}>Close</Button>
+          <Button variant="danger" onClick={handleShowDeleteModal}>
+            Delete
+          </Button>
+          <Button variant="primary" onClick={handleSaveChange}>
+            Save Change
+          </Button>
+          <Button variant="secondary" onClick={handleProperCloseModal}>
+            Close
+          </Button>
         </Modal.Footer>
       </Modal>
       <UnsavedModal
@@ -123,13 +162,13 @@ const WeatherAdminDataFormModal = (props) => {
         show={showDeleteModal}
         onHide={handleCloseDeleteModal}
         title={"Notice"}
-        body={`Are you sure to delete user ${props.data.username}?`}
+        body={`Are you sure to delete location ${locationName}?`}
       />
     </>
   );
 };
 
-const weatherModalOptions = {
+const locationModalOptions = {
   name: {
     mutable: true,
     blank: false,
@@ -177,4 +216,4 @@ const weatherModalOptions = {
   },
 };
 
-export { WeatherAdminDataFormModal, weatherModalOptions };
+export { LocationAdminDataFormModal, locationModalOptions };
