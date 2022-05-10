@@ -11,7 +11,7 @@ const emailTemplate = (destination, username, resetPwLink) => {
     subject: "Reset Password -- Weathering With Me",
     html: `Dear <i>${username}</i>,<br/>
         Please click into the link provided to reset your password.<br/>
-        ${resetPwLink}
+        <a>${resetPwLink}</a>
         <br/>
         Please note that the link will be expired in 1 hour.
         <br/>
@@ -23,9 +23,9 @@ const emailTemplate = (destination, username, resetPwLink) => {
 };
 
 const sendResetPwEmail = async (resetPwInfo) => {
-  const { email, userHash, username, expiredTime } = resetPwInfo;
+  const { email, randomString, username } = resetPwInfo;
   const FRONTEND_HOST = process.env.FRONTEND_HOST;
-  const resetPwLink = `${FRONTEND_HOST}/reset/${userHash}`;
+  const resetPwLink = `${FRONTEND_HOST}/reset/${randomString}`;
   const template = emailTemplate(email, username, resetPwLink);
   transporter.sendMail(template, (err, info) => {
     if (err) logger.error(err.message);

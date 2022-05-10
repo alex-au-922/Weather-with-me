@@ -4,6 +4,7 @@ const resetPwSchema = require("../../backendConfig.js").databaseConfig
 const userSchema = require("../../backendConfig").databaseConfig.userSchema;
 const { DatabaseError, UnauthorizationError } = require("../../errorConfig");
 const { connectUserDB } = require("../../generalUtils/database");
+const { userHash } = require("../../generalUtils/userCreds/resetPw");
 
 const addPendingResetPwUser = async (resetPwInfo) => {
   try {
@@ -31,14 +32,15 @@ const deleteResetPasswordRecord = async (username) => {
   const result = await ResetPw.deleteOne({ username });
 };
 
-const findUserByHash = async (userHash) => {
+const findUserByHash = async (randomString) => {
   try {
     const userDB = await connectUserDB();
+    const hashedUserHash = await userHash(randomString);
+    console.log(hashedUserHash);
     const ResetPwModel = userDB.model("ResetPw", resetPwSchema);
-    const resetUserInfo = await ResetPwModel.findOne(
-      { userHash },
-      "userId expiredTime"
-    );
+    const resetUserInfo = await ResetPwModel.find();
+    
+    console.log(resetUserInfo);
     return resetUserInfo;
   } catch (error) {
     throw new DatabaseError(error);

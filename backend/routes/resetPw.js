@@ -12,13 +12,16 @@ const resetLinkExpiredTime = require("../backendConfig").resetLinkExpiredTime;
 const offsetTime = require("../generalUtils/time/offsetTime").offsetTime;
 const { passwordHash } = require("../generalUtils/userCreds/password");
 const { updateUser } = require("../databaseUtils/userDatabase/updateUser");
-const userHashCheck = require("./middleware/resourceAuth/userHashCheck");
+const { findUserByHash } = require("../databaseUtils/userDatabase/resetPw");
+const { dateExpired } = require("../generalUtils/time/offsetTime");
+// const userHashCheck = require("./middleware/resourceAuth/userHashCheck");
 const router = express.Router();
 
 router.post("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { email } = req.body;
+    response.success = true;
     res.send(JSON.stringify(response));
     const existUser = await findUserInfoByEmail(email);
     if (existUser === null) throw new EmailError("User does not exist!");
@@ -27,6 +30,7 @@ router.post("/", async (req, res, next) => {
     const userHashString = await userHash(randomUserString);
     const resetPwInfo = {
       userId,
+      randomString: randomUserString,
       userHash: userHashString,
       email,
       username,
@@ -35,13 +39,27 @@ router.post("/", async (req, res, next) => {
     };
     await addPendingResetPwUser(resetPwInfo);
     await sendResetPwEmail(resetPwInfo);
-    response.success = true;
   } catch (error) {
     next(error);
   }
 });
 
-router.use(userHashCheck);
+router.use("/:userHash", async (req, res, next) => {
+  try {
+    const userHash = req.params.userHash;
+    console.log("userHash", userHash);
+    const { userId: decryptedUserId, expiredTime } = await findUserByHash(
+      userHash
+    );
+    if (decryptedUserId === null || dateExpired(expiredTime))
+      throw new UnauthorizationError("Unauthorized Action!");
+    res.locals.decryptedUserId = decryptedUserId;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/:userHash", async (req, res, next) => {
   try {
     const response = res.locals.response;
