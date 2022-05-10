@@ -1,4 +1,4 @@
-const { DatabaseError } = require("../../errorConfig");
+const { DatabaseError, LocationNameError } = require("../../errorConfig");
 const { connectWeatherDB } = require("../database");
 const { geolocationSchema } = require("../../backendConfig.js").databaseConfig;
 
@@ -30,13 +30,17 @@ const checkLocationById = async (locationId) => {
 };
 
 const findLocationInfoByName = async (locationName) => {
-  const existLocation = await checkLocation("name", locationName);
-  if (!existLocation) return null;
-  const locationInfo = {
-    locationId: existLocaiton._id,
-    locationName: existLocation.name,
-  };
-  return locationInfo;
+  try {
+    const existLocation = await checkLocation("name", locationName);
+    if (!existLocation) return null;
+    const locationInfo = {
+      locationId: existLocation._id,
+      locationName: existLocation.name,
+    };
+    return locationInfo;
+  } catch (error) {
+    throw new DatabaseError(error);
+  }
 };
 
 const uniqueLocationName = async (locationName) => {

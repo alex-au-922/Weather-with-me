@@ -4,6 +4,8 @@ const {
   EmailError,
   InvalidRefreshTokenError,
   InvalidAccessTokenError,
+  LocationNameError,
+  ValueError,
   UnauthorizationError,
   MethodNotAllowedError,
 } = require("../../../errorConfig");
@@ -15,6 +17,8 @@ const errorHandler = async (error, req, res, next) => {
     case UsernameError:
     case PasswordError:
     case EmailError:
+    case LocationNameError:
+    case ValueError:
       res.status(HTTP_STATUS.clientError.notAccepted.status);
       break;
     case InvalidRefreshTokenError:

@@ -99,6 +99,7 @@ const FetchStateProvider = (props) => {
     <FetchStateContext.Provider
       value={{
         fetchFactory,
+        fetchState,
       }}
     >
       <SuccessModal

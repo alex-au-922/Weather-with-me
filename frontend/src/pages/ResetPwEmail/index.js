@@ -7,10 +7,9 @@ const ResetPasswordEmail = (props) => {
   const [email, setEmail] = useState();
   const [initialClick, setInitialClick] = useState(true);
   const navigate = useNavigate();
-
+  
   const handleSendResetPwEmail = async () => {
-    setInitialClick(false);
-    const url = `${BACKEND_WEBSERVER_HOST}/resetpw/email`;
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resetpw`;
     const payload = {
       method: "POST",
       headers: {

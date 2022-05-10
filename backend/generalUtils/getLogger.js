@@ -45,12 +45,12 @@ const logConfiguration = {
 };
 
 function _getCallerFile() {
-  var originalFunc = Error.prepareStackTrace;
+  const originalFunc = Error.prepareStackTrace;
 
-  var callerfile;
+  let callerfile;
   try {
-    var err = new Error();
-    var currentfile;
+    const err = new Error();
+    let currentfile;
 
     Error.prepareStackTrace = function (err, stack) {
       return stack;
@@ -114,7 +114,7 @@ class LoggerDBClass {
     };
     const loggerDB = await connectLoggerDB();
     const newLogger = loggerDB.model("Logger", loggerSchema);
-    const result = await newLogger.create(loggerInfo);
+    await newLogger.create(loggerInfo);
   };
 }
 

@@ -12,4 +12,11 @@ const objectEqual = (leftObj, rightObj) => {
   return result;
 };
 
-export { objectSetAll, objectEqual };
+const objectAny = (object, value) => {
+  return Object.keys(object).reduce(
+    (prevBool, currKey) => object[currKey] === value || prevBool,
+    false
+  );
+};
+
+export { objectSetAll, objectEqual, objectAny };

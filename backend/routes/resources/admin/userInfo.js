@@ -78,11 +78,11 @@ router.put("/", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   try {
-    res.redirect("../../signup");
+    res.redirect(307, "../../signup");
   } catch (error) {
     next(error);
   }
-}); //create new user
+}); //create new user === signup
 
 router.delete("/", async (req, res, next) => {
   try {

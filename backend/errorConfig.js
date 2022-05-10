@@ -10,6 +10,7 @@ class UsernameError extends BaseError {}
 class PasswordError extends BaseError {}
 class EmailError extends BaseError {}
 class LocationNameError extends BaseError {}
+class ValueError extends BaseError {}
 class InvalidRefreshTokenError extends BaseError {}
 class InvalidAccessTokenError extends BaseError {}
 class RefreshTokenExpiredError extends BaseError {}
@@ -30,6 +31,8 @@ module.exports = {
   AccessTokenExpiredError,
   UnauthorizationError,
   UnknownError,
+  LocationNameError,
+  ValueError,
   DatabaseError,
   MethodNotAllowedError,
 };

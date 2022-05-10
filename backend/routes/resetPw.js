@@ -1,7 +1,6 @@
 const express = require("express");
 const { EmailError } = require("../errorConfig");
-const { findUserInfoByEmail } =
-  require("../generalUtils/userCreds/username");
+const { findUserInfoByEmail } = require("../generalUtils/userCreds/username");
 const randomString = require("../generalUtils/randomString").randomString;
 const {
   sendResetPwEmail,
@@ -20,9 +19,9 @@ router.post("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { email } = req.body;
+    res.send(JSON.stringify(response));
     const existUser = await findUserInfoByEmail(email);
-    if (existUser === null)
-      throw new EmailError("User does not exist!");
+    if (existUser === null) throw new EmailError("User does not exist!");
     const { userId, username } = existUser;
     const randomUserString = randomString(12);
     const userHashString = await userHash(randomUserString);
@@ -37,7 +36,6 @@ router.post("/", async (req, res, next) => {
     await addPendingResetPwUser(resetPwInfo);
     await sendResetPwEmail(resetPwInfo);
     response.success = true;
-    res.send(JSON.stringify(response));
   } catch (error) {
     next(error);
   }
