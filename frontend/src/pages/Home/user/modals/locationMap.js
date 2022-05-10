@@ -47,8 +47,8 @@ const Marker = (props) => {
         ...marker,
         option: {
           position: new props.google.maps.LatLng(
-            props.data.longitude,
-            props.data.latitude
+            props.data.latitude,
+            props.data.longitude
           ),
           visible: props.visible,
           optimized: false,
@@ -119,10 +119,10 @@ const Map = (props) => {
     if (ref.current && googleMap === null && props.google !== null) {
       const defaultMapOptions = {
         center: {
-          lat: props.weatherData.longitude,
-          lng: props.weatherData.latitude,
+          lat: props.weatherData.latitude,
+          lng: props.weatherData.longitude,
         },
-        zoom: 11,
+        zoom: 17,
       };
       console.log(defaultMapOptions);
       setGoogleMap(new props.google.maps.Map(ref.current, defaultMapOptions));
@@ -131,13 +131,15 @@ const Map = (props) => {
   }, [ref, props.google, googleMap]);
   return (
     <div ref={ref} style={{ width: "100%", height: "100%" }}>
-      {/* {<Marker
+      {
+        <Marker
           google={props.google}
           googleMap={googleMap}
           key={props.weatherData.name}
           data={props.weatherData}
+          visible={true}
         />
-      } */}
+      }
     </div>
   );
 };

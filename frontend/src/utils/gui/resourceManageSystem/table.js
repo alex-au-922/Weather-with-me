@@ -33,7 +33,8 @@ const ResourceManagementTableRow = (props) => {
 
   return (
     <tr style={{ cursor: props.renderModals ? "pointer" : "initial" }}>
-      {props.renderModals &&
+      {showModal &&
+        props.renderModals &&
         props.renderModals(
           props.data,
           props.modalConfig,
