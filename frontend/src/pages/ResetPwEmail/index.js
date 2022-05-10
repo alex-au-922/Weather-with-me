@@ -29,21 +29,47 @@ const ResetPasswordEmail = (props) => {
   };
 
   return (
-    <Card style={{ width: "18rem" }}>
-      <Card.Body>
-        <Card.Title>Input your email</Card.Title>
-        <Form>
-          <Form.Control
-            type="text"
-            placeholder="Username"
-            onChange={(event) => setEmail(event.target.value)}
-          />
-          <Button variant="primary" onClick={handleSendResetPwEmail}>
-            Confirm
-          </Button>
-        </Form>
-      </Card.Body>
-    </Card>
+    <div className="d-flex justify-content-center" style={{ height: "100vh" }}>
+      <div className="d-flex align-items-center">
+        <Card style={{ width: "25rem", height: "20rem" }}>
+          <Card.Body>
+            <div
+              style={{ height: "10%", marginBottom: "5%" }}
+              className="d-flex justify-content-center align-items-center"
+            >
+              <Card.Title style={{ fontSize: "25px" }}>
+                Input your Email
+              </Card.Title>
+            </div>
+            <Form style={{ height: "50%"}}>
+              <div style = {{height: "30%"}}/>
+              <Form.Control
+                type="text"
+                placeholder="Email"
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </Form>
+            <div style={{ height: "20%" }}>
+              <Button
+                style={{ width: "100%", height: "70%" }}
+                variant="primary"
+                onClick={handleSendResetPwEmail}
+              >
+                Confirm
+              </Button>
+            </div>
+            <div
+              style={{ height: "7%" }}
+              className="d-flex justify-content-end"
+            >
+              <Button variant="light" onClick={() => navigate("/login")}>
+                Back
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
+      </div>
+    </div>
   );
 };
 
