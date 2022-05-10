@@ -1,0 +1,10 @@
+.modal-90w { 
+    min-width: 90% !important;
+}
+.column {
+    min-height: 70vh;
+}
+.overflow {
+    max-height: 70vh;
+    overflow: scroll;
+}
