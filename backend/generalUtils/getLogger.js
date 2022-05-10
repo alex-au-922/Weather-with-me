@@ -1,4 +1,6 @@
 const loggerConfig = require("../backendConfig.js").loggerConfig;
+const loggerSchema = require("../backendConfig.js").databaseConfig.loggerSchema;
+const { connectLoggerDB } = require("./database");
 
 const winston = require("winston");
 require("winston-daily-rotate-file");
@@ -42,6 +44,84 @@ const logConfiguration = {
   ],
 };
 
+function _getCallerFile() {
+  var originalFunc = Error.prepareStackTrace;
+
+  var callerfile;
+  try {
+    var err = new Error();
+    var currentfile;
+
+    Error.prepareStackTrace = function (err, stack) {
+      return stack;
+    };
+
+    currentfile = err.stack.shift().getFileName();
+
+    while (err.stack.length) {
+      callerfile = err.stack.shift().getFileName();
+
+      if (currentfile !== callerfile) break;
+    }
+  } catch (e) {}
+
+  Error.prepareStackTrace = originalFunc;
+  return callerfile;
+}
+
+class LoggerDBClass {
+  constructor(logger) {
+    this.logger = logger;
+  }
+  info = function (message, ip = "system", errorType = null) {
+    this.insertToDB(
+      Date(Date.now()).toString(),
+      _getCallerFile(),
+      ip,
+      "info",
+      message,
+      errorType
+    );
+    return this.logger.info(message);
+  };
+  error = function (message, ip = "system", errorType = null) {
+    this.insertToDB(
+      Date(Date.now()).toString(),
+      _getCallerFile(),
+      ip,
+      "error",
+      message,
+      errorType
+    );
+    return this.logger.error(message);
+  };
+
+  insertToDB = async function (
+    loggerTime,
+    loggerFileName,
+    loggerIp,
+    loggerLevel,
+    loggerMessage,
+    loggerErrorType
+  ) {
+    const loggerInfo = {
+      time: loggerTime,
+      filename: loggerFileName,
+      ip: loggerIp,
+      level: loggerLevel,
+      message: loggerMessage,
+      errorType: loggerErrorType,
+    };
+    const loggerDB = await connectLoggerDB();
+    const newLogger = loggerDB.model("Logger", loggerSchema);
+    const result = await newLogger.create(loggerInfo);
+  };
+}
+
 exports.getLogger = function () {
-  return winston.createLogger(logConfiguration);
+  LoggerWithInsertingDB = new LoggerDBClass(
+    winston.createLogger(logConfiguration)
+  );
+  //LoggerWithInsertingDB.insertToDB();
+  return LoggerWithInsertingDB;
 };

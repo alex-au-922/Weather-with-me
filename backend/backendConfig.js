@@ -122,6 +122,24 @@ exports.databaseConfig = {
       },
     }
   ),
+  loggerSchema: new mongoose.Schema(
+    {
+      time: String,
+      filename: String,
+      ip: String,
+      level: String,
+      message: String,
+      errorType: String,
+    },
+    {
+      toJSON: {
+        transform: function (doc, ret) {
+          delete ret._id;
+          delete ret.__v;
+        },
+      },
+    }
+  ),
   resetPwSchema: new mongoose.Schema(
     {
       userId: {
