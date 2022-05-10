@@ -5,6 +5,7 @@ import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 
 const ResetPasswordEmail = (props) => {
   const [email, setEmail] = useState();
+  const [initialClick, setInitialClick] = useState(true);
   const navigate = useNavigate();
   
   const handleSendResetPwEmail = async () => {
@@ -53,7 +54,7 @@ const ResetPasswordEmail = (props) => {
                 variant="primary"
                 onClick={handleSendResetPwEmail}
               >
-                Confirm
+                {initialClick ? "Confirm" : "Resend Email"}
               </Button>
             </div>
             <div
