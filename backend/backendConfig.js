@@ -152,7 +152,7 @@ exports.databaseConfig = {
   ),
   loggerSchema: new mongoose.Schema(
     {
-      time: String,
+      time: Date,
       filename: String,
       ip: String,
       level: String,
@@ -172,13 +172,12 @@ exports.databaseConfig = {
     {
       method: String,
       userAgent: String,
-      date: String,
+      date: Date,
       ip: String,
     },
     {
       toJSON: {
         transform: function (doc, ret) {
-          delete ret._id;
           delete ret.__v;
         },
       },

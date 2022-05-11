@@ -75,7 +75,7 @@ class LoggerDBClass {
   }
   info = function (message, ip = "system", errorType = null) {
     this.insertToDB(
-      Date(Date.now()).toString(),
+      Date(Date.now()),
       _getCallerFile(),
       ip,
       "info",
@@ -86,7 +86,7 @@ class LoggerDBClass {
   };
   error = function (message, ip = "system", errorType = null) {
     this.insertToDB(
-      Date(Date.now()).toString(),
+      Date(Date.now()),
       _getCallerFile(),
       ip,
       "error",
