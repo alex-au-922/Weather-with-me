@@ -2,18 +2,15 @@ import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
 import { useState, useContext, useLayoutEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { InputFormModalRow, SelectFormModalRow } from ".";
-import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
+import { UnsavedModal } from "../../../../utils/gui/modals";
 import { objectAny, objectSetAll } from "../../../../utils/object";
 import { FetchStateContext } from "../../../../middleware/fetch";
-import { AuthContext } from "../../../../middleware/auth";
 import { FormBufferContext } from "../contexts/formBufferProvider";
-import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
-import resourceFetch from "../../../../utils/authUtils/resourceFetch";
 
 const BlankLogDataFormModal = (props) => {
   const [unsaved, setUnsaved] = useState(objectSetAll(props.data, false));
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
-  const [locationInfoError, setLocationInfoError] = useState(
+  const [logInfoError, setLocationInfoError] = useState(
     objectSetAll(props.data, "")
   );
   const { formBuffer, setFormBuffer, resetBuffer } =
@@ -101,7 +98,7 @@ const BlankLogDataFormModal = (props) => {
                       options={props.modalConfig[field].selectOptions}
                       readOnly={props.modalConfig[field].unmutable}
                       chosenOption={props.data[field]}
-                      error={locationInfoError[field]}
+                      error={logInfoError[field]}
                       onChangeUnsaved={handleChangeUnsaved}
                       onChangeValue={handleChangeValue}
                     />
@@ -114,7 +111,7 @@ const BlankLogDataFormModal = (props) => {
                       placeholder={camelToCapitalize(field)}
                       blank={props.modalConfig[field].blank}
                       value={props.data[field]}
-                      error={locationInfoError[field]}
+                      error={logInfoError[field]}
                       onChangeUnsaved={handleChangeUnsaved}
                       onChangeValue={handleChangeValue}
                     />
@@ -287,6 +284,11 @@ const LogAdminDataFormModal = (props) => {
 };
 
 const logModalOptions = {
+  _id: {
+    mutable: false,
+    blank: false,
+    type: "text",
+  },
   method: {
     mutable: false,
     blank: false,
