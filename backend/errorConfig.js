@@ -18,7 +18,7 @@ class AccessTokenExpiredError extends BaseError {}
 class UnauthorizationError extends BaseError {}
 class UnknownError extends BaseError {}
 class DatabaseError extends BaseError {}
-class MethodNotAllowedError extends BaseError {}
+class NotFoundError extends BaseError {}
 
 module.exports = {
   InternalServerError,
@@ -34,5 +34,5 @@ module.exports = {
   LocationNameError,
   ValueError,
   DatabaseError,
-  MethodNotAllowedError,
+  NotFoundError,
 };

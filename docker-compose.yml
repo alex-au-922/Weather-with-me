@@ -14,8 +14,7 @@ services:
     container_name: react-frontend
     environment:
       - BACKEND_WEBSERVER_HOST=${BACKEND_WEBSERVER_HOST}
-      - BACKEND_USERWS_HOST=${BACKEND_USERWS_HOST}
-      - BACKEND_WEATHERWS_HOST=${BACKEND_WEATHERWS_HOST}
+      - BACKEND_WS_HOST=${BACKEND_WS_HOST}
     volumes:
       - ./frontend/public:${APP_HOME}/public
       - ./frontend/src:${APP_HOME}/src
@@ -46,8 +45,7 @@ services:
       - DATABASE_PORT=${DATABASE_VIRTUAL_HOST_PORT}
       - DATABASE_HOST=database
       - WEBSER_PORT=${BACKEND_VIRTUAL_WEBSERVER_HOST_PORT}
-      - USERWS_PORT=${BACKEND_VIRTUAL_USERWS_HOST_PORT}
-      - WEATHERWS_PORT=${BACKEND_VIRTUAL_WEATHERWS_HOST_PORT}
+      - WS_PORT=${BACKEND_VIRTUAL_WS_HOST_PORT}
       - JWT_SECRET=testing!
       - SMTP_EMAIL=${SMTP_EMAIL}
       - SMTP_EMAIL_PW=${SMTP_EMAIL_PW}
@@ -65,8 +63,7 @@ services:
       - ./backend/websocket:${APP_HOME}/websocket
     ports:
       - ${BACKEND_REAL_WEBSERVER_HOST_PORT}:${BACKEND_VIRTUAL_WEBSERVER_HOST_PORT}
-      - ${BACKEND_REAL_USERWS_HOST_PORT}:${BACKEND_VIRTUAL_USERWS_HOST_PORT}
-      - ${BACKEND_REAL_WEATHERWS_HOST_PORT}:${BACKEND_VIRTUAL_WEATHERWS_HOST_PORT}
+      - ${BACKEND_REAL_WS_HOST_PORT}:${BACKEND_VIRTUAL_WS_HOST_PORT}
     restart: ${RESTART_POLICY}
     tty: true
     command: npm run dev

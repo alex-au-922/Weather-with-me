@@ -1,14 +1,7 @@
 const app = require("./generalUtils/createExpressApp").createExpressApp();
 const api = require("./routes");
 const logger = require("./generalUtils/getLogger").getLogger();
-const {
-  createWeatherWebSocketServer,
-  weatherWebSocketClients,
-} = require("./websocket/weather");
-const {
-  createUserWebSocketServer,
-  userWebSocketClients,
-} = require("./websocket/user");
+const { createWebSocketServer } = require("./websocket");
 const {
   createLocation,
 } = require("./databaseUtils/weatherDatabase/createGeoLocCol.js");
@@ -24,21 +17,14 @@ const {
   getLatestGeoLocationData,
   geoLocationToWeather,
 } = require("./databaseUtils/weatherDatabase/getLatestData");
-const getLatestUserData =
-  require("./databaseUtils/userDatabase/getLatestData").getLatestData;
-const { eventEmitter } = require("./routes/_emitEvent");
-const {
-  checkUserCredentialsById,
-  cleanUserData,
-} = require("./generalUtils/userCreds/username");
+
 api(app);
 
 const server = app.listen(process.env.WEBSER_PORT, () => {
   logger.info(`Server is listening on port ${process.env.WEBSER_PORT}`);
 });
 
-const sendWeatherData = createWeatherWebSocketServer(server);
-const sendUserData = createUserWebSocketServer(server);
+const sendData = createWebSocketServer();
 
 const updateWeatherData = async () => {
   await updateWeather();
@@ -48,23 +34,13 @@ const updateWeatherData = async () => {
     geolocationResults,
     weatherResults
   );
-  sendWeatherData(JSON.stringify(newLatestWeatherData));
+  sendData("weatherLoc")(JSON.stringify(newLatestWeatherData));
 };
 
-eventEmitter.on("userUpdate", async (ip) => {
-  const updatedUserId = userWebSocketClients[ip].userId;
-  const newUserInfo = await checkUserCredentialsById(updatedUserId);
-  const cleantUserInfo = cleanUserData(newUserInfo);
-  sendUserData(JSON.stringify({ type: "auth", data: cleantUserInfo }), ip);
-});
+
 const updateBackUpWeatherData = async () => {
   await updateBackUpWeather();
 };
-
-eventEmitter.on("updateUserData", async () => {
-  const latestData = await getLatestUserData();
-  sendUserData(JSON.stringify(latestData));
-});
 
 (async () => {
   await createLocation();
@@ -74,3 +50,5 @@ eventEmitter.on("updateUserData", async () => {
     fetchAPIConfig.meanWeatherData.fetchDuration
   );
 })();
+
+exports.sendData = sendData;

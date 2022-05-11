@@ -1,8 +1,6 @@
 import parseCommentDataFrontendView from "./comments";
 
-
 const parseWeatherDataFrontendView = (weatherJson, parsedCommentObj) => {
-  console.log("checker", parsedCommentObj);
   const weatherList = weatherJson.map((obj) => {
     const newWeatherObject = {};
     newWeatherObject["name"] = obj.locationId.name;
@@ -14,12 +12,13 @@ const parseWeatherDataFrontendView = (weatherJson, parsedCommentObj) => {
     newWeatherObject["tenMinMeanWindDir"] = obj.tenMinMeanWindDir ?? null;
     newWeatherObject["tenMinMeanWindSpeed"] = obj.tenMinMeanWindSpeed ?? null;
     newWeatherObject["relativeHumidity"] = obj.relativeHumidity ?? null;
-    if (obj.locationId.name in parsedCommentObj){
+    console.log("commentObj", parsedCommentObj);
+    if (parsedCommentObj[obj.locationId.name] !== undefined) {
       newWeatherObject["comments"] = parsedCommentObj[obj.locationId.name];
     } else {
       newWeatherObject["comments"] = [];
     }
-    
+
     return newWeatherObject;
   });
   return weatherList;

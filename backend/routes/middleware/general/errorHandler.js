@@ -7,7 +7,7 @@ const {
   LocationNameError,
   ValueError,
   UnauthorizationError,
-  MethodNotAllowedError,
+  NotFoundError,
 } = require("../../../errorConfig");
 const { HTTP_STATUS } = require("../../../backendConfig");
 
@@ -28,8 +28,8 @@ const errorHandler = async (error, req, res, next) => {
     case UnauthorizationError:
       res.status(HTTP_STATUS.clientError.unauthorized.status);
       break;
-    case MethodNotAllowedError:
-      res.status(HTTP_STATUS.clientError.methodNotAllowed.status);
+    case NotFoundError:
+      res.status(HTTP_STATUS.clientError.notFound.status);
       break;
     default:
       res.status(HTTP_STATUS.serverError.internalServerError.status);

@@ -1,10 +1,10 @@
 const express = require("express");
-const { MethodNotAllowedError } = require("../errorConfig");
+const { NotFoundError } = require("../errorConfig");
 const router = express.Router();
 
 router.use("/", async (req, res, next) => {
   try {
-    throw new MethodNotAllowedError("Invalid method!");
+    throw new NotFoundError("Invalid method!");
   } catch (error) {
     next(error);
   }

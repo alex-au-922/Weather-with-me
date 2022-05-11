@@ -1,8 +1,4 @@
 import { useState, useContext, useEffect } from "react";
-import {
-  UserWebSocketContext,
-  WeatherWebSocketContext,
-} from "../../../middleware/websocket";
 import { FetchStateContext } from "../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import parseUserDataFrontendView from "../../../utils/data/user";
@@ -29,7 +25,9 @@ import {
 import SwitchComponents from "../switchView";
 import DropDownButton from "../../../utils/gui/dropDown";
 import CreateButton from "../../../utils/gui/create";
+import parseCommentDataFrontendView from "../../../utils/data/comments";
 import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
+import { WebSocketContext } from "../../../middleware/websocket";
 
 // a component that fetchs all the user and weather data at the top level
 // then pass the data to the lower level view
@@ -42,8 +40,7 @@ const AdminView = (props) => {
   });
   const [table, setTable] = useState("User");
   const { username } = props.user;
-  const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
-  const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
+  const { webSocket } = useContext(WebSocketContext);
   const { fetchFactory } = useContext(FetchStateContext);
   const dataFetch = fetchFactory(
     {
@@ -107,8 +104,11 @@ const AdminView = (props) => {
     });
   };
 
-  const updateWeatherData = (resultJson) => {
-    const newWeatherList = parseWeatherDataFrontendView(resultJson);
+  const updateWeatherData = (weatherJson, commentJson) => {
+    const newWeatherList = parseWeatherDataFrontendView(
+      weatherJson,
+      commentJson
+    );
     setDataLists((dataLists) => {
       return { ...dataLists, Location: newWeatherList };
     });
@@ -141,42 +141,57 @@ const AdminView = (props) => {
   useEffect(() => {
     //user data update
     const handler = (event) => {
-      const result = JSON.parse(event.data);
-      updateUserData(result);
+      console.log(JSON.parse(event.data));
     };
-    return registerMessageListener(userWebSocket, handler);
-  }, [userWebSocket]);
+    return registerMessageListener(webSocket, handler);
+  }, [webSocket]);
+
+  const fetchComments = async () => {
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
+    const payload = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: localStorage.getItem("accessToken"),
+        username: username,
+      },
+    };
+    const { success, result, fetching } = await dataFetch(url, payload);
+    if (success && !fetching) return parseCommentDataFrontendView(result);
+  };
+
+  const fetchWeatherData = async () => {
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/locations`;
+    const payload = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: localStorage.getItem("accessToken"),
+        username,
+      },
+    };
+    const { success, result, fetching } = await dataFetch(url, payload);
+    if (success && !fetching) return result;
+  };
+
+  const mergeWeather = async () => {
+    const weatherJson = await fetchWeatherData();
+    const commentJson = await fetchComments();
+    if (weatherJson !== undefined && commentJson !== undefined)
+      updateWeatherData(weatherJson, commentJson);
+  };
 
   useEffect(() => {
     //initial fetch weather data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/locations`;
-      const payload = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: localStorage.getItem("accessToken"),
-          username,
-        },
-      };
-      const { success, result, fetching } = await dataFetch(url, payload);
-      if (success && !fetching) updateWeatherData(result);
+      await mergeWeather();
     })();
   }, []);
 
   useEffect(() => {
-    //weather data update
-    const handler = (event) => {
-      const result = JSON.parse(event.data);
-      updateWeatherData(result);
-    };
-    return registerMessageListener(weatherWebSocket, handler);
-  }, [weatherWebSocket]);
-
-  useEffect(() => {
     //initial fetch log data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/log`;
+      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/logs`;
       const payload = {
         method: "GET",
         headers: {

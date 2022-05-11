@@ -146,38 +146,40 @@ const BlankLocationDataFormModal = (props) => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            {Object.keys(props.data).map((field) => {
-              return (
-                <>
-                  {props.modalConfig[field].type === "select" ? (
-                    <SelectFormModalRow
-                      key={`${field}`}
-                      field={field}
-                      options={props.modalConfig[field].selectOptions}
-                      readOnly={props.modalConfig[field].mutable}
-                      chosenOption={props.data[field]}
-                      error={locationInfoError[field]}
-                      onChangeUnsaved={handleChangeUnsaved}
-                      onChangeValue={handleChangeValue}
-                    />
-                  ) : (
-                    <InputFormModalRow
-                      key={`${field}`}
-                      field={field}
-                      type={props.modalConfig[field].type}
-                      mutable={props.modalConfig[field].mutable}
-                      placeholder={camelToCapitalize(field)}
-                      blank={props.modalConfig[field].blank}
-                      value={props.data[field]}
-                      error={locationInfoError[field]}
-                      onChangeUnsaved={handleChangeUnsaved}
-                      onChangeValue={handleChangeValue}
-                    />
-                  )}
-                  <div className="mb-2" />
-                </>
-              );
-            })}
+            {Object.keys(props.data)
+              .filter((field) => props.modalConfig[field])
+              .map((field) => {
+                return (
+                  <>
+                    {props.modalConfig[field].type === "select" ? (
+                      <SelectFormModalRow
+                        key={`${field}`}
+                        field={field}
+                        options={props.modalConfig[field].selectOptions}
+                        readOnly={props.modalConfig[field].mutable}
+                        chosenOption={props.data[field]}
+                        error={locationInfoError[field]}
+                        onChangeUnsaved={handleChangeUnsaved}
+                        onChangeValue={handleChangeValue}
+                      />
+                    ) : (
+                      <InputFormModalRow
+                        key={`${field}`}
+                        field={field}
+                        type={props.modalConfig[field].type}
+                        mutable={props.modalConfig[field].mutable}
+                        placeholder={camelToCapitalize(field)}
+                        blank={props.modalConfig[field].blank}
+                        value={props.data[field]}
+                        error={locationInfoError[field]}
+                        onChangeUnsaved={handleChangeUnsaved}
+                        onChangeValue={handleChangeValue}
+                      />
+                    )}
+                    <div className="mb-2" />
+                  </>
+                );
+              })}
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -204,6 +206,7 @@ const BlankLocationDataFormModal = (props) => {
 
 const LocationAdminDataFormModal = (props) => {
   const locationData = Object.keys(props.data)
+    .filter((field) => props.modalConfig[field])
     .filter((key) => props.modalConfig[key].mutable)
     .reduce((obj, key) => ((obj[key] = props.data[key]), obj), {});
   const locationName = props.data.name;
@@ -347,10 +350,9 @@ const LocationAdminDataFormModal = (props) => {
   };
 
   const handleProperCloseModal = () => {
-    const formUnsaved = Object.keys(unsaved).reduce(
-      (accum, key) => accum || unsaved[key],
-      false
-    );
+    const formUnsaved = Object.keys(unsaved)
+      .filter((field) => props.modalConfig[field])
+      .reduce((accum, key) => accum || unsaved[key], false);
     if (formUnsaved) {
       handleShowUnsavedModal();
     } else {
@@ -382,35 +384,37 @@ const LocationAdminDataFormModal = (props) => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            {Object.keys(props.data).map((field) => {
-              return (
-                <>
-                  {props.modalConfig[field].type === "select" ? (
-                    <SelectFormModalRow
-                      key={`${field}`}
-                      field={field}
-                      options={props.modalConfig[field].selectOptions}
-                      chosenOption={props.data[field]}
-                      onChangeUnsaved={handleChangeUnsaved}
-                      onChangeValue={handleChangeValue}
-                    />
-                  ) : (
-                    <InputFormModalRow
-                      key={`${field}`}
-                      field={field}
-                      type={props.modalConfig[field].type}
-                      mutable={props.modalConfig[field].mutable}
-                      placeholder={camelToCapitalize(field)}
-                      blank={props.modalConfig[field].blank}
-                      value={props.data[field]}
-                      onChangeUnsaved={handleChangeUnsaved}
-                      onChangeValue={handleChangeValue}
-                    />
-                  )}
-                  <div className="mb-2" />
-                </>
-              );
-            })}
+            {Object.keys(props.data)
+              .filter((field) => props.modalConfig[field])
+              .map((field) => {
+                return (
+                  <>
+                    {props.modalConfig[field].type === "select" ? (
+                      <SelectFormModalRow
+                        key={`${field}`}
+                        field={field}
+                        options={props.modalConfig[field].selectOptions}
+                        chosenOption={props.data[field]}
+                        onChangeUnsaved={handleChangeUnsaved}
+                        onChangeValue={handleChangeValue}
+                      />
+                    ) : (
+                      <InputFormModalRow
+                        key={`${field}`}
+                        field={field}
+                        type={props.modalConfig[field].type}
+                        mutable={props.modalConfig[field].mutable}
+                        placeholder={camelToCapitalize(field)}
+                        blank={props.modalConfig[field].blank}
+                        value={props.data[field]}
+                        onChangeUnsaved={handleChangeUnsaved}
+                        onChangeValue={handleChangeValue}
+                      />
+                    )}
+                    <div className="mb-2" />
+                  </>
+                );
+              })}
           </Form>
         </Modal.Body>
         <Modal.Footer>

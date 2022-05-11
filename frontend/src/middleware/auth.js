@@ -1,10 +1,8 @@
 import { useState, useContext, createContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { WeatherWebSocketContext, UserWebSocketContext } from "./websocket";
 import { FetchStateContext } from "./fetch";
 import tokenLogin from "../utils/authUtils/tokenLogin";
 import { initFetchUserData } from "../utils/data/user";
-import { registerMessageListener } from "../utils/listeners/webSocketMessage";
 
 const AuthContext = createContext({});
 
@@ -18,15 +16,7 @@ const AuthProvider = (props) => {
     favouriteLocation: [],
     authenticated: false,
   });
-  const {
-    webSocket: userWebSocket,
-    connectWebSocket: connectUserWebSocket,
-    disconnectWebSocket: disconnectUserWebSocket,
-  } = useContext(UserWebSocketContext);
-  const {
-    connectWebSocket: connectWeatherWebSocket,
-    disconnectWebSocket: disconnectWeatherWebSocket,
-  } = useContext(WeatherWebSocketContext);
+
   const { fetchFactory } = useContext(FetchStateContext);
   const loginFetch = fetchFactory({
     loading: false,
@@ -69,32 +59,6 @@ const AuthProvider = (props) => {
       }
     })();
   }, [fetching]);
-
-  useEffect(() => {
-    if (user.authenticated) {
-      connectWeatherWebSocket();
-      connectUserWebSocket();
-    } else {
-      disconnectWeatherWebSocket();
-      disconnectUserWebSocket();
-    }
-  }, [user.authenticated]);
-
-  useEffect(() => {
-    const handler = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === "auth") {
-        setUser({
-          ...user,
-          username: message.data.username,
-          isAdmin: message.data.role === "admin",
-          viewMode: message.data.viewMode,
-          email: message.data.email,
-        });
-      }
-    };
-    return registerMessageListener(userWebSocket, handler);
-  }, [userWebSocket]);
 
   const login = () => {
     navigate("/");
