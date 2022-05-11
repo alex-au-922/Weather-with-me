@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import {
   WeatherWebSocketContext,
   UserWebSocketContext,
@@ -6,12 +6,18 @@ import {
 import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
 import MapView from "./mapView";
+import { renderModals } from "./modals";
+import { WeatherUserLocationViewModal } from "./modals/weatherUserModal";
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import { FetchStateContext } from "../../../middleware/fetch";
 import DropDownButton from "../../../utils/gui/dropDown";
+import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
 
 const UserView = (props) => {
   const { username } = props.user;
+  const [dataLists, setDataLists] = useState({
+    Weather: null,
+  });
   const [view, setView] = useState("Map");
   const [weatherList, setWeatherList] = useState();
   const { fetchFactory } = useContext(FetchStateContext);
@@ -22,8 +28,9 @@ const UserView = (props) => {
   });
   const { webSocket: userWebSocket } = useContext(UserWebSocketContext);
   const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
-
-  const handleViewSelect = (event) => setView(event);
+  const handleViewSelect = (event) => {
+    setView(event);
+  };
   const switchViewOptions = {
     handleSelect: handleViewSelect,
     buttonName: view,
@@ -61,40 +68,82 @@ const UserView = (props) => {
     })();
   }, []);
 
+  const renderWeatherModal = renderModals(WeatherUserLocationViewModal);
+
   const updateWeatherData = (resultJson) => {
     const newWeatherList = parseWeatherDataFrontendView(resultJson);
     setWeatherList(newWeatherList);
+    setDataLists((dataLists) => {
+      return { ...dataLists, Weather: newWeatherList };
+    });
   };
 
   return (
     <>
-      <MapView
-        weatherList={weatherList}
-        switchViewOptions={switchViewOptions}
-        renderSwitchView={renderSwitchView}
-        options={[
-          "name",
-          "latitude",
-          "longitude",
-          "temperature",
-          "relativeHumidity",
-          "tenMinMaxGust",
-          "TenMinMeanWindDir",
-          "TenMinMeanWindSpeed",
-          "time",
-        ]}
-        optionsType={{
-          name: String,
-          latitude: Number,
-          longitude: Number,
-          temperature: Number,
-          relativeHumidity: Number,
-          tenMinMaxGust: Number,
-          tenMinMeanWindDir: String,
-          tenMinMeanWindSpeed: Number,
-          time: String,
-        }}
-      />
+      {view === "Map" ? (
+        <MapView
+          weatherList={weatherList}
+          switchViewOptions={switchViewOptions}
+          renderModals={renderWeatherModal}
+          renderSwitchView={renderSwitchView}
+          options={[
+            "name",
+            "latitude",
+            "longitude",
+            "temperature",
+            "relativeHumidity",
+            "tenMinMaxGust",
+            "tenMinMeanWindDir",
+            "tenMinMeanWindSpeed",
+            "time",
+          ]}
+          optionsType={{
+            name: String,
+            latitude: Number,
+            longitude: Number,
+            temperature: Number,
+            relativeHumidity: Number,
+            tenMinMaxGust: Number,
+            tenMinMeanWindDir: String,
+            tenMinMeanWindSpeed: Number,
+            time: String,
+          }}
+        />
+      ) : (
+        <>
+          <ResourceManagementTable
+            key="weather"
+            dataUniqueKey={"name"}
+            dataList={dataLists.Weather}
+            switchViewOptions={switchViewOptions}
+            renderSwitchView={renderSwitchView}
+            // modalConfig={weatherModalOptions}
+            renderModals={renderWeatherModal}
+            options={[
+              "name",
+              "latitude",
+              "longitude",
+              "temperature",
+              "relativeHumidity",
+              "tenMinMaxGust",
+              "tenMinMeanWindDir",
+              "tenMinMeanWindSpeed",
+              "time",
+            ]}
+            optionsType={{
+              name: String,
+              latitude: Number,
+              longitude: Number,
+              temperature: Number,
+              relativeHumidity: Number,
+              tenMinMaxGust: Number,
+              tenMinMeanWindDir: String,
+              tenMinMeanWindSpeed: Number,
+              time: String,
+            }}
+          />
+        </>
+      )}
     </>
   );
 };

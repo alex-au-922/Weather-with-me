@@ -7,6 +7,7 @@ const { dateExpired } = require("../../../generalUtils/time/offsetTime");
 const userHashCheck = async (req, res, next) => {
   try {
     const userHash = req.params.userHash;
+    console.log("userHash", userHash);
     const { userId: decryptedUserId, expiredTime } = await findUserByHash(
       userHash
     );

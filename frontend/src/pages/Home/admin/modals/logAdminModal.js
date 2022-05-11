@@ -1,5 +1,5 @@
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
-import { useState, useEffect, useContext, useLayoutEffect } from "react";
+import { useState, useContext, useLayoutEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { InputFormModalRow, SelectFormModalRow } from ".";
 import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
@@ -10,8 +10,7 @@ import { FormBufferContext } from "../contexts/formBufferProvider";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
 
-const BlankLocationDataFormModal = (props) => {
-  const { user } = useContext(AuthContext);
+const BlankLogDataFormModal = (props) => {
   const [unsaved, setUnsaved] = useState(objectSetAll(props.data, false));
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [locationInfoError, setLocationInfoError] = useState(
@@ -36,17 +35,6 @@ const BlankLocationDataFormModal = (props) => {
     setFormBuffer(newBuffer);
   }, [props.data]);
 
-  const { fetchFactory } = useContext(FetchStateContext);
-  const createFetch = fetchFactory(
-    {
-      success: true,
-      error: true,
-      loading: true,
-    },
-    `Successfully created location ${formBuffer.name}!`,
-    false,
-    ["LocationNameError", "ValueError"]
-  );
   const handleChangeUnsaved = (field, changed) => {
     const newUnsaved = { ...unsaved };
     newUnsaved[field] = changed;
@@ -62,47 +50,6 @@ const BlankLocationDataFormModal = (props) => {
   const resetUnsaved = () => {
     const resetUnsaved = objectSetAll(props.data, false);
     setUnsaved(resetUnsaved);
-  };
-
-  const handleCreateLocation = async () => {
-    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/locations`;
-    const payload = {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: localStorage.getItem("accessToken"),
-        username: user.username,
-      },
-      body: JSON.stringify(formBuffer),
-    };
-    const {
-      success: updateLocationInfoSuccess,
-      error: updateLocationInfoError,
-      errorType: updateLocationInfoErrorType,
-      fetching: updateLocationInfoFetching,
-    } = await resourceFetch(createFetch, url, payload);
-    if (!updateLocationInfoFetching) {
-      if (updateLocationInfoSuccess) {
-        const noError = objectSetAll(locationInfoError, false);
-        handleInnerCloseModal();
-        setLocationInfoError(noError);
-      } else if (updateLocationInfoErrorType === "LocationNameError") {
-        const newLocationInfoError = objectSetAll(locationInfoError, "");
-        newLocationInfoError.name = updateLocationInfoError;
-        setLocationInfoError(newLocationInfoError);
-      } else if (updateLocationInfoErrorType === "ValueError") {
-        const pattern = /latitude/u;
-        if (updateLocationInfoError.match(pattern)) {
-          const newLocationInfoError = objectSetAll(locationInfoError, "");
-          newLocationInfoError.latitude = updateLocationInfoError;
-          setLocationInfoError(newLocationInfoError);
-        } else {
-          const newLocationInfoError = objectSetAll(locationInfoError, "");
-          newLocationInfoError.longitude = updateLocationInfoError;
-          setLocationInfoError(newLocationInfoError);
-        }
-      }
-    }
   };
 
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
@@ -140,9 +87,7 @@ const BlankLocationDataFormModal = (props) => {
         }}
       >
         <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            New Location
-          </Modal.Title>
+          <Modal.Title id="contained-modal-title-vcenter">New Log</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -154,7 +99,7 @@ const BlankLocationDataFormModal = (props) => {
                       key={`${field}`}
                       field={field}
                       options={props.modalConfig[field].selectOptions}
-                      readOnly={props.modalConfig[field].mutable}
+                      readOnly={props.modalConfig[field].unmutable}
                       chosenOption={props.data[field]}
                       error={locationInfoError[field]}
                       onChangeUnsaved={handleChangeUnsaved}
@@ -165,7 +110,7 @@ const BlankLocationDataFormModal = (props) => {
                       key={`${field}`}
                       field={field}
                       type={props.modalConfig[field].type}
-                      mutable={props.modalConfig[field].mutable}
+                      mutable={props.modalConfig[field].unmutable}
                       placeholder={camelToCapitalize(field)}
                       blank={props.modalConfig[field].blank}
                       value={props.data[field]}
@@ -181,9 +126,6 @@ const BlankLocationDataFormModal = (props) => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={handleCreateLocation}>
-            Create Location
-          </Button>
           <Button variant="secondary" onClick={handleProperCloseModal}>
             Close
           </Button>
@@ -202,23 +144,19 @@ const BlankLocationDataFormModal = (props) => {
   );
 };
 
-const LocationAdminDataFormModal = (props) => {
-  const locationData = Object.keys(props.data)
-    .filter((key) => props.modalConfig[key].mutable)
+const LogAdminDataFormModal = (props) => {
+  const logData = Object.keys(props.data)
+    .filter((key) => props.modalConfig[key].unmutable)
     .reduce((obj, key) => ((obj[key] = props.data[key]), obj), {});
-  const locationName = props.data.name;
-  const [unsaved, setUnsaved] = useState(objectSetAll(locationData, false));
+  const logName = props.data.name;
+  const [unsaved, setUnsaved] = useState(objectSetAll(logData, false));
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { user } = useContext(AuthContext);
-  const [locationInfoError, setLocationInfoError] = useState(
-    objectSetAll(locationData, "")
-  );
 
   const { formBuffer, setFormBuffer, resetBuffer } =
     useContext(FormBufferContext);
   useLayoutEffect(() => {
-    setFormBuffer((formBuffer) => locationData);
+    setFormBuffer((formBuffer) => logData);
   }, []);
 
   useLayoutEffect(() => {
@@ -234,29 +172,10 @@ const LocationAdminDataFormModal = (props) => {
     setFormBuffer(newBuffer);
   }, [props.data]);
 
-  const { fetchFactory, fetchState } = useContext(FetchStateContext);
-  const updateFetch = fetchFactory(
-    {
-      success: true,
-      error: true,
-      loading: true,
-    },
-    `Successfully updated location ${locationName} info!`,
-    false,
-    ["LocationNameError", "ValueError"]
-  );
-
-  const deleteFetch = fetchFactory(
-    {
-      success: true,
-      error: true,
-      loading: true,
-    },
-    `Successfully deleted location ${locationName}!`
-  );
+  const { fetchState } = useContext(FetchStateContext);
 
   const resetUnsaved = () => {
-    const resetUnsaved = objectSetAll(locationData, false);
+    const resetUnsaved = objectSetAll(logName, false);
     setUnsaved(resetUnsaved);
   };
 
@@ -274,71 +193,6 @@ const LocationAdminDataFormModal = (props) => {
 
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
   const handleCloseUnsavedModal = () => setShowUnsavedModal(false);
-  const handleShowDeleteModal = () => setShowDeleteModal(true);
-  const handleCloseDeleteModal = () => setShowDeleteModal(false);
-
-  const handleSaveChange = async () => {
-    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/locations`;
-    const payload = {
-      method: "PUT",
-      headers: {
-        "content-type": "application/json",
-        authorization: localStorage.getItem("accessToken"),
-        username: user.username,
-      },
-      body: JSON.stringify({
-        oldName: locationData.name,
-        newData: formBuffer,
-      }),
-    };
-    const {
-      success: updateLocationInfoSuccess,
-      error: updateLocationInfoError,
-      errorType: updateLocationInfoErrorType,
-      fetching: updateLocationInfoFetching,
-    } = await resourceFetch(updateFetch, url, payload);
-    if (!updateLocationInfoFetching) {
-      if (updateLocationInfoSuccess) {
-        handleInnerCloseModal();
-        setLocationInfoError(objectSetAll(locationInfoError, false));
-      } else if (updateLocationInfoErrorType === "LocationNameError") {
-        const newLocationInfoError = objectSetAll(locationInfoError, "");
-        newLocationInfoError.name = updateLocationInfoError;
-        setLocationInfoError(newLocationInfoError);
-      } else if (updateLocationInfoErrorType === "ValueError") {
-        const pattern = /latitude/u;
-        if (updateLocationInfoError.match(pattern)) {
-          const newLocationInfoError = objectSetAll(locationInfoError, "");
-          newLocationInfoError.latitude = updateLocationInfoError;
-          setLocationInfoError(newLocationInfoError);
-        } else {
-          const newLocationInfoError = objectSetAll(locationInfoError, "");
-          newLocationInfoError.longitude = updateLocationInfoError;
-          setLocationInfoError(newLocationInfoError);
-        }
-      }
-    }
-  };
-
-  const handleDeleteLocation = async () => {
-    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/locations`;
-    const payload = {
-      method: "DELETE",
-      headers: {
-        "content-type": "application/json",
-        authorization: localStorage.getItem("accessToken"),
-        username: user.username,
-      },
-      body: JSON.stringify({
-        name: formBuffer.name,
-      }),
-    };
-    const { success: deleteLocationSuccess, fetching: deleteLocationFetching } =
-      await resourceFetch(deleteFetch, url, payload);
-    if (!deleteLocationFetching) {
-      if (deleteLocationSuccess) handleInnerCloseModal();
-    }
-  };
 
   const handleInnerCloseModal = () => {
     resetBuffer();
@@ -399,7 +253,7 @@ const LocationAdminDataFormModal = (props) => {
                       key={`${field}`}
                       field={field}
                       type={props.modalConfig[field].type}
-                      mutable={props.modalConfig[field].mutable}
+                      mutable={props.modalConfig[field].unmutable}
                       placeholder={camelToCapitalize(field)}
                       blank={props.modalConfig[field].blank}
                       value={props.data[field]}
@@ -414,12 +268,6 @@ const LocationAdminDataFormModal = (props) => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="danger" onClick={handleShowDeleteModal}>
-            Delete
-          </Button>
-          <Button variant="primary" onClick={handleSaveChange}>
-            Save Change
-          </Button>
           <Button variant="secondary" onClick={handleProperCloseModal}>
             Close
           </Button>
@@ -434,69 +282,31 @@ const LocationAdminDataFormModal = (props) => {
         body={"You have unsaved data. Are you sure you want to close the form?"}
         forceClose={handleInnerCloseModal}
       />
-      <DeleteModal
-        key={`${props.uniqueKey},delete_modal`}
-        modalIndex={`${props.uniqueKey},delete_modal,modal`}
-        show={showDeleteModal}
-        onHide={handleCloseDeleteModal}
-        title={"Notice"}
-        body={`Are you sure to delete location ${locationName}?`}
-        delete={handleDeleteLocation}
-      />
     </>
   );
 };
 
-const locationModalOptions = {
-  name: {
-    mutable: true,
-    blank: false,
-    type: "text",
-  },
-  latitude: {
-    mutable: true,
-    blank: false,
-    type: "text",
-  },
-  longitude: {
-    mutable: true,
-    blank: false,
-    type: "text",
-  },
-  time: {
+const logModalOptions = {
+  method: {
     mutable: false,
     blank: false,
     type: "text",
   },
-  temperature: {
+  userAgent: {
     mutable: false,
     blank: false,
     type: "text",
   },
-  tenMinMaxGust: {
+  date: {
     mutable: false,
     blank: false,
     type: "text",
   },
-  tenMinMeanWindDir: {
-    mutable: false,
-    blank: false,
-    type: "text",
-  },
-  tenMinMeanWindSpeed: {
-    mutable: false,
-    blank: false,
-    type: "text",
-  },
-  relativeHumidity: {
+  ip: {
     mutable: false,
     blank: false,
     type: "text",
   },
 };
 
-export {
-  BlankLocationDataFormModal,
-  LocationAdminDataFormModal,
-  locationModalOptions,
-};
+export { BlankLogDataFormModal, LogAdminDataFormModal, logModalOptions };

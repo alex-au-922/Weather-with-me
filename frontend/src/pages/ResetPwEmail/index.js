@@ -1,13 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Form, Card, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
+import {
+  BACKEND_WEBSERVER_HOST,
+  RESEND_EMAIL_TIME,
+} from "../../frontendConfig";
+import { FetchStateContext } from "../../middleware/fetch";
 
 const ResetPasswordEmail = (props) => {
   const [email, setEmail] = useState();
   const [initialClick, setInitialClick] = useState(true);
+  const [buttonValid, setButtonValid] = useState(true);
+  const [coolDownTime, setCoolDownTime] = useState(RESEND_EMAIL_TIME);
+  const { fetchFactory } = useContext(FetchStateContext);
+  const emailFetch = fetchFactory(
+    {
+      success: true,
+      showLoading: false,
+      error: false,
+    },
+    `An email will be sent to your mailbox if you have binded your
+    account with this email.
+    `
+  );
   const navigate = useNavigate();
-  
+
   const handleSendResetPwEmail = async () => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resetpw`;
     const payload = {
@@ -17,15 +34,26 @@ const ResetPasswordEmail = (props) => {
       },
       body: JSON.stringify({ email }),
     };
-    const result = await fetch(url, payload);
-    const resultJson = await result.json();
-    if (!resultJson.success) {
-      if (resultJson.errorType === null) {
-        console.log("Unknown error occurs!");
-        return;
-      }
-    }
+    await emailFetch(url, payload);
+    setInitialClick(false);
+    setButtonValid(false);
+    setTimeout(() => {
+      setButtonValid(true);
+      setCoolDownTime(RESEND_EMAIL_TIME);
+    }, RESEND_EMAIL_TIME * 1000);
   };
+
+  useEffect(() => {
+    if (!buttonValid) {
+      if (!coolDownTime) return;
+
+      const intervalId = setInterval(() => {
+        setCoolDownTime(coolDownTime - 1);
+      }, 1000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [coolDownTime, buttonValid]);
 
   return (
     <div className="d-flex justify-content-center" style={{ height: "100vh" }}>
@@ -52,9 +80,14 @@ const ResetPasswordEmail = (props) => {
               <Button
                 style={{ width: "100%", height: "70%" }}
                 variant="primary"
+                disabled={!buttonValid}
                 onClick={handleSendResetPwEmail}
               >
-                {initialClick ? "Confirm" : "Resend Email"}
+                {initialClick
+                  ? "Confirm"
+                  : buttonValid
+                  ? "Resend Email"
+                  : `Resend email in ${coolDownTime}s`}
               </Button>
             </div>
             <div

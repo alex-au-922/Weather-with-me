@@ -1,0 +1,31 @@
+.modal-90w {
+  min-width: 90% !important;
+}
+.column {
+  min-height: 70vh;
+}
+.overflow {
+  max-height: 70vh;
+  overflow: scroll;
+}
+
+.nopadding-right {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  z-index: 1;
+  overflow: hidden;
+  border: solid 1px #fff;
+  border-radius: 30px;
+  margin: 0 auto;
+  -moz-border-radius: 15px;
+  -webkit-mask-border-radius: 15px;
+  -webkit-border-radius: 15px;
+}
+.nopadding-left {
+  padding-left: 0 !important;
+
+  /* margin: 0 !important; */
+}
+.modal-body {
+  padding: 0;
+}

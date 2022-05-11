@@ -122,11 +122,17 @@ exports.databaseConfig = {
       },
     }
   ),
-  commentSchema: new mongoose.Schema(
+  locationCommentSchema: new mongoose.Schema(
     {
-      userId: String,
-      locationId: String,
-      createTime: String,
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+      locationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "GeoLocation",
+      },
+      createTime: Date,
       message: String,
     },
     {
@@ -166,7 +172,6 @@ exports.databaseConfig = {
     {
       toJSON: {
         transform: function (doc, ret) {
-          delete ret._id;
           delete ret.__v;
         },
       },

@@ -1,7 +1,11 @@
 const { DatabaseError } = require("../../errorConfig");
-const { geolocationSchema } = require("../../backendConfig.js").databaseConfig;
+const { geolocationSchema, userSchema, locationCommentSchema } =
+  require("../../backendConfig.js").databaseConfig;
 const { ObjectId } = require("mongoose").Types;
-const { connectWeatherDB } = require("../../generalUtils/database");
+const {
+  connectWeatherDB,
+  connectUserDB,
+} = require("../../generalUtils/database");
 
 const updateLocation = async (geolocationId, updateLocationInfo) => {
   const weatherDB = await connectWeatherDB();
@@ -13,6 +17,29 @@ const updateLocation = async (geolocationId, updateLocationInfo) => {
     updateLocationInfo
   );
   return true;
+};
+
+const updateLocationComment = async (locationId, userId, message) => {
+  try {
+    const weatherDB = await connectWeatherDB();
+    const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
+    const userDB = await connectUserDB();
+    const User = userDB.model("User", userSchema);
+    const LocationComment = weatherDB.model(
+      "LocationComment",
+      locationCommentSchema
+    );
+    const newComment = {
+      userId,
+      locationId,
+      createTime: Date.now(),
+      message,
+    };
+    await LocationComment.create(newComment);
+    return true;
+  } catch (error) {
+    throw new DatabaseError(error);
+  }
 };
 
 const latitudeCheck = (latitude) => {
@@ -37,3 +64,4 @@ const longitudeCheck = (longitude) => {
 exports.updateLocation = updateLocation;
 exports.latitudeCheck = latitudeCheck;
 exports.longitudeCheck = longitudeCheck;
+exports.updateLocationComment = updateLocationComment;

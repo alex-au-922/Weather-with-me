@@ -7,6 +7,7 @@ import { FetchStateContext } from "../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import parseUserDataFrontendView from "../../../utils/data/user";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
+import parseLogDataFrontendView from "../../../utils/data/log";
 import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import { renderModals } from "./modals";
 import { ReactComponent as AddIcon } from "./file-earmark-plus.svg";
@@ -20,6 +21,11 @@ import {
   LocationAdminDataFormModal,
   locationModalOptions,
 } from "./modals/locationAdminModal";
+import {
+  BlankLogDataFormModal,
+  LogAdminDataFormModal,
+  logModalOptions,
+} from "./modals/logAdminModal";
 import SwitchComponents from "../switchView";
 import DropDownButton from "../../../utils/gui/dropDown";
 import CreateButton from "../../../utils/gui/create";
@@ -32,6 +38,7 @@ const AdminView = (props) => {
   const [dataLists, setDataLists] = useState({
     User: null,
     Location: null,
+    Log: null,
   });
   const [table, setTable] = useState("User");
   const { username } = props.user;
@@ -72,6 +79,12 @@ const AdminView = (props) => {
     modalConfigs: locationModalOptions,
   };
 
+  const addLogButtonOptions = {
+    renderModal: renderModals(BlankLogDataFormModal),
+    data: { method: "", userAgent: "", date: "", ip: "" },
+    modalConfigs: logModalOptions,
+  };
+
   const renderAddButton = (addButtonOptions) => {
     if (addButtonOptions !== undefined && addButtonOptions !== null) {
       return (
@@ -85,6 +98,7 @@ const AdminView = (props) => {
 
   const renderUserModal = renderModals(UserDataFormModal);
   const renderWeatherModal = renderModals(LocationAdminDataFormModal);
+  const renderLogModal = renderModals(LogAdminDataFormModal);
 
   const updateUserData = (resultJson) => {
     const newUserList = parseUserDataFrontendView(resultJson);
@@ -97,6 +111,13 @@ const AdminView = (props) => {
     const newWeatherList = parseWeatherDataFrontendView(resultJson);
     setDataLists((dataLists) => {
       return { ...dataLists, Location: newWeatherList };
+    });
+  };
+
+  const updateLogData = (resultJson) => {
+    const newLogList = parseLogDataFrontendView(resultJson);
+    setDataLists((dataLists) => {
+      return { ...dataLists, Location: newLogList };
     });
   };
 
@@ -152,38 +173,72 @@ const AdminView = (props) => {
     return registerMessageListener(weatherWebSocket, handler);
   }, [weatherWebSocket]);
 
+  useEffect(() => {
+    //initial fetch log data
+    (async () => {
+      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/log`;
+      const payload = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: localStorage.getItem("accessToken"),
+          username,
+        },
+      };
+      const { success, result, fetching } = await dataFetch(url, payload);
+      if (success && !fetching) updateLogData(result);
+    })();
+  }, []);
+
   return (
-    <>
-      <SwitchComponents active={table}>
-        <ResourceManagementTable
-          key="user"
-          name="User"
-          dataUniqueKey={"username"}
-          dataList={dataLists.User}
-          switchViewOptions={switchViewOptions}
-          renderSwitchView={renderSwitchView}
-          modalConfig={userModalOptions}
-          renderModals={renderUserModal}
-          options={["username", "email", "viewMode"]}
-          renderAddButton={renderAddButton}
-          addButtonOptions={addUserButtonOptions}
-        />
-        <ResourceManagementTable
-          key="location"
-          name="Location"
-          dataUniqueKey={"name"}
-          dataList={dataLists.Location}
-          switchViewOptions={switchViewOptions}
-          renderSwitchView={renderSwitchView}
-          modalConfig={locationModalOptions}
-          renderModals={renderWeatherModal}
-          options={["name", "latitude", "longitude"]}
-          optionsType={{ name: String, latitude: Number, longitude: Number }}
-          renderAddButton={renderAddButton}
-          addButtonOptions={addLocationButtonOptions}
-        />
-      </SwitchComponents>
-    </>
+    <SwitchComponents active={table}>
+      <ResourceManagementTable
+        key="user"
+        name="User"
+        dataUniqueKey={"username"}
+        dataList={dataLists.User}
+        switchViewOptions={switchViewOptions}
+        renderSwitchView={renderSwitchView}
+        modalConfig={userModalOptions}
+        renderModals={renderUserModal}
+        options={["username", "email", "viewMode"]}
+        renderAddButton={renderAddButton}
+        addButtonOptions={addUserButtonOptions}
+      />
+      <ResourceManagementTable
+        key="location"
+        name="Location"
+        dataUniqueKey={"name"}
+        dataList={dataLists.Location}
+        switchViewOptions={switchViewOptions}
+        renderSwitchView={renderSwitchView}
+        modalConfig={locationModalOptions}
+        renderModals={renderWeatherModal}
+        options={["name", "latitude", "longitude"]}
+        optionsType={{ name: String, latitude: Number, longitude: Number }}
+        renderAddButton={renderAddButton}
+        addButtonOptions={addLocationButtonOptions}
+      />
+      <ResourceManagementTable
+        key="log"
+        name="log"
+        dataUniqueKey={"name"}
+        dataList={dataLists.Log}
+        switchViewOptions={switchViewOptions}
+        renderSwitchView={renderSwitchView}
+        modalConfig={logModalOptions}
+        renderModals={renderLogModal}
+        options={["method", "userAgent", "date", "ip"]}
+        optionsType={{
+          name: String,
+          userAgent: String,
+          date: String,
+          ip: String,
+        }}
+        renderAddButton={renderAddButton}
+        addButtonOptions={addLogButtonOptions}
+      />
+    </SwitchComponents>
   );
 };
 

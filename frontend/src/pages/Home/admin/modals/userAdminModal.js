@@ -1,5 +1,5 @@
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext, useLayoutEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { InputFormModalRow, SelectFormModalRow } from ".";
 import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
@@ -10,15 +10,35 @@ import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import { objectSetAll } from "../../../../utils/object";
 import checkString from "../../../../utils/input/checkString";
 import validateEmail from "../../../../utils/input/checkEmail";
+import { FormBufferContext } from "../contexts/formBufferProvider";
 
 const BlankUserDataFormModal = (props) => {
   const { user } = useContext(AuthContext);
   const [unsaved, setUnsaved] = useState(objectSetAll(props.data, false));
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
-  const [userInfo, setUserInfo] = useState(objectSetAll(props.data));
   const [userInfoError, setUserInfoError] = useState(
     objectSetAll(props.data, "")
   );
+
+  const { formBuffer, setFormBuffer, resetBuffer } =
+    useContext(FormBufferContext);
+
+  useLayoutEffect(() => {
+    setFormBuffer((formBuffer) => objectSetAll(props.data));
+  }, []);
+
+  useLayoutEffect(() => {
+    const newBuffer = Object.keys(unsaved).reduce(
+      (prevBuffer, currKey) => (
+        (prevBuffer[currKey] = unsaved[currKey]
+          ? formBuffer[currKey]
+          : props.data[currKey]),
+        prevBuffer
+      ),
+      {}
+    );
+    setFormBuffer(newBuffer);
+  }, [props.data]);
 
   const { fetchFactory } = useContext(FetchStateContext);
   const createFetch = fetchFactory(
@@ -27,7 +47,7 @@ const BlankUserDataFormModal = (props) => {
       error: true,
       loading: true,
     },
-    `Successfully created user ${userInfo.username}!`,
+    `Successfully created user ${formBuffer?.username}!`,
     false,
     ["UsernameError", "PasswordError", "EmailError"]
   );
@@ -37,10 +57,10 @@ const BlankUserDataFormModal = (props) => {
     setUnsaved(newUnsaved);
   };
 
-  const handleChangeValue = (userField, changedUserInfo) => {
-    const newUserInfo = { ...userInfo };
-    newUserInfo[userField] = changedUserInfo;
-    setUserInfo(newUserInfo);
+  const handleChangeValue = (field, changedBuffer) => {
+    const newFormBuffer = { ...formBuffer };
+    newFormBuffer[field] = changedBuffer;
+    setFormBuffer(newFormBuffer);
   };
 
   const resetUnsaved = () => {
@@ -50,7 +70,7 @@ const BlankUserDataFormModal = (props) => {
 
   const handleCreateUser = async () => {
     const { success: usernameCheckSuccess, error: usernameCheckError } =
-      checkString(userInfo.username);
+      checkString(formBuffer.username);
     if (!usernameCheckSuccess) {
       const newUserInfoError = objectSetAll(userInfoError, "");
       newUserInfoError.username = usernameCheckError;
@@ -59,7 +79,7 @@ const BlankUserDataFormModal = (props) => {
     }
 
     const { success: passwordCheckSuccess, error: passwordCheckError } =
-      checkString(userInfo.password);
+      checkString(formBuffer.password);
     if (!passwordCheckSuccess) {
       const newUserInfoError = objectSetAll(userInfoError, "");
       newUserInfoError.password = passwordCheckError;
@@ -67,9 +87,9 @@ const BlankUserDataFormModal = (props) => {
       return;
     }
 
-    if (userInfo.email) {
+    if (formBuffer.email) {
       const { success: emailCheckSuccess, error: emailCheckError } =
-        validateEmail(userInfo.email);
+        validateEmail(formBuffer.email);
       if (!emailCheckSuccess) {
         const newUserInfoError = objectSetAll(userInfoError, "");
         newUserInfoError.email = emailCheckError;
@@ -77,7 +97,6 @@ const BlankUserDataFormModal = (props) => {
         return;
       }
     }
-    console.log("body", userInfo);
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/users`;
     const payload = {
       method: "POST",
@@ -86,7 +105,7 @@ const BlankUserDataFormModal = (props) => {
         authorization: localStorage.getItem("accessToken"),
         username: user.username,
       },
-      body: JSON.stringify(userInfo),
+      body: JSON.stringify(formBuffer),
     };
     const {
       success: updateUserInfoSuccess,
@@ -119,6 +138,7 @@ const BlankUserDataFormModal = (props) => {
   const handleCloseUnsavedModal = () => setShowUnsavedModal(false);
 
   const handleInnerCloseModal = () => {
+    resetBuffer();
     resetUnsaved();
     props.onHide();
   };
@@ -215,16 +235,35 @@ const UserDataFormModal = (props) => {
   const [unsaved, setUnsaved] = useState(
     Object.keys(props.data).reduce((obj, key) => ((obj[key] = false), obj), {})
   );
+  const { formBuffer, setFormBuffer, resetBuffer } =
+    useContext(FormBufferContext);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [userInfo, setUserInfo] = useState(
-    Object.keys(props.data).reduce(
+
+  useLayoutEffect(() => {
+    const newBuffer = Object.keys(props.data).reduce(
       (obj, key) => (
         (obj[key] = props.modalConfig[key].blank ? "" : props.data[key]), obj
       ),
       {}
-    )
-  );
+    );
+    setFormBuffer((formBuffer) => newBuffer);
+  }, []);
+
+
+  useLayoutEffect(() => {
+    const newBuffer = Object.keys(unsaved).reduce(
+      (prevBuffer, currKey) => (
+        (prevBuffer[currKey] = unsaved[currKey]
+          ? formBuffer[currKey]
+          : props.data[currKey]),
+        prevBuffer
+      ),
+      {}
+    );
+    setFormBuffer(newBuffer);
+  }, [props.data]);
+
   const [userInfoError, setUserInfoError] = useState(
     Object.keys(props.data).reduce((obj, key) => ((obj[key] = ""), obj), {})
   );
@@ -256,7 +295,7 @@ const UserDataFormModal = (props) => {
 
   const handleSaveChange = async () => {
     const { success: usernameCheckSuccess, error: usernameCheckError } =
-      checkString(userInfo.username);
+      checkString(formBuffer.username);
     if (!usernameCheckSuccess) {
       const newUserInfoError = objectSetAll(userInfoError, "");
       newUserInfoError.username = usernameCheckError;
@@ -264,9 +303,9 @@ const UserDataFormModal = (props) => {
       return;
     }
 
-    if (userInfo.password) {
+    if (formBuffer.password) {
       const { success: passwordCheckSuccess, error: passwordCheckError } =
-        checkString(userInfo.password);
+        checkString(formBuffer.password);
       if (!passwordCheckSuccess) {
         const newUserInfoError = objectSetAll(userInfoError, "");
         newUserInfoError.password = passwordCheckError;
@@ -274,9 +313,9 @@ const UserDataFormModal = (props) => {
         return;
       }
     }
-    if (userInfo.email) {
+    if (formBuffer.email) {
       const { success: emailCheckSuccess, error: emailCheckError } =
-        validateEmail(userInfo.email);
+        validateEmail(formBuffer.email);
       if (!emailCheckSuccess) {
         const newUserInfoError = objectSetAll(userInfoError, "");
         newUserInfoError.email = emailCheckError;
@@ -295,7 +334,7 @@ const UserDataFormModal = (props) => {
       },
       body: JSON.stringify({
         oldUsername: username,
-        newData: userInfo,
+        newData: formBuffer,
       }),
     };
     const {
@@ -351,10 +390,10 @@ const UserDataFormModal = (props) => {
     setUnsaved(newUnsaved);
   };
 
-  const handleChangeValue = (userField, changedUserInfo) => {
-    const newUserInfo = { ...userInfo };
-    newUserInfo[userField] = changedUserInfo;
-    setUserInfo(newUserInfo);
+  const handleChangeValue = (field, changedBuffer) => {
+    const newFormBuffer = { ...formBuffer };
+    newFormBuffer[field] = changedBuffer;
+    setFormBuffer(newFormBuffer);
   };
 
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
@@ -364,6 +403,7 @@ const UserDataFormModal = (props) => {
   const handleCloseDeleteModal = () => setShowDeleteModal(false);
 
   const handleInnerCloseModal = () => {
+    resetBuffer();
     resetUnsaved();
     props.onHide();
   };

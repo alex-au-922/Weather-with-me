@@ -33,7 +33,8 @@ const ResourceManagementTableRow = (props) => {
 
   return (
     <tr style={{ cursor: props.renderModals ? "pointer" : "initial" }}>
-      {props.renderModals &&
+      {showModal &&
+        props.renderModals &&
         props.renderModals(
           props.data,
           props.modalConfig,
@@ -186,7 +187,7 @@ const ResourceManagementTable = (props) => {
           <tr>
             {displayOptions.map((option, index) => (
               <ResourceMangementTableHeader
-                key={index}
+                key={option}
                 value={`${camelToCapitalize(option)}`}
                 isDescending={optionsDescending[option]}
                 option={option}
@@ -198,7 +199,7 @@ const ResourceManagementTable = (props) => {
         <tbody>
           {filteredDataList?.map((row, index) => (
             <ResourceManagementTableRow
-              key={`${index},row`}
+              key={`${row[props.dataUniqueKey]},row`}
               rowIndex={index}
               fieldNames={displayOptions}
               data={row}

@@ -1,22 +1,12 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { Loader } from "@googlemaps/js-api-loader";
-import { registerMarkerListener } from "../../../utils/listeners/googleMapMarkerListener";
-import TableTitleBar from "../../../utils/gui/resourceManageSystem/tableTitleBar";
-import GOOGLE_API_KEY from "../../../keys/googleAPI";
-import { objectEqual } from "../../../utils/object";
+import { registerMarkerListener } from "../../../../utils/listeners/googleMapMarkerListener";
+import GOOGLE_API_KEY from "../../../../keys/googleAPI";
 
 const loader = new Loader({
   apiKey: GOOGLE_API_KEY,
   version: "weekly",
 });
-
-const defaultMapOptions = {
-  center: {
-    lat: 22.3,
-    lng: 114.177216,
-  },
-  zoom: 11,
-};
 
 const WeatherContent = (weatherData) => {
   return `<ul style = "list-style: none;">
@@ -36,9 +26,6 @@ const Marker = (props) => {
     infoWindow: null,
     content: null,
   });
-  const [showModal, setShowModal] = useState(false);
-  const handleShowModal = () => setShowModal(true);
-  const handleCloseModal = () => setShowModal(false);
 
   const handleMouseOver = () => {
     infoWindow.infoWindow.setContent(infoWindow.content);
@@ -47,6 +34,11 @@ const Marker = (props) => {
 
   const handleMouseOut = () => {
     infoWindow.infoWindow.close(props.googleMap, marker.marker);
+  };
+
+  const handleMouseClick = () => {
+    //TODO: change the handle mouse click to render a consistent data view
+    console.log(marker.option);
   };
 
   useEffect(() => {
@@ -102,10 +94,11 @@ const Marker = (props) => {
           props.google,
           marker.marker,
           "click",
-          handleShowModal
+          handleMouseClick
         );
 
         return () => {
+          console.log("remove!");
           unregisterMouseOver();
           unregisterMouseOut();
           unregisterMouseClick();
@@ -116,19 +109,7 @@ const Marker = (props) => {
       marker.marker?.setMap(null);
     }
   }, [marker.marker, props.visible]);
-  return (
-    <>
-      {showModal &&
-        props.renderModals &&
-        props.renderModals(
-          props.data,
-          null,
-          showModal,
-          handleCloseModal,
-          props.data.name
-        )}{" "}
-    </>
-  );
+  return null;
 };
 
 const Map = (props) => {
@@ -136,35 +117,33 @@ const Map = (props) => {
   const [googleMap, setGoogleMap] = useState(null);
   useEffect(() => {
     if (ref.current && googleMap === null && props.google !== null) {
-      // set google map
+      const defaultMapOptions = {
+        center: {
+          lat: props.weatherData.latitude,
+          lng: props.weatherData.longitude,
+        },
+        zoom: 17,
+      };
       setGoogleMap(new props.google.maps.Map(ref.current, defaultMapOptions));
     }
     return () => console.log("removed map!");
   }, [ref, props.google, googleMap]);
   return (
-    <div ref={ref} style={{ width: "100vw", height: "100vh" }}>
-      {props.weatherList?.map((weatherData) => (
+    <div ref={ref} style={{ width: "100%", height: "100%" }}>
+      {
         <Marker
-          renderModals={props.renderModals}
           google={props.google}
           googleMap={googleMap}
-          key={weatherData.name}
-          data={weatherData}
-          visible={props.filteredWeatherList?.reduce(
-            (prevBool, currWeatherData) =>
-              objectEqual(currWeatherData, weatherData) || prevBool,
-            false
-          )}
+          key={props.weatherData.name}
+          data={props.weatherData}
+          visible={true}
         />
-      ))}
+      }
     </div>
   );
 };
 
-const MapView = (props) => {
-  const [filteredWeatherList, setFilteredWeatherList] = useState(
-    props.weatherList
-  );
+const LocationMapView = (props) => {
   const [google, setGoogle] = useState(null);
   useEffect(() => {
     // initial load google
@@ -175,30 +154,9 @@ const MapView = (props) => {
 
   return (
     <>
-      <TableTitleBar
-        dataList={props.weatherList}
-        filteredDataList={filteredWeatherList}
-        setFilteredDataList={setFilteredWeatherList}
-        options={props.options}
-        optionsType={
-          props.optionsType &&
-          props.options.reduce(
-            (obj, key) => ((obj[key] = props.optionsType[key]), obj),
-            {}
-          )
-        }
-        optionsAllowedTypes={[String]}
-        switchViewOptions={props.switchViewOptions}
-        renderSwitchView={props.renderSwitchView}
-      />
-      <Map
-        google={google}
-        renderModals={props.renderModals}
-        weatherList={props.weatherList}
-        filteredWeatherList={filteredWeatherList}
-      />
+      <Map google={google} weatherData={props.weatherData} />
     </>
   );
 };
 
-export default MapView;
+export default LocationMapView;
