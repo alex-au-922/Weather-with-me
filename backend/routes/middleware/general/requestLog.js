@@ -7,7 +7,7 @@ const insertRequestLogToDB = async function (req, res, next) {
     const requestLogInfo = {
       method: req.method,
       userAgent: req.headers["user-agent"],
-      date: Date(Date.now()).toString(),
+      date: Date(Date.now()),
       ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
     };
     const loggerDB = await connectLoggerDB();

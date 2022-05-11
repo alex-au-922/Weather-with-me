@@ -140,7 +140,7 @@ exports.databaseConfig = {
   ),
   loggerSchema: new mongoose.Schema(
     {
-      time: String,
+      time: Date,
       filename: String,
       ip: String,
       level: String,
@@ -160,7 +160,7 @@ exports.databaseConfig = {
     {
       method: String,
       userAgent: String,
-      date: String,
+      date: Date,
       ip: String,
     },
     {
