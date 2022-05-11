@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Container, Row, Col, Card } from "react-bootstrap";
 import "./weatherUserModal.css";
 import LocationMapView from "./locationMap";
 import { AuthContext } from "../../../../middleware/auth";
@@ -8,6 +8,24 @@ import { FormInputWithError } from "../../../../utils/gui/formInputs";
 import { FetchStateContext } from "../../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
+
+const CommentCard = (props) => {
+  return (
+    <Card style={{ marginTop: '1%', marginBotton: '1%' }}>
+        <Card.Body>
+          <Card.Title>
+            {props.commenter}
+          </Card.Title>
+          <Card.Subtitle className="mb-2 text-muted">
+            {props.time}
+          </Card.Subtitle>
+          <Card.Text>
+            {props.comment}
+          </Card.Text>
+        </Card.Body>
+      </Card>
+  )
+}
 
 const WeatherUserLocationViewModal = (props) => {
   const { user } = useContext(AuthContext);
@@ -44,7 +62,7 @@ const WeatherUserLocationViewModal = (props) => {
     setBuffers(newBuffers);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (event) => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
     const payload = {
       method: "POST",
@@ -60,6 +78,10 @@ const WeatherUserLocationViewModal = (props) => {
     };
     const { success: submitSuccess, fetching: submitFetching } =
       await resourceFetch(commentFetch, url, payload);
+    
+      if (submitSuccess) {
+        buffers[props.uniqueKey] = "";
+      }
   };
 
   return (
@@ -82,29 +104,27 @@ const WeatherUserLocationViewModal = (props) => {
             weatherData={props.data}
           />
         </div>
-        <div className="column nopadding-left" style={{ width: "40%" }}>
-          <Modal.Header closeButton></Modal.Header>
-          <Modal.Body>
-            <>
-              <div
-                className="column"
-                style={{
-                  // width: "40%",
-                  "overflow-y": "auto",
-                  "overflow-x": "hidden",
-                }}
-              >
+        <div className="column nopadding-left" style={{ width: "40%", maxHeight: "90vh" }}>
+          <Modal.Header style={{height: "5%"}} closeButton></Modal.Header>
+          <Modal.Body style={{ height: "85%" }}>
+              <Container style={{ overflowY: "scroll", overflowX: "hidden", height: "80%" }}>
+                {props.data.comments.map((commentData) => {
+                    <CommentCard
+                      commenter={commentData.username}
+                      time={commentData.createTime}
+                      comment={commentData.message}>
+                    </CommentCard>
+                })}
+              </Container>
+              <Container style={{ height: "10%"}}>
                 <textarea
+                  style={{ height: '100%', maxHeight: '100%', width: '100%', marginTop: '1%'}}
                   onChange={handleInputChange}
                   value={buffers[props.uniqueKey]}
                 />
-                <Button onClick={handleSubmit}>Submit</Button>
-              </div>
-            </>
+                <Button className='btn-success' onClick={handleSubmit}>Submit</Button>
+              </Container>
           </Modal.Body>
-          <Modal.Footer>
-            <Button onClick={handleProperCloseModal}>Close</Button>
-          </Modal.Footer>
         </div>
       </div>
     </Modal>

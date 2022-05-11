@@ -4,6 +4,8 @@ import { registerMarkerListener } from "../../../utils/listeners/googleMapMarker
 import TableTitleBar from "../../../utils/gui/resourceManageSystem/tableTitleBar";
 import GOOGLE_API_KEY from "../../../keys/googleAPI";
 import { objectEqual } from "../../../utils/object";
+import { AuthContext } from "../../../middleware/auth";
+import useForceUpdate from "../../../utils/forceUpdate";
 
 const loader = new Loader({
   apiKey: GOOGLE_API_KEY,
@@ -51,23 +53,38 @@ const Marker = (props) => {
 
   useEffect(() => {
     if (props.google !== null && props.data) {
+      const newOption = {
+        position: new props.google.maps.LatLng(
+          props.data.latitude,
+          props.data.longitude
+        ),
+        optimized: false,
+      };
+      if (!props.isFavourite) {
+        if (props.showFavourite) newOption.visible = false;
+        else newOption.visible = props.visible;
+        newOption.icon = {
+          url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+        };
+      } else {
+        newOption.visible = true;
+      }
       setMarker({
         ...marker,
-        option: {
-          position: new props.google.maps.LatLng(
-            props.data.latitude,
-            props.data.longitude
-          ),
-          visible: props.visible,
-          optimized: false,
-        },
+        option: newOption,
       });
     }
-  }, [props.google, props.data]);
+  }, [
+    props.google,
+    props.data,
+    props.isFavourite,
+    props.visible,
+    props.showFavourite,
+  ]);
   useEffect(() => {
-    if (props.visible) {
+    if (marker.option?.visible) {
       if (props.googleMap !== null && marker.option) {
-        if (!marker.marker) {
+        if (marker.marker === null) {
           setMarker({
             ...marker,
             marker: new props.google.maps.Marker(marker.option),
@@ -78,8 +95,14 @@ const Marker = (props) => {
           });
         }
       }
+    } else {
+      marker.marker?.setMap(null);
+      setMarker({
+        ...marker,
+        marker: null,
+      });
     }
-  }, [props.googleMap, marker.option, props.visible]);
+  }, [props.googleMap, props.data, marker.option]);
 
   useEffect(() => {
     if (props.visible) {
@@ -132,8 +155,10 @@ const Marker = (props) => {
 };
 
 const Map = (props) => {
+  const { user } = useContext(AuthContext);
   const ref = useRef(null);
   const [googleMap, setGoogleMap] = useState(null);
+  const forceUpdate = useForceUpdate();
   useEffect(() => {
     if (ref.current && googleMap === null && props.google !== null) {
       // set google map
@@ -141,6 +166,10 @@ const Map = (props) => {
     }
     return () => console.log("removed map!");
   }, [ref, props.google, googleMap]);
+
+  useEffect(() => {
+    forceUpdate();
+  }, [props.data]);
   return (
     <div ref={ref} style={{ width: "100vw", height: "100vh" }}>
       {props.weatherList?.map((weatherData) => (
@@ -149,6 +178,8 @@ const Map = (props) => {
           google={props.google}
           googleMap={googleMap}
           key={weatherData.name}
+          showFavourite={props.showFavourite}
+          isFavourite={user.favouriteLocation.indexOf(weatherData.name) !== -1}
           data={weatherData}
           visible={props.filteredWeatherList?.reduce(
             (prevBool, currWeatherData) =>
@@ -194,6 +225,7 @@ const MapView = (props) => {
       <Map
         google={google}
         renderModals={props.renderModals}
+        showFavourite={props.showFavourite}
         weatherList={props.weatherList}
         filteredWeatherList={filteredWeatherList}
       />

@@ -36,7 +36,12 @@ router.put("/", async (req, res, next) => {
     const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
     const response = res.locals.response;
     const decryptedUserId = res.locals.decryptedUserId;
-    const { password, viewMode, email } = req.body;
+    const {
+      password,
+      viewMode,
+      email,
+      location: newFavouriteLocation,
+    } = req.body;
     let newUserInfo = {};
     if (password) {
       const hashedPassword = await passwordHash(password);
@@ -48,6 +53,9 @@ router.put("/", async (req, res, next) => {
       if (existUser !== null && existUser.userId !== decryptedUserId)
         throw new EmailError("Email already exists!");
       newUserInfo.email = email;
+    }
+    if (newFavouriteLocation) {
+      // const currentFavouriteLocations =
     }
     await updateUser(decryptedUserId, newUserInfo);
     emitUserUpdate(ip);

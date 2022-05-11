@@ -1,13 +1,23 @@
 const { DatabaseError } = require("../../errorConfig");
-const { connectUserDB } = require("../../generalUtils/database");
+const {
+  connectUserDB,
+  connectWeatherDB,
+} = require("../../generalUtils/database");
 const logger = require("../../generalUtils/getLogger").getLogger();
-const userSchema = require("../../backendConfig.js").databaseConfig.userSchema;
+const { userSchema, geolocationSchema } =
+  require("../../backendConfig.js").databaseConfig;
 
 const getLatestData = async () => {
   try {
     const userDB = await connectUserDB();
     const User = userDB.model("User", userSchema);
-    const result = await User.find();
+    const weatherDB = await connectWeatherDB();
+    const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
+    const result = await User.find().populate(
+      "favouriteLocation",
+      "",
+      GeoLocation
+    );
     return result;
   } catch (error) {
     throw new DatabaseError(error);

@@ -33,10 +33,27 @@ const updateLocationComment = async (locationId, userId, message) => {
       userId,
       locationId,
       createTime: Date.now(),
-      message,
+      message
     };
     await LocationComment.create(newComment);
     return true;
+  } catch (error) {
+    throw new DatabaseError(error);
+  }
+};
+
+const getLocationComment = async () => {
+  try{
+    const weatherDB = await connectWeatherDB();
+    const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
+    const userDB = await connectUserDB();
+    const User = userDB.model("User", userSchema);
+    const LocationComment = weatherDB.model(
+      "LocationComment", 
+      locationCommentSchema
+    );
+    const result = await LocationComment.find().populate("userId", "username", User).populate("locationId", "name", GeoLocation);
+    return result;
   } catch (error) {
     throw new DatabaseError(error);
   }
@@ -65,3 +82,4 @@ exports.updateLocation = updateLocation;
 exports.latitudeCheck = latitudeCheck;
 exports.longitudeCheck = longitudeCheck;
 exports.updateLocationComment = updateLocationComment;
+exports.getLocationComment = getLocationComment;

@@ -4,17 +4,13 @@
 .column {
   min-height: 70vh;
 }
-.overflow {
-  max-height: 70vh;
-  overflow: scroll;
-}
 
 .nopadding-right {
   padding-left: 0 !important;
   padding-right: 0 !important;
   z-index: 1;
   overflow: hidden;
-  border: solid 1px #fff;
+  border: solid 0px #fff;
   border-radius: 30px;
   margin: 0 auto;
   -moz-border-radius: 15px;
@@ -28,4 +24,8 @@
 }
 .modal-body {
   padding: 0;
+}
+
+CommentCard:nth-child(2) {
+  background-color: grey;
 }
