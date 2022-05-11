@@ -4,10 +4,6 @@
 .column {
   min-height: 70vh;
 }
-.overflow {
-  max-height: 70vh;
-  overflow: scroll;
-}
 
 .nopadding-right {
   padding-left: 0 !important;
@@ -28,4 +24,8 @@
 }
 .modal-body {
   padding: 0;
+}
+
+CommentCard:nth-child(2) {
+  background-color: grey;
 }

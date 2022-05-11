@@ -12,11 +12,12 @@ import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import { FetchStateContext } from "../../../middleware/fetch";
 import DropDownButton from "../../../utils/gui/dropDown";
 import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
+import parseCommentDataFrontendView from "../../../utils/data/comments";
 
 const UserView = (props) => {
   const { username } = props.user;
   const [dataLists, setDataLists] = useState({
-    Weather: null,
+    Weather: null
   });
   const [view, setView] = useState("Map");
   const [weatherList, setWeatherList] = useState();
@@ -51,32 +52,56 @@ const UserView = (props) => {
     return registerMessageListener(weatherWebSocket, handler);
   }, [weatherWebSocket]);
 
-  useEffect(() => {
-    //initial fetch weather data
-    (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/weathers`;
-      const payload = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: localStorage.getItem("accessToken"),
-          username,
-        },
-      };
-      const { success, result, fetching } = await dataFetch(url, payload);
-      if (success && !fetching) updateWeatherData(result);
-    })();
-  }, []);
+  const fetchComments = async() => {
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
+    const payload = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: localStorage.getItem("accessToken"),
+        username: username,
+      }
+    };
+    const { success, result, fetching } = await dataFetch(url, payload);
+    if (success && !fetching) return parseCommentDataFrontendView(result);
+  };
 
-  const renderWeatherModal = renderModals(WeatherUserLocationViewModal);
+  const fetchWeatherData = async () => {
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/weathers`;
+    const payload = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: localStorage.getItem("accessToken"),
+        username,
+      },
+    };
+    const { success, result, fetching } = await dataFetch(url, payload);
+    if (success && !fetching) return result;
+  };
 
-  const updateWeatherData = (resultJson) => {
-    const newWeatherList = parseWeatherDataFrontendView(resultJson);
+  const mergeWeather = async() => {
+    const weatherJson = await fetchWeatherData();
+    const commentJson = await fetchComments();
+    if (weatherJson !== undefined && commentJson !== undefined) updateWeatherData(weatherJson, commentJson);
+  }
+
+  const updateWeatherData = (weatherJson, commentJson) => {
+    const newWeatherList = parseWeatherDataFrontendView(weatherJson, commentJson);
     setWeatherList(newWeatherList);
     setDataLists((dataLists) => {
       return { ...dataLists, Weather: newWeatherList };
     });
   };
+
+  useEffect(() => {
+    //initial fetch weather data
+    (async() => {
+      await mergeWeather();
+    })();
+  }, []);
+
+  const renderWeatherModal = renderModals(WeatherUserLocationViewModal);
 
   return (
     <>
