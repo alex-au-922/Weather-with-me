@@ -117,7 +117,7 @@ const AdminView = (props) => {
   const updateLogData = (resultJson) => {
     const newLogList = parseLogDataFrontendView(resultJson);
     setDataLists((dataLists) => {
-      return { ...dataLists, Location: newLogList };
+      return { ...dataLists, Log: newLogList };
     });
   };
 
@@ -176,7 +176,7 @@ const AdminView = (props) => {
   useEffect(() => {
     //initial fetch log data
     (async () => {
-      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/log`;
+      const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/logs`;
       const payload = {
         method: "GET",
         headers: {
@@ -221,8 +221,8 @@ const AdminView = (props) => {
       />
       <ResourceManagementTable
         key="log"
-        name="log"
-        dataUniqueKey={"name"}
+        name="Log"
+        dataUniqueKey={"_id"}
         dataList={dataLists.Log}
         switchViewOptions={switchViewOptions}
         renderSwitchView={renderSwitchView}
