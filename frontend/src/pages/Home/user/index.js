@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState, useRef } from "react";
-import { WeatherWebSocketContext } from "../../../middleware/websocket";
 import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
 import MapView from "./mapView";
@@ -11,6 +10,7 @@ import DropDownButton from "../../../utils/gui/dropDown";
 import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
 import SwitchComponents from "../switchView";
 import parseCommentDataFrontendView from "../../../utils/data/comments";
+import { WebSocketContext } from "../../../middleware/websocket";
 
 const UserView = (props) => {
   const { username, favouriteLocation } = props.user;
@@ -30,7 +30,7 @@ const UserView = (props) => {
     null,
     true
   );
-  const { webSocket: weatherWebSocket } = useContext(WeatherWebSocketContext);
+  const { webSocket } = useContext(WebSocketContext);
   const handleViewSelect = (event) => {
     setView(event);
   };
@@ -48,11 +48,10 @@ const UserView = (props) => {
 
   useEffect(() => {
     const handler = (event) => {
-      const result = JSON.parse(event.data);
-      updateWeatherData(result);
+      console.log(JSON.parse(event.data));
     };
-    return registerMessageListener(weatherWebSocket, handler);
-  }, [weatherWebSocket]);
+    return registerMessageListener(webSocket, handler);
+  }, [webSocket]);
 
   const fetchComments = async () => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
@@ -85,8 +84,8 @@ const UserView = (props) => {
   const mergeWeather = async () => {
     const weatherJson = await fetchWeatherData();
     const commentJson = await fetchComments();
-    console.log(weatherJson);
-    console.log(commentJson);
+    console.log("weatherJson", weatherJson);
+    console.log("commentJson", commentJson);
     if (weatherJson !== undefined && commentJson !== undefined)
       updateWeatherData(weatherJson, commentJson);
   };

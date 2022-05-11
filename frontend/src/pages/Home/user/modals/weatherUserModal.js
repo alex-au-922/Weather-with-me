@@ -1,5 +1,13 @@
 import { useState, useEffect, useRef, useContext } from "react";
-import { Modal, Button, Form, Container, Row, Col, Card } from "react-bootstrap";
+import {
+  Modal,
+  Button,
+  Form,
+  Container,
+  Row,
+  Col,
+  Card,
+} from "react-bootstrap";
 import "./weatherUserModal.css";
 import LocationMapView from "./locationMap";
 import { AuthContext } from "../../../../middleware/auth";
@@ -8,24 +16,33 @@ import { FormInputWithError } from "../../../../utils/gui/formInputs";
 import { FetchStateContext } from "../../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
+import { useReducer } from "react";
+import { registerWindowListener } from "../../../../utils/listeners/windowListener.js";
+import { ReactComponent as StarIcon } from "./star.svg";
+import { ReactComponent as ProfileIcon } from "./profilePicture.svg";
+import { ReactComponent as SendIcon } from "./send.svg";
+
+// const formatTimeString = (timeString) => {
+//   const date = Date.parse(timeString);
+//   const day = date.
+// }
 
 const CommentCard = (props) => {
   return (
-    <Card style={{ marginTop: '1%', marginBotton: '1%' }}>
-        <Card.Body>
-          <Card.Title>
-            {props.commenter}
-          </Card.Title>
-          <Card.Subtitle className="mb-2 text-muted">
-            {props.time}
-          </Card.Subtitle>
-          <Card.Text>
-            {props.comment}
-          </Card.Text>
-        </Card.Body>
-      </Card>
-  )
-}
+    <Card style={{ marginTop: "1%", marginBotton: "1%" }}>
+      <Card.Body>
+        <Card.Title>
+          {/* <ProfileIcon style={{width: "50", height: "50", marginRight: "5%"}}>
+              </ProfileIcon>  */}
+          {props.commenter}
+        </Card.Title>
+        <Card.Subtitle className="mb-2 text-muted"></Card.Subtitle>
+        <Card.Text>{props.comment}</Card.Text>
+      </Card.Body>
+      <Card.Footer>{props.time}</Card.Footer>
+    </Card>
+  );
+};
 
 const WeatherUserLocationViewModal = (props) => {
   const { user } = useContext(AuthContext);
@@ -62,6 +79,14 @@ const WeatherUserLocationViewModal = (props) => {
     setBuffers(newBuffers);
   };
 
+  const enterKeyHandler = async (event) => {
+    if (event.key == "Enter") await handleSubmit();
+  };
+
+  useEffect(() => {
+    return registerWindowListener("keyup", enterKeyHandler);
+  }, [buffers[props.uniqueKey]]);
+
   const handleSubmit = async (event) => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
     const payload = {
@@ -78,10 +103,12 @@ const WeatherUserLocationViewModal = (props) => {
     };
     const { success: submitSuccess, fetching: submitFetching } =
       await resourceFetch(commentFetch, url, payload);
-    
-      if (submitSuccess) {
-        buffers[props.uniqueKey] = "";
-      }
+
+    if (submitSuccess) {
+      const newBuffers = { ...buffers };
+      newBuffers[props.uniqueKey] = "";
+      setBuffers(newBuffers);
+    }
   };
 
   return (
@@ -104,27 +131,87 @@ const WeatherUserLocationViewModal = (props) => {
             weatherData={props.data}
           />
         </div>
-        <div className="column nopadding-left" style={{ width: "40%", maxHeight: "90vh" }}>
-          <Modal.Header style={{height: "5%"}} closeButton></Modal.Header>
-          <Modal.Body style={{ height: "85%" }}>
-              <Container style={{ overflowY: "scroll", overflowX: "hidden", height: "80%" }}>
-                {props.data.comments.map((commentData) => {
-                    <CommentCard
-                      commenter={commentData.username}
-                      time={commentData.createTime}
-                      comment={commentData.message}>
-                    </CommentCard>
-                })}
-              </Container>
-              <Container style={{ height: "10%"}}>
+        <div
+          className="column nopadding-left"
+          style={{
+            width: "40%",
+            maxHeight: "90vh",
+            backgroundColor: "#F5F5DC",
+          }}
+        >
+          <Modal.Header style={{ height: "10%" }} closeButton>
+            <div
+              style={{
+                cursor: "pointer",
+                position: "relative",
+                left: "85%",
+                top: "0%",
+              }}
+            >
+              {true ? (
+                <StarIcon
+                  data-toggle="tooltip"
+                  title="Show Normal"
+                  // onClick={handleClick}
+                  style={{ color: "#FFCC00" }}
+                />
+              ) : (
+                <StarIcon
+                  data-toggle="tooltip"
+                  title="Show Favourite Locations"
+                  // onClick={handleClick}
+                  style={{ color: "#777" }}
+                />
+              )}
+            </div>
+          </Modal.Header>
+          <Modal.Body
+            style={{ height: "90%", padding: "2%", backgroundColor: "#F5F5DC" }}
+          >
+            <Container
+              style={{
+                display: "flex",
+                height: "80%",
+                overflow: "auto",
+                justifyContent: "space-around",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ width: "90%" }}>
+                {props.data.comments?.map((commentData) => (
+                  <CommentCard
+                    key={commentData.createTime + commentData.username}
+                    commenter={commentData.username}
+                    time={commentData.createTime}
+                    comment={commentData.message}
+                  ></CommentCard>
+                ))}
+              </div>
+            </Container>
+            <Container
+              style={{
+                width: "100%",
+                height: "15%",
+                display: "flex",
+                alignItems: "center",
+                marginTop: "3%",
+                justifyContent: "space-around",
+              }}
+            >
+              <div className="sendMessageAreaCol1">
                 <textarea
-                  style={{ height: '100%', maxHeight: '100%', width: '100%', marginTop: '1%'}}
+                  style={{ height: "80%", width: "100%" }}
                   onChange={handleInputChange}
                   value={buffers[props.uniqueKey]}
                 />
-                <Button className='btn-success' onClick={handleSubmit}>Submit</Button>
-              </Container>
+              </div>
+            </Container>
           </Modal.Body>
+          {/* <Modal.Footer style={{ height: "10%" }}>
+            <Button variant="secondary" onClick={handleProperCloseModal}>
+              Close
+            </Button>
+          </Modal.Footer> */}
         </div>
       </div>
     </Modal>

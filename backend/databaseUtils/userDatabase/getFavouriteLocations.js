@@ -13,4 +13,4 @@ const getUserFavouriteLocations = async (userId) => {
   }
 };
 
-export default getUserFavouriteLocations = getUserFavouriteLocations;
+exports.getUserFavouriteLocations = getUserFavouriteLocations;

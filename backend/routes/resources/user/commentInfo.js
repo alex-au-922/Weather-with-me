@@ -1,7 +1,8 @@
 const express = require("express");
 const xss = require("xss");
 const {
-  updateLocationComment, getLocationComment
+  updateLocationComment,
+  getLocationComment,
 } = require("../../../databaseUtils/weatherDatabase/updateLocation");
 const { LocationNameError } = require("../../../errorConfig");
 const {

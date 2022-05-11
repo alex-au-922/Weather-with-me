@@ -10,7 +10,17 @@ const {
 } = require("../../../databaseUtils/userDatabase/updateUser");
 const { passwordHash } = require("../../../generalUtils/userCreds/password");
 const { emitUserUpdate } = require("../../_emitEvent");
-const { EmailError, UnauthorizationError } = require("../../../errorConfig");
+const {
+  EmailError,
+  UnauthorizationError,
+  LocationNameError,
+} = require("../../../errorConfig");
+const {
+  default: getFavouriteLocations,
+} = require("../../../databaseUtils/userDatabase/getFavouriteLocations");
+const {
+  findLocationInfoByName,
+} = require("../../../generalUtils/location/locationName");
 
 const router = express.Router();
 
@@ -36,12 +46,7 @@ router.put("/", async (req, res, next) => {
     const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
     const response = res.locals.response;
     const decryptedUserId = res.locals.decryptedUserId;
-    const {
-      password,
-      viewMode,
-      email,
-      location: newFavouriteLocation,
-    } = req.body;
+    const { password, viewMode, email, favouriteLocation } = req.body;
     let newUserInfo = {};
     if (password) {
       const hashedPassword = await passwordHash(password);
@@ -54,8 +59,26 @@ router.put("/", async (req, res, next) => {
         throw new EmailError("Email already exists!");
       newUserInfo.email = email;
     }
-    if (newFavouriteLocation) {
-      // const currentFavouriteLocations =
+    if (favouriteLocation) {
+      const { name: amendedLocation, action } = favouriteLocation;
+      const currentFavouriteLocations = await getFavouriteLocations(
+        decryptedUserId
+      );
+      const existLocation = await findLocationInfoByName(amendedLocation);
+      if (existLocation === null)
+        throw new LocationNameError("Location doest not exist!");
+      const { locationId } = existLocation;
+      if (action === "add") {
+        newUserInfo.favouriteLocation = [
+          ...currentFavouriteLocations,
+          locationId,
+        ];
+      } else if (action === "delete") {
+        newUserInfo.favouriteLocation = currentFavouriteLocations.filter(
+          (currLocationId) =>
+            locationId.toString() !== currLocationId.toString()
+        );
+      }
     }
     await updateUser(decryptedUserId, newUserInfo);
     emitUserUpdate(ip);
