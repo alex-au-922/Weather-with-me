@@ -34,9 +34,8 @@ const updateWeatherData = async () => {
     geolocationResults,
     weatherResults
   );
-  sendData("weatherLoc")(JSON.stringify(newLatestWeatherData));
+  // sendData("weatherLoc")(JSON.stringify(newLatestWeatherData));
 };
-
 
 const updateBackUpWeatherData = async () => {
   await updateBackUpWeather();

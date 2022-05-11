@@ -16,7 +16,9 @@ const WebSocketProvider = (props) => {
           if (user.isAdmin)
             webSocketUri = `${BACKEND_WS_HOST}/websocket?user=true&weatherLoc=true&log=true&comment=true`;
           else
-            webSocketUri = `${BACKEND_WS_HOST}/websocket?user=true&weatherLoc=true&comment=true`;
+            webSocketUri = `${BACKEND_WS_HOST}/websocket?token=${localStorage.getItem(
+              "accessToken"
+            )}&user=true&weatherLoc=true&comment=true`;
         }
         const newWebSocket = new WebSocket(webSocketUri);
         newWebSocket.onopen = () => {

@@ -35,49 +35,48 @@ Data Channels:
 4) comment
 */
 const createWebSocketServer = () => {
-  const websocketServer = new SocketServer({
-    port: process.env.WS_PORT,
-    path: "/websocket",
-  });
-  websocketServer.on("connection", async (webSocket, req) => {
-    const clientAddress = req.socket.remoteAddress;
-    const clientUserAgent = req.headers["user-agent"];
-    const { user, weatherLoc, log, comment } = req.query;
-    console.log(user, weatherLoc, log, comment);
-    // if (accessToken === null) webSocket.terminate();
-    const userId = decryptAccessToken(accessToken);
-    if (userId === null) webSocket.terminate();
-    const existUser = await checkUserCredentialsById(userId);
-    if (existUser === null) webSocket.terminate();
-    const { role } = existUser;
-    const subscribedChannels = {
-      user,
-      weatherLoc,
-      log: role === "admin" ? log : false,
-      comment,
-    };
-    webSocketClients[userId] = {
-      userAgent: clientUserAgent,
-      ip: clientAddress,
-      role,
-      webSocket,
-      channels: subscribedChannels,
-    };
-    let subscribedChannelsArray = Object.keys(subscribedChannels).map(
-      (prevArray, currKey) =>
-        subscribedChannels[currKey] ? [...prevArray, currKey] : prevArray,
-      []
-    );
-    logger.info(
-      `Client "${clientAddress}" connected. Subscribed channels ${subscribedChannelsArray}`
-    );
-    webSocket.on("close", () => {
-      logger.info(`Client "${clientAddress}" closed connection`);
-      delete webSocketClients[userId];
-    });
-  });
-  const sendData = registerSendData(webSocketClients);
-  return sendData;
+  // const websocketServer = new SocketServer({
+  //   port: process.env.WS_PORT,
+  //   path: "/websocket",
+  // });
+  // websocketServer.on("connection", async (webSocket, req) => {
+  //   const clientAddress = req.socket.remoteAddress;
+  //   const clientUserAgent = req.headers["user-agent"];
+  //   const { token: accessToken, user, weatherLoc, log, comment } = req.query;
+  //   if (accessToken === null) webSocket.terminate();
+  //   const userId = decryptAccessToken(accessToken);
+  //   if (userId === null) webSocket.terminate();
+  //   const existUser = await checkUserCredentialsById(userId);
+  //   if (existUser === null) webSocket.terminate();
+  //   const { role } = existUser;
+  //   const subscribedChannels = {
+  //     user,
+  //     weatherLoc,
+  //     log: role === "admin" ? log : false,
+  //     comment,
+  //   };
+  //   webSocketClients[userId] = {
+  //     userAgent: clientUserAgent,
+  //     ip: clientAddress,
+  //     role,
+  //     webSocket,
+  //     channels: subscribedChannels,
+  //   };
+  //   let subscribedChannelsArray = Object.keys(subscribedChannels).map(
+  //     (prevArray, currKey) =>
+  //       subscribedChannels[currKey] ? [...prevArray, currKey] : prevArray,
+  //     []
+  //   );
+  //   logger.info(
+  //     `Client "${clientAddress}" connected. Subscribed channels ${subscribedChannelsArray}`
+  //   );
+  //   webSocket.on("close", () => {
+  //     logger.info(`Client "${clientAddress}" closed connection`);
+  //     delete webSocketClients[userId];
+  //   });
+  // });
+  // const sendData = registerSendData(webSocketClients);
+  // return sendData;
 };
 
 exports.createWebSocketServer = createWebSocketServer;
