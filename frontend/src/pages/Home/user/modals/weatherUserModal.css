@@ -2,7 +2,7 @@
   min-width: 90% !important;
 }
 .column {
-  min-height: 70vh;
+  min-height: 90vh;
 }
 
 .nopadding-right {
@@ -25,7 +25,12 @@
 .modal-body {
   padding: 0;
 }
+.sendMessageAreaCol1 {
+  width: calc(90%);
+  height: 100%
+}
 
-CommentCard:nth-child(2) {
-  background-color: grey;
+.sendMessageAreaCol2 {
+  width: calc(10%);
+  justify-content: center;
 }
