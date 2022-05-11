@@ -22,10 +22,15 @@ import { ReactComponent as StarIcon } from "./star.svg";
 import { ReactComponent as ProfileIcon } from "./profilePicture.svg";
 import { ReactComponent as SendIcon } from "./send.svg";
 
-// const formatTimeString = (timeString) => {
-//   const date = Date.parse(timeString);
-//   const day = date.
-// }
+const formatTimeString = (timeString) => {
+  var date = new Date(Date.parse(timeString));
+  const year = date.getFullYear().toString();
+  const month = date.getMonth().toString();
+  const day = date.getDate().toString();
+  const hours = date.getHours().toString().padStart(2, 0);
+  const minutes = date.getMinutes().toString().padStart(2, 0);
+  return year + "/" + month + "/" + day + "  " + hours + ":" + minutes;
+};
 
 const CommentCard = (props) => {
   return (
@@ -36,13 +41,14 @@ const CommentCard = (props) => {
               </ProfileIcon>  */}
           {props.commenter}
         </Card.Title>
-        <Card.Subtitle className="mb-2 text-muted"></Card.Subtitle>
         <Card.Text>{props.comment}</Card.Text>
+        <div style={{position: "absolute", bottom: 0, right: "1%"}}>
+          <small className="text-muted">{formatTimeString(props.time)}</small>
+        </div>
       </Card.Body>
-      <Card.Footer>{props.time}</Card.Footer>
     </Card>
   );
-};
+}; 
 
 const WeatherUserLocationViewModal = (props) => {
   const { user } = useContext(AuthContext);
@@ -140,6 +146,7 @@ const WeatherUserLocationViewModal = (props) => {
           }}
         >
           <Modal.Header style={{ height: "10%" }} closeButton>
+            <h2>Comments</h2>
             <div
               style={{
                 cursor: "pointer",
@@ -177,7 +184,7 @@ const WeatherUserLocationViewModal = (props) => {
                 alignItems: "center",
               }}
             >
-              <div style={{ width: "90%" }}>
+              <div style={{ width: "90%", height: "95%" }}>
                 {props.data.comments?.map((commentData) => (
                   <CommentCard
                     key={commentData.createTime + commentData.username}
