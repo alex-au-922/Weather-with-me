@@ -1,8 +1,10 @@
 const express = require("express");
-const { UsernameError } = require("../errorConfig");
+const { UsernameError, EmailError } = require("../errorConfig");
 const router = express.Router();
-const uniqueUsername =
-  require("../generalUtils/userCreds/username").uniqueUsername;
+const {
+  uniqueUsername,
+  findUserInfoByEmail,
+} = require("../generalUtils/userCreds/username");
 const addNewUser =
   require("../databaseUtils/userDatabase/addNewUser").addNewUser;
 const passwordHash = require("../generalUtils/userCreds/password").passwordHash;
@@ -19,8 +21,8 @@ router.post("/", async (req, res, next) => {
     if (!newUsernameUnique) throw new UsernameError("Username already exists!");
     const hashedPassword = await passwordHash(password);
     if (email) {
-      const existUser = findUserInfoByEmail(email);
-      if (existUser) throw new EmailError("Email already exists!");
+      const existUser = await findUserInfoByEmail(email);
+      if (existUser !== null) throw new EmailError("Email already exists!");
     }
     const newUser = {
       username: username,
@@ -28,6 +30,7 @@ router.post("/", async (req, res, next) => {
       email: email || "",
       role: "user",
       viewMode: viewMode || "default",
+      favouriteLocataion: [],
     };
     const userId = await addNewUser(newUser);
     const newRefreshToken = await issueNewRefreshToken(userId);

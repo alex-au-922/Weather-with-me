@@ -112,6 +112,12 @@ exports.databaseConfig = {
       email: String,
       viewMode: String,
       role: String,
+      favouriteLocation: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "GeoLocation",
+        },
+      ],
     },
     {
       toJSON: {

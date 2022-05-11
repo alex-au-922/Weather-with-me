@@ -15,6 +15,7 @@ const AuthProvider = (props) => {
     isAdmin: null,
     viewMode: null,
     email: null,
+    favouriteLocation: [],
     authenticated: false,
   });
   const {
@@ -53,6 +54,9 @@ const AuthProvider = (props) => {
                   isAdmin: userData.role === "admin",
                   viewMode: userData.viewMode,
                   email: userData.email,
+                  favouriteLocation: userData.favouriteLocation.map(
+                    (geolocationObj) => geolocationObj.name
+                  ),
                   authenticated: true,
                 });
               } else {

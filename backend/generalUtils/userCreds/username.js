@@ -1,14 +1,20 @@
 const { DatabaseError } = require("../../errorConfig");
-const { connectUserDB } = require("../database");
-const userSchema = require("../../backendConfig.js").databaseConfig.userSchema;
-const HTTP_STATUS = require("../../backendConfig").HTTP_STATUS;
+const { connectUserDB, connectWeatherDB } = require("../database");
+const { userSchema, geolocationSchema } =
+  require("../../backendConfig.js").databaseConfig;
 
 const checkUserCredentials = async (key, value) => {
   try {
     const userDB = await connectUserDB();
     const User = userDB.model("User", userSchema);
+    const weatherDB = await connectWeatherDB();
+    const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
     const query = { [key]: value };
-    const userDoc = await User.findOne(query);
+    const userDoc = await User.findOne(query).populate({
+      path: "favouriteLocation",
+      model: GeoLocation,
+      options: { strictPopulate: false },
+    });
     const user = userDoc === null ? null : userDoc.toObject();
     return user;
   } catch (error) {
@@ -20,7 +26,13 @@ const checkUserCredentialsById = async (userId) => {
   try {
     const userDB = await connectUserDB();
     const UserModel = userDB.model("User", userSchema);
-    const foundUser = await UserModel.findById(userId);
+    const weatherDB = await connectWeatherDB();
+    const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
+    const foundUser = await UserModel.findById(userId).populate(
+      "favouriteLocation",
+      "",
+      GeoLocation
+    );
     if (foundUser === null) return null;
     const user = foundUser.toObject();
     return user;

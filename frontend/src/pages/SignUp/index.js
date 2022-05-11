@@ -138,7 +138,7 @@ const SignUp = () => {
                 onChange={(event) =>
                   setUserInfo({
                     ...userInfo,
-                    confirmedPassword: event.target.value,
+                    email: event.target.value,
                   })
                 }
               />

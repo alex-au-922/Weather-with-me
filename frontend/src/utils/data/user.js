@@ -7,6 +7,9 @@ const parseUserDataFrontendView = (userJson) => {
     .map((obj) => {
       const newUserObject = { ...obj };
       delete newUserObject.role;
+      newUserObject.favouriteLocation = newUserObject.favouriteLocation.map(
+        (geolocationObj) => geolocationObj.name
+      );
       return newUserObject;
     });
   return userList;
