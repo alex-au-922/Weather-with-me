@@ -148,7 +148,7 @@ const WeatherUserLocationViewModal = (props) => {
                 style={{
                   display: "flex",
                   height: "100%",
-                  overflow: "auto",
+                  overflow: "hidden",
                   justifyContent: "space-around",
                   overflow:'hidden'
                 }}

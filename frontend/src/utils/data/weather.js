@@ -1,4 +1,5 @@
 import parseCommentDataFrontendView from "./comments";
+import sortOnKey from "../sortOnKey.js";
 
 const parseWeatherDataFrontendView = (weatherJson, parsedCommentObj) => {
   const weatherList = weatherJson.map((obj) => {
@@ -12,9 +13,8 @@ const parseWeatherDataFrontendView = (weatherJson, parsedCommentObj) => {
     newWeatherObject["tenMinMeanWindDir"] = obj.tenMinMeanWindDir ?? null;
     newWeatherObject["tenMinMeanWindSpeed"] = obj.tenMinMeanWindSpeed ?? null;
     newWeatherObject["relativeHumidity"] = obj.relativeHumidity ?? null;
-    console.log("commentObj", parsedCommentObj);
     if (parsedCommentObj[obj.locationId.name] !== undefined) {
-      newWeatherObject["comments"] = parsedCommentObj[obj.locationId.name];
+      newWeatherObject["comments"] = sortOnKey(parsedCommentObj[obj.locationId.name], "createTime");
     } else {
       newWeatherObject["comments"] = [];
     }

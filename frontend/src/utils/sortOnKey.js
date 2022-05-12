@@ -1,4 +1,4 @@
-export default function sortOnKey(list, key, descending = false) {
+export default function sortOnKey(list, key, descending=false) {
   return list.sort((leftObj, rightObj) => {
     const leftVal = leftObj[key];
     const rightVal = rightObj[key];

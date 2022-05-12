@@ -25,8 +25,8 @@ const WeatherContent = (weatherData) => {
         <li>Location: ${weatherData.name}</li>
         <li>Temperature: ${weatherData.temperature == null ? null : weatherData.temperature + "°C"}</li>
         <li>Relative Humidity: ${weatherData.relativeHumidity == null ? null : weatherData.relativeHumidity + "%"}</li>
-        <li>Ten minute maximum gust: ${(weatherData.tenMinMaxGust == null)  ? null : weatherData.tenMinMaxGust + " m/s"}</li>
-        <li>Ten minute mean wind speed: ${(weatherData.tenMinMeanWindSpeed == null ) ? null : weatherData.tenMinMeanWindSpeed + " m/s" }</li>
+        <li>Ten minute maximum gust: ${(weatherData.tenMinMaxGust == null)  ? null : weatherData.tenMinMaxGust + " km/h"}</li>
+        <li>Ten minute mean wind speed: ${(weatherData.tenMinMeanWindSpeed == null ) ? null : weatherData.tenMinMeanWindSpeed + " km/h" }</li>
         <li>Ten minute mean wind direction: ${weatherData.tenMinMeanWindDir}</li>
         <li>Updated Time: ${weatherData.time}</li>
     </ul>`;
