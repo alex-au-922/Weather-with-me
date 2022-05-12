@@ -401,7 +401,7 @@ const LocationAdminDataFormModal = (props) => {
                     ) : (
                       <InputFormModalRow
                         key={`${field}`}
-                        field={getTitleHeader(field)}
+                        field={field}
                         type={props.modalConfig[field].type}
                         mutable={props.modalConfig[field].mutable}
                         placeholder={getTitleHeader(field)}
