@@ -120,6 +120,10 @@ const WeatherUserLocationViewModal = (props) => {
     }
   };
 
+  const onClickShowData = async () => {
+    console.log(props.data);
+  }
+
   return (
     <Modal
       show={props.show}
@@ -160,6 +164,7 @@ const WeatherUserLocationViewModal = (props) => {
                 }}
               >
                 <h1 style={{fontFamily: 'Trebuchet MS', color: 'black'}}>Comments</h1>
+                <Button variant='outline-secondary' className="mx-3" onClick={onClickShowData}>Show Data</Button>
               </Container>
             <div style={{position: 'absolute', display: 'flex', right: "5%"}}>
               <FavouriteLocation></FavouriteLocation>
