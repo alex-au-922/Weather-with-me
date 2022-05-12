@@ -34,16 +34,14 @@ const formatTimeString = (timeString) => {
 
 const CommentCard = (props) => {
   return (
-    <Card style={{ marginTop: "1%", marginBotton: "1%" }}>
+    <Card className="card" style={{ marginTop: "1%", marginBotton: "1%", fontFamily: 'Trebuchet MS', backgroundColor: '#E4DFD7' }}>
       <Card.Body>
         <Card.Title>
-          {/* <ProfileIcon style={{width: "50", height: "50", marginRight: "5%"}}>
-              </ProfileIcon>  */}
-          {props.commenter}
+          <p style={{fontStyle: "italic", fontWeight: 'bold', fontSize: "1.2em"}}>{props.commenter}</p>
         </Card.Title>
         <Card.Text>{props.comment}</Card.Text>
         <div style={{position: "absolute", bottom: 0, right: "1%"}}>
-          <small className="text-muted">{formatTimeString(props.time)}</small>
+          <small className="text-muted" style={{ fontStyle: 'italic', fontSize: '0.7em' }}>commented on {formatTimeString(props.time)}</small>
         </div>
       </Card.Body>
     </Card>
@@ -145,8 +143,18 @@ const WeatherUserLocationViewModal = (props) => {
             backgroundColor: "#F5F5DC",
           }}
         >
-          <Modal.Header style={{ height: "10%" }} closeButton>
-            <h2>Comments</h2>
+          <Modal.Header style={{ height: "10%", border: 'none' }} closeButton>
+            <Container
+                style={{
+                  display: "flex",
+                  height: "100%",
+                  overflow: "auto",
+                  justifyContent: "space-around",
+                  overflow:'hidden'
+                }}
+              >
+                <h4 style={{fontFamily: 'Trebuchet MS', color: 'black'}}>Comments</h4>
+              </Container>
             <div
               style={{
                 cursor: "pointer",
@@ -197,7 +205,6 @@ const WeatherUserLocationViewModal = (props) => {
             </Container>
             <Container
               style={{
-                width: "100%",
                 height: "15%",
                 display: "flex",
                 alignItems: "center",
@@ -207,18 +214,13 @@ const WeatherUserLocationViewModal = (props) => {
             >
               <div className="sendMessageAreaCol1">
                 <textarea
-                  style={{ height: "80%", width: "100%" }}
+                  style={{ height: "80%", width: "97%" }}
                   onChange={handleInputChange}
                   value={buffers[props.uniqueKey]}
                 />
               </div>
             </Container>
           </Modal.Body>
-          {/* <Modal.Footer style={{ height: "10%" }}>
-            <Button variant="secondary" onClick={handleProperCloseModal}>
-              Close
-            </Button>
-          </Modal.Footer> */}
         </div>
       </div>
     </Modal>

@@ -2,6 +2,7 @@ import TableTitleBar from "./tableTitleBar";
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Table, Modal, Button, Form } from "react-bootstrap";
 import camelToCapitalize from "../../input/camelToCapitalize";
+import getTitleHeader from "../../input/getTableLongHeader";
 import { ReactComponent as DescendingIcon } from "./descending.svg";
 import { ReactComponent as AscendingIcon } from "./ascending.svg";
 import { ReactComponent as Filter } from "./filter.svg";
@@ -188,7 +189,7 @@ const ResourceManagementTable = (props) => {
             {displayOptions.map((option, index) => (
               <ResourceMangementTableHeader
                 key={option}
-                value={`${camelToCapitalize(option)}`}
+                value={`${getTitleHeader(option)}`}
                 isDescending={optionsDescending[option]}
                 option={option}
                 setDescending={handleOrderChange}
