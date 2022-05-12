@@ -4,6 +4,7 @@ import escapeRegExp from "../../input/escapeRegExp";
 import DropDownButton from "../dropDown";
 import camelToCapitalize from "../../input/camelToCapitalize";
 import "react-bootstrap-typeahead/css/Typeahead.css";
+import getTitleHeader from "../../input/getTableLongHeader";
 
 const useInputFocusRef = () => {
   const [focused, setFocused] = useState(false);
@@ -131,7 +132,7 @@ const TableTitleBar = (props) => {
         paginate={true}
         disabled={searchField.name === null}
         placeholder={
-          searchField.name === null ? "" : camelToCapitalize(searchField.name)
+          searchField.name === null ? "" : (searchField.name === "tenMinMeanWindDir" ? getTitleHeader(searchField.name) : camelToCapitalize(searchField.name))
         }
         onInputChange={handleSearchInputValueChange}
         onChange={handleSearchSelectedValueChange}
@@ -147,7 +148,7 @@ const TableTitleBar = (props) => {
         optionsType={props.optionsType}
         optionsAllowedTypes={props.optionsAllowedTypes}
         buttonName={
-          searchField.name === null ? "" : camelToCapitalize(searchField.name)
+          searchField.name === null ? "" : (searchField.name === "tenMinMeanWindDir" ? getTitleHeader(searchField.name) : camelToCapitalize(searchField.name))
         }
         handleSelect={handleSearchFieldOptionChange}
       />

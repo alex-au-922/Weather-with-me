@@ -104,7 +104,7 @@ const OptionsFilterModal = (props) => {
             <Form.Group className="mb-3" key={index}>
               <Form.Check
                 type="checkbox"
-                label={camelToCapitalize(option)}
+                label={getTitleHeader(option)}
                 defaultChecked={optionsDisplay[option]}
                 onChange={(event) => handleFilter(event, option)}
               />
