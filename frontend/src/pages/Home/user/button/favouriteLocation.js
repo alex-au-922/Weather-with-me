@@ -18,14 +18,14 @@ const FavouriteLocation = (props) => {
           data-toggle="tooltip"
           title="Show Normal"
           onClick={handleClick}
-          style={{ color: "#fff" }}
+          style={{ color: "#F6BE00", width: "30", height: "30" }}
         />
       ) : (
         <StarIcon
           data-toggle="tooltip"
           title="Show Favourite Locations"
           onClick={handleClick}
-          style={{ color: "#777" }}
+          style={{ color: "#777", width: "30", height: "30" }}
         />
       )}
     </div>

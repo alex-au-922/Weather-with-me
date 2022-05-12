@@ -2,6 +2,7 @@ import TableTitleBar from "./tableTitleBar";
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { Table, Modal, Button, Form } from "react-bootstrap";
 import camelToCapitalize from "../../input/camelToCapitalize";
+import getTitleHeader from "../../input/getTableLongHeader";
 import { ReactComponent as DescendingIcon } from "./descending.svg";
 import { ReactComponent as AscendingIcon } from "./ascending.svg";
 import { ReactComponent as Filter } from "./filter.svg";
@@ -47,7 +48,8 @@ const ResourceManagementTableRow = (props) => {
           key={index}
           onClick={props.renderModals ? handleShowModal : () => {}}
         >
-          {props.data[fieldName]}
+          {fieldName !== "time" ? props.data[fieldName] : (props.data[fieldName] == null ? null : new Date(props.data[fieldName]).toString())}
+          {/* {props.data[fieldName]} */}
         </td>
       ))}
     </tr>
@@ -103,7 +105,7 @@ const OptionsFilterModal = (props) => {
             <Form.Group className="mb-3" key={index}>
               <Form.Check
                 type="checkbox"
-                label={camelToCapitalize(option)}
+                label={getTitleHeader(option)}
                 defaultChecked={optionsDisplay[option]}
                 onChange={(event) => handleFilter(event, option)}
               />
@@ -188,7 +190,7 @@ const ResourceManagementTable = (props) => {
             {displayOptions.map((option, index) => (
               <ResourceMangementTableHeader
                 key={option}
-                value={`${camelToCapitalize(option)}`}
+                value={`${getTitleHeader(option)}`}
                 isDescending={optionsDescending[option]}
                 option={option}
                 setDescending={handleOrderChange}

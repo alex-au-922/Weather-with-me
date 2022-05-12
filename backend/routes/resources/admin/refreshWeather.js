@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const getLatestLogData =
+const getLatestData =
   require("../../../databaseUtils/logDatabase/getLatestData").getLatestData;
 
 router.get("/", async (req, res, next) => {
