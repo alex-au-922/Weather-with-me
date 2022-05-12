@@ -17,10 +17,8 @@ import { FetchStateContext } from "../../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
 import { useReducer } from "react";
+import { FavouriteLocation } from "../button/favouriteLocation";
 import { registerWindowListener } from "../../../../utils/listeners/windowListener.js";
-import { ReactComponent as StarIcon } from "./star.svg";
-import { ReactComponent as ProfileIcon } from "./profilePicture.svg";
-import { ReactComponent as SendIcon } from "./send.svg";
 
 const formatTimeString = (timeString) => {
   var date = new Date(Date.parse(timeString));
@@ -91,6 +89,13 @@ const WeatherUserLocationViewModal = (props) => {
     return registerWindowListener("keyup", enterKeyHandler);
   }, [buffers[props.uniqueKey]]);
 
+  const handleClick = () => {
+    //toggleShowFavourite();
+    // console.log(props.onClick());
+    console.log(props);
+    console.log(user);
+  };
+
   const handleSubmit = async (event) => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
     const payload = {
@@ -144,45 +149,24 @@ const WeatherUserLocationViewModal = (props) => {
             borderRadius: "4px"
           }}
         >
-          <Modal.Header style={{ height: "10%", border: 'none' }} closeButton>
+          <Modal.Header style={{ height: "10%", border: 'none', padding: 0 }} closeButton>
             <Container
                 style={{
-                  display: "flex",
+                  display: 'flex',
                   height: "100%",
                   overflow: "hidden",
                   justifyContent: "space-around",
-                  overflow:'hidden'
+                  alignItems: "center"
                 }}
               >
-                <h4 style={{fontFamily: 'Trebuchet MS', color: 'black'}}>Comments</h4>
+                <h1 style={{fontFamily: 'Trebuchet MS', color: 'black'}}>Comments</h1>
               </Container>
-            <div
-              style={{
-                cursor: "pointer",
-                position: "relative",
-                left: "85%",
-                top: "0%",
-              }}
-            >
-              {true ? (
-                <StarIcon
-                  data-toggle="tooltip"
-                  title="Show Normal"
-                  // onClick={handleClick}
-                  style={{ color: "#FFCC00" }}
-                />
-              ) : (
-                <StarIcon
-                  data-toggle="tooltip"
-                  title="Show Favourite Locations"
-                  // onClick={handleClick}
-                  style={{ color: "#777" }}
-                />
-              )}
+            <div style={{position: 'absolute', display: 'flex', right: "5%"}}>
+              <FavouriteLocation></FavouriteLocation>
             </div>
           </Modal.Header>
           <Modal.Body
-            style={{ height: "90%", padding: "2%", backgroundColor: "#FFFFFF" }}
+            style={{ height: "90%", padding: "2%", backgroundColor: "#FFFFFF", paddingTop: 0 }}
           >
             <Container
               style={{
