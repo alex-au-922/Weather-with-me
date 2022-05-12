@@ -34,7 +34,7 @@ const formatTimeString = (timeString) => {
 
 const CommentCard = (props) => {
   return (
-    <Card className="card" style={{ marginTop: "1%", marginBotton: "1%", fontFamily: 'Trebuchet MS', backgroundColor: '#E4DFD7' }}>
+    <Card className="card" style={{ marginTop: "1%", marginBotton: "1%", fontFamily: 'Trebuchet MS', backgroundColor: '#FAFAFA' }}>
       <Card.Body>
         <Card.Title>
           <p style={{fontStyle: "italic", fontWeight: 'bold', fontSize: "1.2em"}}>{props.commenter}</p>
@@ -140,7 +140,8 @@ const WeatherUserLocationViewModal = (props) => {
           style={{
             width: "40%",
             maxHeight: "90vh",
-            backgroundColor: "#F5F5DC",
+            backgroundColor: "#FFFFFF",
+            borderRadius: "4px"
           }}
         >
           <Modal.Header style={{ height: "10%", border: 'none' }} closeButton>
@@ -181,7 +182,7 @@ const WeatherUserLocationViewModal = (props) => {
             </div>
           </Modal.Header>
           <Modal.Body
-            style={{ height: "90%", padding: "2%", backgroundColor: "#F5F5DC" }}
+            style={{ height: "90%", padding: "2%", backgroundColor: "#FFFFFF" }}
           >
             <Container
               style={{
