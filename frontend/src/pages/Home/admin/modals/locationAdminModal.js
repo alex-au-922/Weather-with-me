@@ -1,4 +1,4 @@
-import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
+import getTitleHeader from "../../../../utils/input/getTableLongHeader";
 import { useState, useEffect, useContext, useLayoutEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { InputFormModalRow, SelectFormModalRow } from ".";
@@ -168,7 +168,7 @@ const BlankLocationDataFormModal = (props) => {
                         field={field}
                         type={props.modalConfig[field].type}
                         mutable={props.modalConfig[field].mutable}
-                        placeholder={camelToCapitalize(field)}
+                        placeholder={getTitleHeader(field)}
                         blank={props.modalConfig[field].blank}
                         value={props.data[field]}
                         error={locationInfoError[field]}
@@ -401,10 +401,10 @@ const LocationAdminDataFormModal = (props) => {
                     ) : (
                       <InputFormModalRow
                         key={`${field}`}
-                        field={field}
+                        field={getTitleHeader(field)}
                         type={props.modalConfig[field].type}
                         mutable={props.modalConfig[field].mutable}
-                        placeholder={camelToCapitalize(field)}
+                        placeholder={getTitleHeader(field)}
                         blank={props.modalConfig[field].blank}
                         value={props.data[field]}
                         onChangeUnsaved={handleChangeUnsaved}

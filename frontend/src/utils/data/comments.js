@@ -1,3 +1,5 @@
+import convertISOToDateTimeString from "../time/convertISOToDateTimeString";
+
 const parseCommentDataFrontendView = (commentJson) => {
     const parsedCommentObj = {};
     commentJson.map((obj) => {
@@ -7,7 +9,7 @@ const parseCommentDataFrontendView = (commentJson) => {
       parsedCommentObj[obj.locationId.name].push({
         "username": obj.userId.username,
         "message": obj.message,
-        "createTime": obj.createTime
+        "createTime": obj.createTime == null ? null : convertISOToDateTimeString(obj.createTime)
       });
     });
     return parsedCommentObj;

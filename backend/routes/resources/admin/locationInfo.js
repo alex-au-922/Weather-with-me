@@ -62,6 +62,7 @@ router.put("/", async (req, res, next) => {
     if (!validLatitude) throw new ValueError("Invalid latitude!");
     const validLongitude = longitudeCheck(newLocationLongitude);
     if (!validLongitude) throw new ValueError("Invalid longitude!");
+    const {locationId} = existLocation;
     await updateLocation(locationId, newData);
     response.success = true;
     res.send(JSON.stringify(response));

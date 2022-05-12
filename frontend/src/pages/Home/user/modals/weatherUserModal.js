@@ -20,15 +20,6 @@ import { useReducer } from "react";
 import { FavouriteLocation } from "../button/favouriteLocation";
 import { registerWindowListener } from "../../../../utils/listeners/windowListener.js";
 
-const formatTimeString = (timeString) => {
-  var date = new Date(Date.parse(timeString));
-  const year = date.getFullYear().toString();
-  const month = date.getMonth().toString();
-  const day = date.getDate().toString();
-  const hours = date.getHours().toString().padStart(2, 0);
-  const minutes = date.getMinutes().toString().padStart(2, 0);
-  return year + "/" + month + "/" + day + "  " + hours + ":" + minutes;
-};
 
 const CommentCard = (props) => {
   return (
@@ -39,7 +30,7 @@ const CommentCard = (props) => {
         </Card.Title>
         <Card.Text>{props.comment}</Card.Text>
         <div style={{position: "absolute", bottom: 0, right: "1%"}}>
-          <small className="text-muted" style={{ fontStyle: 'italic', fontSize: '0.7em' }}>commented on {formatTimeString(props.time)}</small>
+          <small className="text-muted" style={{ fontStyle: 'italic', fontSize: '0.7em' }}>{props.time}</small>
         </div>
       </Card.Body>
     </Card>
@@ -89,13 +80,6 @@ const WeatherUserLocationViewModal = (props) => {
     return registerWindowListener("keyup", enterKeyHandler);
   }, [buffers[props.uniqueKey]]);
 
-  const handleClick = () => {
-    //toggleShowFavourite();
-    // console.log(props.onClick());
-    console.log(props);
-    console.log(user);
-  };
-
   const handleSubmit = async (event) => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
     const payload = {
@@ -119,6 +103,13 @@ const WeatherUserLocationViewModal = (props) => {
       setBuffers(newBuffers);
     }
   };
+
+  const checkFavouriteLocation = () => {
+    const check =  user.favouriteLocation.filter(
+      (currLocName) => currLocName === props.data.name
+    )
+    return (check.length > 0);
+  }
 
   return (
     <Modal
@@ -162,7 +153,7 @@ const WeatherUserLocationViewModal = (props) => {
                 <h1 style={{fontFamily: 'Trebuchet MS', color: 'black'}}>Comments</h1>
               </Container>
             <div style={{position: 'absolute', display: 'flex', right: "5%"}}>
-              <FavouriteLocation></FavouriteLocation>
+              <FavouriteLocation isFavourite={checkFavouriteLocation()} name={props.data.name}></FavouriteLocation>
             </div>
           </Modal.Header>
           <Modal.Body

@@ -82,7 +82,7 @@ const TableTitleBar = (props) => {
 
   useEffect(() => {
     const newOptions = props.filteredDataList
-      ?.map((obj) => (searchField.name !== "time" ? obj[searchField.name] : (obj[searchField.name] == null ? null : new Date(obj[searchField.name]).toString()))) //filter the data to that search field
+      ?.map((obj) => (obj[searchField.name])) //filter the data to that search field
       .filter((option) => option) //remove all invalid values (like empty string)
       .reduce((prevOptions, currOption) => {
         //remove duplicated options
@@ -132,7 +132,7 @@ const TableTitleBar = (props) => {
         paginate={true}
         disabled={searchField.name === null}
         placeholder={
-          searchField.name === null ? "" : (searchField.name === "tenMinMeanWindDir" ? getTitleHeader(searchField.name) : camelToCapitalize(searchField.name))
+          getTitleHeader(searchField.name)
         }
         onInputChange={handleSearchInputValueChange}
         onChange={handleSearchSelectedValueChange}
@@ -148,7 +148,7 @@ const TableTitleBar = (props) => {
         optionsType={props.optionsType}
         optionsAllowedTypes={props.optionsAllowedTypes}
         buttonName={
-          searchField.name === null ? "" : (searchField.name === "tenMinMeanWindDir" ? getTitleHeader(searchField.name) : camelToCapitalize(searchField.name))
+          getTitleHeader(searchField.name)
         }
         handleSelect={handleSearchFieldOptionChange}
       />

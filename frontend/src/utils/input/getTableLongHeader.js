@@ -1,3 +1,5 @@
+import camelToCapitalize from "./camelToCapitalize";
+
 const getTitleHeader = (word) => {
     const mapper = {
       "name": "Name",
@@ -10,7 +12,7 @@ const getTitleHeader = (word) => {
       "tenMinMeanWindDir": "10-min mean wind direction",
       "time": "Time"
     }
-    return mapper[word];
+    return mapper[word] == null ? camelToCapitalize(word) : mapper[word];
 }
 
 export default getTitleHeader;

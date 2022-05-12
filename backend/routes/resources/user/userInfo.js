@@ -16,7 +16,7 @@ const {
   LocationNameError,
 } = require("../../../errorConfig");
 const {
-  default: getFavouriteLocations,
+  getUserFavouriteLocations,
 } = require("../../../databaseUtils/userDatabase/getFavouriteLocations");
 const {
   findLocationInfoByName,
@@ -61,7 +61,7 @@ router.put("/", async (req, res, next) => {
     }
     if (favouriteLocation) {
       const { name: amendedLocation, action } = favouriteLocation;
-      const currentFavouriteLocations = await getFavouriteLocations(
+      const currentFavouriteLocations = await getUserFavouriteLocations(
         decryptedUserId
       );
       const existLocation = await findLocationInfoByName(amendedLocation);
@@ -76,7 +76,7 @@ router.put("/", async (req, res, next) => {
       } else if (action === "delete") {
         newUserInfo.favouriteLocation = currentFavouriteLocations.filter(
           (currLocationId) =>
-            locationId.toString() !== currLocationId.toString()
+            locationId.toString() !== currLocationId._id.toString()
         );
       }
     }

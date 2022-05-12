@@ -12,7 +12,7 @@ const DropDownButton = (props) => {
         </Button>
       )}
       <Dropdown.Toggle split variant="success" id="dropdown-basic">
-        {props.buttonName === "tenMinMeanWindDir" ? getTitleHeader(props.buttonName) : camelToCapitalize(props.buttonName)}
+        {getTitleHeader(props.buttonName)}
       </Dropdown.Toggle>
 
       <Dropdown.Menu>
@@ -27,7 +27,7 @@ const DropDownButton = (props) => {
                 <DropDownButtonRow
                   key={index}
                   eventKey={`${key}`}
-                  display={`${key === "tenMinMeanWindDir" ? getTitleHeader(key) : camelToCapitalize(key)}`}
+                  display={`${getTitleHeader(key)}`}
                 />
               ))
           : props.options.map(
@@ -38,7 +38,7 @@ const DropDownButton = (props) => {
                 <DropDownButtonRow //either use in normal drop down button where the type of data doesn't really matter or all are in string type
                   key={index}
                   eventKey={`${key}`}
-                  display={`${key === "tenMinMeanWindDir" ? getTitleHeader(key) : camelToCapitalize(key)}`}
+                  display={`${getTitleHeader(key)}`}
                 />
               )
             )}
