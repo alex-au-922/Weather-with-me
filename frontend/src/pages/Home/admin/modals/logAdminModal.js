@@ -227,9 +227,7 @@ const LogAdminDataFormModal = (props) => {
         }}
       >
         <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            User Data
-          </Modal.Title>
+          <Modal.Title id="contained-modal-title-vcenter">Log Data</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -297,7 +295,7 @@ const logModalOptions = {
   userAgent: {
     mutable: false,
     blank: false,
-    type: "text",
+    type: "textarea",
   },
   date: {
     mutable: false,
