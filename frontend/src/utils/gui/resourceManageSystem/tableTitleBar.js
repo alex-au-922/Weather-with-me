@@ -82,7 +82,7 @@ const TableTitleBar = (props) => {
 
   useEffect(() => {
     const newOptions = props.filteredDataList
-      ?.map((obj) => obj[searchField.name]) //filter the data to that search field
+      ?.map((obj) => (searchField.name !== "time" ? obj[searchField.name] : (obj[searchField.name] == null ? null : new Date(obj[searchField.name]).toString()))) //filter the data to that search field
       .filter((option) => option) //remove all invalid values (like empty string)
       .reduce((prevOptions, currOption) => {
         //remove duplicated options
