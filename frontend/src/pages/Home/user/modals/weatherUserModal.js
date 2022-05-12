@@ -17,10 +17,8 @@ import { FetchStateContext } from "../../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
 import { useReducer } from "react";
+import { FavouriteLocation } from "../button/favouriteLocation";
 import { registerWindowListener } from "../../../../utils/listeners/windowListener.js";
-import { ReactComponent as StarIcon } from "./star.svg";
-import { ReactComponent as ProfileIcon } from "./profilePicture.svg";
-import { ReactComponent as SendIcon } from "./send.svg";
 
 const formatTimeString = (timeString) => {
   var date = new Date(Date.parse(timeString));
@@ -34,16 +32,14 @@ const formatTimeString = (timeString) => {
 
 const CommentCard = (props) => {
   return (
-    <Card style={{ marginTop: "1%", marginBotton: "1%" }}>
+    <Card className="card" style={{ marginTop: "1%", marginBotton: "1%", fontFamily: 'Trebuchet MS', backgroundColor: '#FAFAFA' }}>
       <Card.Body>
         <Card.Title>
-          {/* <ProfileIcon style={{width: "50", height: "50", marginRight: "5%"}}>
-              </ProfileIcon>  */}
-          {props.commenter}
+          <p style={{fontStyle: "italic", fontWeight: 'bold', fontSize: "1.2em"}}>{props.commenter}</p>
         </Card.Title>
         <Card.Text>{props.comment}</Card.Text>
         <div style={{position: "absolute", bottom: 0, right: "1%"}}>
-          <small className="text-muted">{formatTimeString(props.time)}</small>
+          <small className="text-muted" style={{ fontStyle: 'italic', fontSize: '0.7em' }}>commented on {formatTimeString(props.time)}</small>
         </div>
       </Card.Body>
     </Card>
@@ -92,6 +88,13 @@ const WeatherUserLocationViewModal = (props) => {
   useEffect(() => {
     return registerWindowListener("keyup", enterKeyHandler);
   }, [buffers[props.uniqueKey]]);
+
+  const handleClick = () => {
+    //toggleShowFavourite();
+    // console.log(props.onClick());
+    console.log(props);
+    console.log(user);
+  };
 
   const handleSubmit = async (event) => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
@@ -142,38 +145,28 @@ const WeatherUserLocationViewModal = (props) => {
           style={{
             width: "40%",
             maxHeight: "90vh",
-            backgroundColor: "#F5F5DC",
+            backgroundColor: "#FFFFFF",
+            borderRadius: "4px"
           }}
         >
-          <Modal.Header style={{ height: "10%" }} closeButton>
-            <h2>Comments</h2>
-            <div
-              style={{
-                cursor: "pointer",
-                position: "relative",
-                left: "85%",
-                top: "0%",
-              }}
-            >
-              {true ? (
-                <StarIcon
-                  data-toggle="tooltip"
-                  title="Show Normal"
-                  // onClick={handleClick}
-                  style={{ color: "#FFCC00" }}
-                />
-              ) : (
-                <StarIcon
-                  data-toggle="tooltip"
-                  title="Show Favourite Locations"
-                  // onClick={handleClick}
-                  style={{ color: "#777" }}
-                />
-              )}
+          <Modal.Header style={{ height: "10%", border: 'none', padding: 0 }} closeButton>
+            <Container
+                style={{
+                  display: 'flex',
+                  height: "100%",
+                  overflow: "hidden",
+                  justifyContent: "space-around",
+                  alignItems: "center"
+                }}
+              >
+                <h1 style={{fontFamily: 'Trebuchet MS', color: 'black'}}>Comments</h1>
+              </Container>
+            <div style={{position: 'absolute', display: 'flex', right: "5%"}}>
+              <FavouriteLocation></FavouriteLocation>
             </div>
           </Modal.Header>
           <Modal.Body
-            style={{ height: "90%", padding: "2%", backgroundColor: "#F5F5DC" }}
+            style={{ height: "90%", padding: "2%", backgroundColor: "#FFFFFF", paddingTop: 0 }}
           >
             <Container
               style={{
@@ -197,7 +190,6 @@ const WeatherUserLocationViewModal = (props) => {
             </Container>
             <Container
               style={{
-                width: "100%",
                 height: "15%",
                 display: "flex",
                 alignItems: "center",
@@ -207,18 +199,13 @@ const WeatherUserLocationViewModal = (props) => {
             >
               <div className="sendMessageAreaCol1">
                 <textarea
-                  style={{ height: "80%", width: "100%" }}
+                  style={{ height: "80%", width: "97%" }}
                   onChange={handleInputChange}
                   value={buffers[props.uniqueKey]}
                 />
               </div>
             </Container>
           </Modal.Body>
-          {/* <Modal.Footer style={{ height: "10%" }}>
-            <Button variant="secondary" onClick={handleProperCloseModal}>
-              Close
-            </Button>
-          </Modal.Footer> */}
         </div>
       </div>
     </Modal>
