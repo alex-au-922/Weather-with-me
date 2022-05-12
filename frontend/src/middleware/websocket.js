@@ -1,6 +1,7 @@
 import { useState, createContext, useContext, useEffect } from "react";
 import { BACKEND_WS_HOST } from "../frontendConfig";
 import { AuthContext } from "./auth";
+import { io } from "socket.io-client";
 
 const WebSocketContext = createContext({});
 
@@ -11,27 +12,24 @@ const WebSocketProvider = (props) => {
   useEffect(() => {
     if (user.authenticated) {
       try {
-        let webSocketUri;
-        if (user.authenticated) {
-          if (user.isAdmin)
-            webSocketUri = `${BACKEND_WS_HOST}/websocket?user=true&weatherLoc=true&log=true&comment=true`;
-          else
-            webSocketUri = `${BACKEND_WS_HOST}/websocket?token=${localStorage.getItem(
-              "accessToken"
-            )}&user=true&weatherLoc=true&comment=true`;
-        }
-        const newWebSocket = new WebSocket(webSocketUri);
-        newWebSocket.onopen = () => {
-          console.log("open connection");
-          console.log(newWebSocket);
-        };
-        newWebSocket.onmessage = () => {
-          console.log("received message!");
-        };
-        newWebSocket.onclose = () => {
-          console.log("close connection!");
-        };
-        setWebSocket(newWebSocket);
+        const socket = io("http://alexauwork.com:10083", {
+          extraHeaders: {
+            authorization: localStorage.getItem("accessToken"),
+          },
+          query: {
+            user: true,
+            log: false,
+            comment: true,
+            weatherLoc: true,
+          },
+        });
+        socket.on("user initial", (message) => console.log(message));
+        socket.onAny((message) => {
+          console.log("message", message);
+        });
+        socket.io.on("error", (message) => console.log(message));
+
+        setWebSocket(socket);
       } catch (error) {
         console.log(error);
       }

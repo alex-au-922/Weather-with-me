@@ -84,8 +84,6 @@ const UserView = (props) => {
   const mergeWeather = async () => {
     const weatherJson = await fetchWeatherData();
     const commentJson = await fetchComments();
-    console.log("weatherJson", weatherJson);
-    console.log("commentJson", commentJson);
     if (weatherJson !== undefined && commentJson !== undefined)
       updateWeatherData(weatherJson, commentJson);
   };

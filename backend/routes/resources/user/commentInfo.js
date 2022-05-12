@@ -24,6 +24,7 @@ router.post("/", async (req, res, next) => {
     const { locationId } = existsLocation;
     const parsedComment = xss(comment);
     await updateLocationComment(locationId, decryptedUserId, parsedComment);
+    //TODO: update the location comment
     response.success = true;
     res.send(JSON.stringify(response));
   } catch (error) {
@@ -34,7 +35,6 @@ router.post("/", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
-    const decryptedUserId = res.locals.decryptedUserId;
     response.success = true;
     response.result = await getLocationComment();
     res.send(JSON.stringify(response));
@@ -44,3 +44,4 @@ router.get("/", async (req, res, next) => {
 });
 
 module.exports = router;
+

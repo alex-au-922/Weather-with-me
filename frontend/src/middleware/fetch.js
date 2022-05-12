@@ -66,9 +66,7 @@ const FetchStateProvider = (props) => {
         if (showConfig.loading) setShowLoading(true);
         const fetchResult = await fetch(url, payload);
         const { success, error, errorType, result } = await fetchResult.json();
-        console.log(success, error, errorType, result);
         fetching.current = false;
-        console.log("fetching.current", fetching.current);
         if (showConfig.loading) setShowLoading(false);
         if (success && showConfig.success) setOpenSuccessModal(successfulBody);
         else if (

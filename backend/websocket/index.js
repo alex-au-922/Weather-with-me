@@ -2,25 +2,26 @@ const { decryptAccessToken } = require("../generalUtils/userCreds/accessToken");
 const {
   checkUserCredentialsById,
 } = require("../generalUtils/userCreds/username");
+const { NotAccetpedError } = require("../backendConfig");
 
-const SocketServer = require("ws").Server;
+const { Server } = require("socket.io");
 const logger = require("../generalUtils/getLogger").getLogger();
 
-const webSocketClients = {};
+let io;
+const socketClients = {};
 
-const registerSendData = (wssClientsInfo) => {
-  //usage: sendData(channel)(data, <userId>)
+const registerSendData = (socketClientsInfo) => {
+  //usage: sendData(channel)(event, data, <userId>)
   const sendData =
     (channel) =>
-    (data, userId = null) => {
+    (event, data, userId = null) => {
       if (userId === null)
-        Object.values(wssClientsInfo).forEach(
-          //whether the user subscribed to that channel
-          ({ channels, webSocket }) => channels[channel] && webSocket.send(data)
-        );
+        //value is the object of all connection details
+        //whether the user subscribed to that channel
+        io.sockets.in(channel).emit(event, data);
       else {
-        if (wssClientsInfo[userId][channel])
-          wssClientsInfo[userId].webSocket.send(data);
+        if (socketClientsInfo[userId][channel])
+          socketClientsInfo[userId].socket.emit(event, data);
       }
     };
 
@@ -34,50 +35,70 @@ Data Channels:
 3) log
 4) comment
 */
-const createWebSocketServer = () => {
-  // const websocketServer = new SocketServer({
-  //   port: process.env.WS_PORT,
-  //   path: "/websocket",
-  // });
-  // websocketServer.on("connection", async (webSocket, req) => {
-  //   const clientAddress = req.socket.remoteAddress;
-  //   const clientUserAgent = req.headers["user-agent"];
-  //   const { token: accessToken, user, weatherLoc, log, comment } = req.query;
-  //   if (accessToken === null) webSocket.terminate();
-  //   const userId = decryptAccessToken(accessToken);
-  //   if (userId === null) webSocket.terminate();
-  //   const existUser = await checkUserCredentialsById(userId);
-  //   if (existUser === null) webSocket.terminate();
-  //   const { role } = existUser;
-  //   const subscribedChannels = {
-  //     user,
-  //     weatherLoc,
-  //     log: role === "admin" ? log : false,
-  //     comment,
-  //   };
-  //   webSocketClients[userId] = {
-  //     userAgent: clientUserAgent,
-  //     ip: clientAddress,
-  //     role,
-  //     webSocket,
-  //     channels: subscribedChannels,
-  //   };
-  //   let subscribedChannelsArray = Object.keys(subscribedChannels).map(
-  //     (prevArray, currKey) =>
-  //       subscribedChannels[currKey] ? [...prevArray, currKey] : prevArray,
-  //     []
-  //   );
-  //   logger.info(
-  //     `Client "${clientAddress}" connected. Subscribed channels ${subscribedChannelsArray}`
-  //   );
-  //   webSocket.on("close", () => {
-  //     logger.info(`Client "${clientAddress}" closed connection`);
-  //     delete webSocketClients[userId];
-  //   });
-  // });
-  // const sendData = registerSendData(webSocketClients);
-  // return sendData;
+const createSocketServer = (server) => {
+  io = new Server(server, {
+    cors: {
+      origin: "http://52.76.77.52:*",
+      methods: ["GET", "POST"],
+    },
+  });
+  io.on("connection", async (socket) => {
+    try {
+      const clientAddress = socket.handshake.address;
+      const clientUserAgent = socket.request.headers["user-agent"];
+      const { user, weatherLoc, log, comment } = socket.handshake.query;
+      const { authorization: accessToken } = socket.handshake.headers;
+      if (accessToken === null || accessToken === undefined)
+        throw new NotAccetpedError(
+          "Authorization is required for connecting websocket!"
+        );
+      const userId = decryptAccessToken(accessToken);
+      if (userId === null)
+        throw new UnauthorizationError("User does not exist!");
+      const existUser = await checkUserCredentialsById(userId);
+      if (existUser === null)
+        throw new UnauthorizationError("User does not exist!");
+      const { role } = existUser;
+      const subscribedChannels = {
+        user: Boolean(user),
+        weatherLoc: Boolean(weatherLoc),
+        log: role === "admin" ? Boolean(log) : false,
+        comment: Boolean(comment),
+      };
+      if (subscribedChannels.user) socket.join("user");
+      if (subscribedChannels.weatherLoc) socket.join("weatherLoc");
+      if (subscribedChannels.log) socket.join("log");
+      if (subscribedChannels.comment) socket.join("comment");
+
+      socketClients[userId] = {
+        userAgent: clientUserAgent,
+        address: { ip: clientAddress.address, port: clientAddress.port },
+        role,
+        socket,
+        channels: subscribedChannels,
+      };
+
+      let subscribedChannelsArray = Object.keys(subscribedChannels).reduce(
+        (prevArray, currKey) =>
+          subscribedChannels[currKey] ? [...prevArray, currKey] : prevArray,
+        []
+      );
+      logger.info(
+        `Client "${clientAddress}" connected. Subscribed channels ${subscribedChannelsArray}`
+      );
+      socket.on("disconnect", () => {
+        logger.info(`Client "${clientAddress}" closed connection`);
+        delete socketClients[userId];
+      });
+    } catch (error) {
+      logger.info(error.message);
+      socket.disconnect();
+      return null;
+    }
+  });
+  const sendData = registerSendData(socketClients);
+  return sendData;
 };
 
-exports.createWebSocketServer = createWebSocketServer;
-exports.webSocketClients = webSocketClients;
+exports.createSocketServer = createSocketServer;
+exports.socketClients = socketClients;

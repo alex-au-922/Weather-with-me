@@ -1,7 +1,8 @@
 const app = require("./generalUtils/createExpressApp").createExpressApp();
 const api = require("./routes");
+const http = require("http");
 const logger = require("./generalUtils/getLogger").getLogger();
-const { createWebSocketServer } = require("./websocket");
+const { createSocketServer } = require("./websocket");
 const {
   createLocation,
 } = require("./databaseUtils/weatherDatabase/createGeoLocCol.js");
@@ -20,11 +21,13 @@ const {
 
 api(app);
 
-const server = app.listen(process.env.WEBSER_PORT, () => {
+const server = http.createServer(app);
+
+server.listen(process.env.WEBSER_PORT, () => {
   logger.info(`Server is listening on port ${process.env.WEBSER_PORT}`);
 });
 
-const sendData = createWebSocketServer();
+const sendData = createSocketServer(server);
 
 const updateWeatherData = async () => {
   await updateWeather();
@@ -34,7 +37,7 @@ const updateWeatherData = async () => {
     geolocationResults,
     weatherResults
   );
-  // sendData("weatherLoc")(JSON.stringify(newLatestWeatherData));
+  sendData("weatherLoc")("weather", JSON.stringify(newLatestWeatherData));
 };
 
 const updateBackUpWeatherData = async () => {
