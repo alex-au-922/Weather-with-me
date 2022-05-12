@@ -6,6 +6,7 @@ import GOOGLE_API_KEY from "../../../keys/googleAPI";
 import { objectEqual } from "../../../utils/object";
 import { AuthContext } from "../../../middleware/auth";
 import useForceUpdate from "../../../utils/forceUpdate";
+import TimeSeries from "./plotGraph";
 
 const loader = new Loader({
   apiKey: GOOGLE_API_KEY,
@@ -206,6 +207,7 @@ const MapView = (props) => {
 
   return (
     <>
+      <TimeSeries/>
       <TableTitleBar
         dataList={props.weatherList}
         filteredDataList={filteredWeatherList}
