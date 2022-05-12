@@ -117,7 +117,7 @@ const AdminView = (props) => {
   const updateLogData = (resultJson) => {
     const newLogList = parseLogDataFrontendView(resultJson);
     setDataLists((dataLists) => {
-      return { ...dataLists, Location: newLogList };
+      return { ...dataLists, Log: newLogList };
     });
   };
 
@@ -236,8 +236,8 @@ const AdminView = (props) => {
       />
       <ResourceManagementTable
         key="log"
-        name="log"
-        dataUniqueKey={"name"}
+        name="Log"
+        dataUniqueKey={"_id"}
         dataList={dataLists.Log}
         switchViewOptions={switchViewOptions}
         renderSwitchView={renderSwitchView}

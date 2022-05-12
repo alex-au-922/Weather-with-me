@@ -3,7 +3,7 @@ const { connectLoggerDB } = require("../../generalUtils/database");
 const requestLogSchema = require("../../backendConfig.js").databaseConfig
   .requestLogSchema;
 
-const getLatestLogData = async () => {
+const getLatestData = async () => {
   try {
     const loggerDB = await connectLoggerDB();
     const requestLog = loggerDB.model("RequestLog", requestLogSchema);
@@ -14,4 +14,4 @@ const getLatestLogData = async () => {
   }
 };
 
-exports.getLatestLogData = getLatestLogData;
+exports.getLatestData = getLatestData;
