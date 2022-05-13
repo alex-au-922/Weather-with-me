@@ -23,16 +23,8 @@ const defaultMapOptions = {
 const WeatherContent = (weatherData) => {
   return `<ul style = "list-style: none;">
         <li>Location: ${weatherData.name}</li>
-        <li>Temperature: ${
-          weatherData.temperature == null
-            ? null
-            : weatherData.temperature + "°C"
-        }</li>
-        <li>Relative Humidity: ${
-          weatherData.relativeHumidity == null
-            ? null
-            : weatherData.relativeHumidity + "%"
-        }</li>
+        <li>Temperature: ${weatherData.temperature == null ? null : weatherData.temperature + "°C"}</li>
+        <li>Relative Humidity: ${weatherData.relativeHumidity == null ? null : weatherData.relativeHumidity + "%"}</li>
         <li>Updated Time: ${weatherData.time}</li>
     </ul>`;
 };
