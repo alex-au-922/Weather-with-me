@@ -16,7 +16,7 @@ const ResetPasswordEmail = (props) => {
   const emailFetch = fetchFactory(
     {
       success: true,
-      showLoading: false,
+      loading: false,
       error: false,
     },
     `An email will be sent to your mailbox if you have binded your

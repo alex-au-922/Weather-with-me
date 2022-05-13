@@ -63,11 +63,10 @@ const UserView = (props) => {
         )
       );
     }
-  }, [weatherDataList]);
+  }, [weatherDataList, favouriteLocation]);
 
   useLayoutEffect(() => {
     if (bufferCommentDataList !== null && bufferWeatherDataList !== null) {
-      console.log("update weather list now !~");
       const newWeatherDataList = parseWeatherDataFrontendView(
         bufferWeatherDataList,
         bufferCommentDataList
@@ -95,7 +94,6 @@ const UserView = (props) => {
     const weatherDataHandler = (newWeatherData) => {
       const newBufferWeatherDataList = [...newWeatherData];
       setBufferWeatherDataList(newBufferWeatherDataList);
-      //   updateWeatherData(newWeatherData, commentDataList.current);
     };
     return registerMessageListener(
       webSocket,
@@ -145,8 +143,8 @@ const UserView = (props) => {
   const mergeWeather = async () => {
     const weatherJson = await fetchWeatherData();
     const commentJson = await fetchComments();
-    setBufferWeatherDataList(weatherJson);
-    setBufferCommentDataList(commentJson);
+    if (weatherJson !== undefined) setBufferWeatherDataList(weatherJson);
+    if (commentJson !== undefined) setBufferCommentDataList(commentJson);
   };
 
   useEffect(() => {

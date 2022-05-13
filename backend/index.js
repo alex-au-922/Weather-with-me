@@ -55,7 +55,11 @@ eventEmitter.on("weatherLocUpdate", async () => {
     geolocationResults,
     weatherResults
   );
-  sendData("weatherLoc")("updatedWeatherData", newLatestWeatherData)();
+  console.log("sending the latest weather data!");
+  sendData("weatherLoc")("updatedWeatherData", newLatestWeatherData)(
+    true,
+    null
+  );
 });
 eventEmitter.on("userUpdate", async (userId = undefined) => {
   if (userId !== undefined) {

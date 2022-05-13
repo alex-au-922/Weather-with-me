@@ -23,14 +23,14 @@ const ResetPassword = () => {
 
   const validateFetch = fetchFactory({
     success: false,
-    showLoading: false,
+    loading: false,
     error: true,
   });
 
   const updateFetch = fetchFactory(
     {
       success: true,
-      showLoading: true,
+      loading: true,
       error: true,
     },
     "Successfully changed password!",

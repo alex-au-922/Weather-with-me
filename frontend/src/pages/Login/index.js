@@ -83,12 +83,6 @@ const Login = () => {
         <Card style={{ width: "25rem", height: "40rem" }}>
           <Card.Body>
             <div style={{ height: "20%" }}>
-              <div
-                style={{ height: "50%" }}
-                className="d-flex justify-content-center"
-              >
-                <img src="sun.png" alt="sun" />
-              </div>
               <Card.Title
                 className="d-flex justify-content-center align-items-center"
                 style={{ height: "50%", fontSize: "25px" }}

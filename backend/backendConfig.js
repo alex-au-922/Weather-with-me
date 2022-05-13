@@ -304,4 +304,4 @@ exports.HTTP_STATUS = {
   },
 };
 
-exports.ACCESS_TOKEN_EXPIRED_TIME = "15m";
+exports.ACCESS_TOKEN_EXPIRED_TIME = "2m";

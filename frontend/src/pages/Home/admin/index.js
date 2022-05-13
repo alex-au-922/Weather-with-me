@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useLayoutEffect } from "react";
 import { FetchStateContext } from "../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../frontendConfig";
 import parseUserDataFrontendView from "../../../utils/data/user";
@@ -35,8 +35,9 @@ import { AuthContext } from "../../../middleware/auth";
 const AdminView = (props) => {
   const [userLists, setUserLists] = useState(null);
   const [locationLists, setLocationLists] = useState(null);
+  const [bufferLocationLists, setBufferLocationLists] = useState(null);
   const [logLists, setLogLists] = useState(null);
-  const [commentLists, setCommentLists] = useState(null);
+  const [bufferCommentLists, setBufferCommentLists] = useState(null);
   const [table, setTable] = useState("User");
   const { user } = useContext(AuthContext);
   const { username } = user;
@@ -96,13 +97,15 @@ const AdminView = (props) => {
     setUserLists(newUserList);
   };
 
-  const updateWeatherData = (weatherJson, commentJson) => {
-    const newWeatherList = parseWeatherDataFrontendView(
-      weatherJson,
-      commentJson
-    );
-    setLocationLists(newWeatherList);
-  };
+  useLayoutEffect(() => {
+    if (bufferCommentLists !== null && bufferLocationLists !== null) {
+      const newLocationList = parseWeatherDataFrontendView(
+        bufferLocationLists,
+        bufferCommentLists
+      );
+      setLocationLists(newLocationList);
+    }
+  }, [bufferCommentLists, bufferLocationLists]);
 
   const updateLogData = (resultJson) => {
     const newLogList = parseLogDataFrontendView(resultJson);
@@ -138,7 +141,8 @@ const AdminView = (props) => {
   useEffect(() => {
     if (webSocket) {
       const weatherDataHandler = (newWeatherJson) => {
-        updateWeatherData(newWeatherJson, commentLists);
+        const newBufferWeatherList = [...newWeatherJson];
+        setBufferLocationLists(newBufferWeatherList);
       };
       return registerMessageListener(
         webSocket,
@@ -151,9 +155,10 @@ const AdminView = (props) => {
   useEffect(() => {
     if (webSocket) {
       const commentDataHandler = (newCommentData) => {
-        const newCommentJson = parseCommentDataFrontendView(newCommentData);
-        setCommentLists(newCommentJson);
-        updateWeatherData(locationLists, newCommentJson);
+        const newCommentJson = {
+          ...parseCommentDataFrontendView(newCommentData),
+        };
+        setBufferCommentLists(newCommentJson);
       };
       return registerMessageListener(
         webSocket,
@@ -161,7 +166,7 @@ const AdminView = (props) => {
         commentDataHandler
       );
     }
-  }, [webSocket, commentLists]);
+  }, [webSocket, bufferCommentLists]);
 
   useEffect(() => {
     if (webSocket) {
@@ -190,8 +195,9 @@ const AdminView = (props) => {
     if (!fetching) {
       if (success) {
         const commentJson = parseCommentDataFrontendView(result);
-        setCommentLists(commentJson);
-        return commentJson;
+        const newCommentJson = { ...commentJson };
+        setBufferCommentLists(newCommentJson);
+        return newCommentJson;
       }
     }
   };
@@ -207,15 +213,20 @@ const AdminView = (props) => {
       },
     };
     const { success, result, fetching } = await dataFetch(url, payload);
-    if (success && !fetching) return result;
+    if (success && !fetching) {
+      setBufferLocationLists(result);
+      return result;
+    }
   };
 
   const mergeWeather = async () => {
     const weatherJson = await fetchWeatherData();
     const commentJson = await fetchComments();
-    if (weatherJson !== undefined && commentJson !== undefined)
-      updateWeatherData(weatherJson, commentJson);
+    if (weatherJson !== undefined) setBufferLocationLists(weatherJson);
+    if (commentJson !== undefined) setBufferCommentLists(commentJson);
   };
+
+  useLayoutEffect(() => {}, []);
 
   useEffect(() => {
     //initial fetch weather data

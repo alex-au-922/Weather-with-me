@@ -22,7 +22,7 @@ const {
   deleteLocation,
   deleteWeatherWithLocationId,
 } = require("../../../databaseUtils/weatherDatabase/deleteLocation");
-const { emitWeatherLocUpdate } = require("../../_emitEvent");
+const { emitWeatherLocUpdate, emitCommentUpdate } = require("../../_emitEvent");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {

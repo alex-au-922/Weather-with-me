@@ -29,14 +29,16 @@ export default function NavBar(props) {
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse>
-            <Nav className="me-auto">
-              <Nav.Link onClick={() => navigate("/changepw")}>
-                Change Password
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/settings")}>
-                Settings
-              </Nav.Link>
-            </Nav>
+            {user.isAdmin && (
+              <Nav className="me-auto">
+                <Nav.Link onClick={() => navigate("/changepw")}>
+                  Change Password
+                </Nav.Link>
+                <Nav.Link onClick={() => navigate("/settings")}>
+                  Settings
+                </Nav.Link>
+              </Nav>
+            )}
             <Nav>
               <Nav.Link>
                 {props.renderButton && props.renderButton(props.buttonOnClick)}

@@ -27,7 +27,6 @@ const resourceFetch = async (fetchFunction, ...fetchParams) => {
       response.result = fetchResult;
       return response;
     }
-
     if (fetchErrorType !== "InvalidAccessTokenError") {
       response.error = fetchError;
       response.errorType = fetchErrorType;
@@ -38,10 +37,12 @@ const resourceFetch = async (fetchFunction, ...fetchParams) => {
       success: tokensRefreshSuccess,
       error: tokensRefreshError,
       errorType: tokenRefreshErrorType,
+      accessToken: refreshedAccessToken,
       fetching: tokenFetching,
     } = await tokensRefresh();
-
+    console.log("tokenRefreshSuccess", tokensRefreshSuccess);
     console.log("Refreshing the token due to expired access token!");
+    console.log(localStorage.getItem("accessToken"));
 
     if (tokenFetching) {
       response.fetching = true;
@@ -57,26 +58,37 @@ const resourceFetch = async (fetchFunction, ...fetchParams) => {
       return response;
     }
 
+    console.log("got new fetch!");
+
+    fetchParams.headers.authorization = refreshedAccessToken;
+    console.log("token refresh", fetchParams);
+
     const {
       fetching: newFetchFetching,
-      success: newFetcuSuccess,
+      success: newFetchSuccess,
       error: newFetchError,
       errorType: newFetchErrorType,
       result: newFetchResult,
     } = await fetchFunction(...fetchParams);
-
+    console.log(
+      newFetchFetching,
+      newFetchSuccess,
+      newFetchError,
+      newFetchErrorType,
+      newFetchResult
+    );
     if (newFetchFetching) {
       response.fetching = true;
       return response;
     }
 
-    if (newFetcuSuccess) {
+    if (newFetchSuccess) {
       response.success = true;
       response.result = newFetchResult;
       return response;
     }
 
-    if (!newFetcuSuccess) {
+    if (!newFetchSuccess) {
       response.error = newFetchError;
       response.errorType = newFetchErrorType;
       if (tokenRefreshErrorType === "InvalidRefreshTokenError") {

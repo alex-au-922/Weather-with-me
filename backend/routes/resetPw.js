@@ -47,13 +47,12 @@ router.post("/", async (req, res, next) => {
 router.use("/:userHash", async (req, res, next) => {
   try {
     const userHash = req.params.userHash;
-    console.log("userHash", userHash);
-    const { userId: decryptedUserId, expiredTime } = await findUserByHash(
-      userHash
-    );
-    if (decryptedUserId === null || dateExpired(expiredTime))
+    const fulfilledUser = await findUserByHash(userHash);
+    if (fulfilledUser === null)
       throw new UnauthorizationError("Unauthorized Action!");
-    res.locals.decryptedUserId = decryptedUserId;
+    else if (dateExpired(fulfilledUser.expiredTime))
+      throw new UnauthorizationError("Unauthorized Action!");
+    res.locals.decryptedUserId = fulfilledUser.userId;
     next();
   } catch (error) {
     next(error);

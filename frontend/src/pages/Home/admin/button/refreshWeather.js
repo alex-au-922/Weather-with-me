@@ -10,7 +10,7 @@ const RefreshWeather = (props) => {
   const updateFetch = fetchFactory(
     {
       success: true,
-      showLoading: true,
+      loading: true,
       error: true,
     },
     "Successfully updated weather data!"

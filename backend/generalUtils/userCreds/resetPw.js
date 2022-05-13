@@ -1,5 +1,8 @@
-const { InternalServerError } = require("../../errorConfig");
 const bcrypt = require("bcrypt");
+const {
+  InternalServerError,
+  UnauthorizationError,
+} = require("../../errorConfig");
 
 const transporter = require("../../backendConfig").transporter;
 const logger = require("../getLogger").getLogger();
@@ -41,5 +44,16 @@ const userHash = async (userString) => {
     throw new InternalServerError("Invalid User Hash!");
   }
 };
+
+const compareUserHash = async (userHash, hashedUserHash) => {
+  try {
+    const userHashCorrect = await bcrypt.compare(userHash, hashedUserHash);
+    return userHashCorrect;
+  } catch (error) {
+    throw new UnauthorizationError("Invalid user hash!");
+  }
+};
+
 exports.sendResetPwEmail = sendResetPwEmail;
 exports.userHash = userHash;
+exports.compareUserHash = compareUserHash;
