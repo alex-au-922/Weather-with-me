@@ -409,7 +409,7 @@ const LocationAdminDataFormModal = (props) => {
             Weather Data
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{maxHeight: "70vh", overflowY: "auto"}}>
           <Form>
             {Object.keys(props.data)
               .filter((field) => props.modalConfig[field])
