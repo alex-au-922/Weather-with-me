@@ -11,10 +11,26 @@ const loader = new Loader({
 const WeatherContent = (weatherData) => {
   return `<ul style = "list-style: none;">
         <li>Location: ${weatherData.name}</li>
-        <li>Temperature: ${weatherData.temperature == null ? null : weatherData.temperature + "°C"}</li>
-        <li>Relative Humidity: ${weatherData.relativeHumidity == null ? null : weatherData.relativeHumidity + "%"}</li>
-        <li>10-min maximum gust: ${(weatherData.tenMinMaxGust == null)  ? null : weatherData.tenMinMaxGust + " km/h"}</li>
-        <li>10-min mean wind speed: ${(weatherData.tenMinMeanWindSpeed == null ) ? null : weatherData.tenMinMeanWindSpeed + " km/h" }</li>
+        <li>Temperature: ${
+          weatherData.temperature == null
+            ? null
+            : weatherData.temperature + "°C"
+        }</li>
+        <li>Relative Humidity: ${
+          weatherData.relativeHumidity == null
+            ? null
+            : weatherData.relativeHumidity + "%"
+        }</li>
+        <li>10-min maximum gust: ${
+          weatherData.tenMinMaxGust == null
+            ? null
+            : weatherData.tenMinMaxGust + " km/h"
+        }</li>
+        <li>10-min mean wind speed: ${
+          weatherData.tenMinMeanWindSpeed == null
+            ? null
+            : weatherData.tenMinMeanWindSpeed + " km/h"
+        }</li>
         <li>10-min mean wind direction: ${weatherData.tenMinMeanWindDir}</li>
         <li>Updated Time: ${weatherData.time}</li>
     </ul>`;
@@ -77,39 +93,10 @@ const Marker = (props) => {
   }, [props.googleMap, marker.option, props.visible]);
 
   useEffect(() => {
-    if (props.visible) {
-      if (marker.marker) {
-        marker.marker.setMap(props.googleMap);
-        const unregisterMouseOver = registerMarkerListener(
-          props.google,
-          marker.marker,
-          "mouseover",
-          handleMouseOver
-        );
-        const unregisterMouseOut = registerMarkerListener(
-          props.google,
-          marker.marker,
-          "mouseout",
-          handleMouseOut
-        );
-
-        const unregisterMouseClick = registerMarkerListener(
-          props.google,
-          marker.marker,
-          "click",
-          handleMouseClick
-        );
-
-        return () => {
-          console.log("remove!");
-          unregisterMouseOver();
-          unregisterMouseOut();
-          unregisterMouseClick();
-        };
-      }
-    } else {
-      console.log("remove due to visibility!");
-      marker.marker?.setMap(null);
+    if (marker.marker) {
+      marker.marker.setMap(props.googleMap);
+      infoWindow.infoWindow.setContent(infoWindow.content);
+      infoWindow.infoWindow.open(props.googleMap, marker.marker);
     }
   }, [marker.marker, props.visible]);
   return null;

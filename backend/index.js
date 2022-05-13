@@ -57,27 +57,27 @@ eventEmitter.on("weatherLocUpdate", async () => {
   );
   sendData("weatherLoc")("updatedWeatherData", newLatestWeatherData)();
 });
-eventEmitter.on("userUpdate", async (admin = true, userId = undefined) => {
+eventEmitter.on("userUpdate", async (userId = undefined) => {
   if (userId !== undefined) {
     const existsUser = await checkUserCredentialsById(userId);
     sendData("user")("updatedUserDatum", existsUser)(false, userId);
   }
   const result = await getLatestUserData();
-  sendData("user")("updatedUserData", result)(admin, undefined);
+  sendData("user")("updatedUserData", result)(true, -1);
 });
-eventEmitter.on("deleteUser", async (admin = true, userId) => {
-  sendData("user")("deleteUser")(false, userId);
+eventEmitter.on("deleteUser", async (userId) => {
+  sendData("user")("deleteUser", "")(false, userId);
   const result = await getLatestUserData();
-  sendData("user")("updatedUserData", result)(admin, undefined);
+  sendData("user")("updatedUserData", result)(true, -1);
 });
 eventEmitter.on("logUpdate", async () => {
   const result = await getLatestLogData();
-  sendData("log")("updatedLogData", result)();
+  sendData("log")("updatedLogData", result)(true, null);
 });
 eventEmitter.on("commentUpdate", async () => {
   const result = await getLocationComment();
   console.log("update comment!");
-  sendData("comment")("updatedCommentData", result)();
+  sendData("comment")("updatedCommentData", result)(true, null);
 });
 
 const updateBackUpWeatherData = async () => {

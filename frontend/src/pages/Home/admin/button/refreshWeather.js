@@ -36,6 +36,7 @@ const RefreshWeather = (props) => {
         data-toggle="tooltip"
         title="Refresh Weather Data"
         onClick={handleClick}
+        style={{ width: "24", height: "24" }}
       />
     </>
   );

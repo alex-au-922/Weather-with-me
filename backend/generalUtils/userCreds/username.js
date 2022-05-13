@@ -56,7 +56,6 @@ const uniqueUsername = async (username) => {
 
 const findUserInfoByEmail = async (email) => {
   const existUser = await checkUserCredentials("email", email);
-  console.log("existUser", existUser);
   if (!existUser) return null;
   const userInfo = {
     userId: existUser._id,

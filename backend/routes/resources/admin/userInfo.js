@@ -19,7 +19,14 @@ const {
 } = require("../../../databaseUtils/userDatabase/deleteUser");
 const getLatestUserData =
   require("../../../databaseUtils/userDatabase/getLatestData").getLatestData;
-const { emitUserUpdate, emitDeleteUser } = require("../../_emitEvent");
+const {
+  emitUserUpdate,
+  emitDeleteUser,
+  emitCommentUpdate,
+} = require("../../_emitEvent");
+const {
+  deleteComment,
+} = require("../../../databaseUtils/weatherDatabase/updateLocation");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
@@ -55,7 +62,11 @@ router.put("/", async (req, res, next) => {
 
     if (newEmail) {
       const existsEmail = await findUserInfoByEmail(newEmail);
-      if (existsEmail !== null && existsEmail.userId !== userId)
+      console.log(existsEmail);
+      if (
+        existsEmail !== null &&
+        existsEmail.userId.toString() !== userId.toString()
+      )
         throw new EmailError("Email already exists!");
       newUserInfo.email = newEmail;
     }
@@ -71,6 +82,7 @@ router.put("/", async (req, res, next) => {
     response.success = true;
     res.send(JSON.stringify(response));
     await emitUserUpdate(userId);
+    await emitCommentUpdate();
   } catch (error) {
     next(error);
   }
@@ -89,13 +101,16 @@ router.delete("/", async (req, res, next) => {
     const response = res.locals.response;
     const { username } = req.body;
     const existsUser = await findUserInfoByUsername(username);
-    if (existsUser === null) throw UnauthorizationError("Unauthorized Action!");
+    if (existsUser === null)
+      throw new UnauthorizationError("Unauthorized Action!");
     const userId = existsUser.userId;
     await deleteUser(userId);
+    await deleteComment(null, userId);
     response.success = true;
     res.status(HTTP_STATUS.success.ok.status);
     res.send(JSON.stringify(response));
     await emitDeleteUser(userId);
+    await emitCommentUpdate();
   } catch (error) {
     next(error);
   }

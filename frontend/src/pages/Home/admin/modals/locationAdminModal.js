@@ -1,5 +1,5 @@
 import getTitleHeader from "../../../../utils/input/getTableLongHeader";
-import { useState, useEffect, useContext, useLayoutEffect } from "react";
+import { useState, useRef, useContext, useLayoutEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { InputFormModalRow, SelectFormModalRow } from ".";
 import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
@@ -10,6 +10,7 @@ import { FormBufferContext } from "../contexts/formBufferProvider";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
+import useForceUpdate from "../../../../utils/forceUpdate";
 
 const BlankLocationDataFormModal = (props) => {
   const { user } = useContext(AuthContext);
@@ -18,24 +19,42 @@ const BlankLocationDataFormModal = (props) => {
   const [locationInfoError, setLocationInfoError] = useState(
     objectSetAll(props.data, "")
   );
-  const { formBuffer, setFormBuffer, resetBuffer } =
-    useContext(FormBufferContext);
-  useLayoutEffect(() => {
-    setFormBuffer((formBuffer) => objectSetAll(props.data));
-  }, []);
+  const formBuffer = useRef(props.data);
+  const forceUpdate = useForceUpdate();
 
   useLayoutEffect(() => {
-    const newBuffer = Object.keys(unsaved).reduce(
-      (prevBuffer, currKey) => (
-        (prevBuffer[currKey] = unsaved[currKey]
-          ? formBuffer[currKey]
-          : props.data[currKey]),
-        prevBuffer
-      ),
-      {}
-    );
-    setFormBuffer(newBuffer);
+    const newBuffer = Object.keys(props.data)
+      .filter((field) => props.modalConfig[field])
+      .reduce(
+        (prevBuffer, currKey) => (
+          (prevBuffer[currKey] = unsaved[currKey]
+            ? formBuffer[currKey]
+            : props.modalConfig[currKey].blank
+            ? ""
+            : props.data[currKey]),
+          prevBuffer
+        ),
+        {}
+      );
+    formBuffer.current = newBuffer;
+    formBuffer.current = { ...newBuffer };
+    forceUpdate();
   }, [props.data]);
+
+  useLayoutEffect(() => {
+    if (formBuffer.current) {
+      const newUnsaved = Object.keys(unsaved).reduce(
+        (obj, key) => (
+          (obj[key] = props.modalConfig[key].blank
+            ? formBuffer.current[key] !== ""
+            : formBuffer.current[key] !== props.data[key]),
+          obj
+        ),
+        {}
+      );
+      setUnsaved(newUnsaved);
+    }
+  }, [formBuffer.current]);
 
   const { fetchFactory } = useContext(FetchStateContext);
   const createFetch = fetchFactory(
@@ -44,20 +63,16 @@ const BlankLocationDataFormModal = (props) => {
       error: true,
       loading: true,
     },
-    `Successfully created location ${formBuffer.name}!`,
+    `Successfully created location ${formBuffer.current?.name}!`,
     false,
     ["LocationNameError", "ValueError"]
   );
-  const handleChangeUnsaved = (field, changed) => {
-    const newUnsaved = { ...unsaved };
-    newUnsaved[field] = changed;
-    setUnsaved(newUnsaved);
-  };
 
   const handleChangeValue = (field, changedBuffer) => {
-    const newBuffer = { ...formBuffer };
+    const newBuffer = { ...formBuffer.current };
     newBuffer[field] = changedBuffer;
-    setFormBuffer(newBuffer);
+    formBuffer.current = newBuffer;
+    forceUpdate();
   };
 
   const resetUnsaved = () => {
@@ -74,7 +89,7 @@ const BlankLocationDataFormModal = (props) => {
         authorization: localStorage.getItem("accessToken"),
         username: user.username,
       },
-      body: JSON.stringify(formBuffer),
+      body: JSON.stringify(formBuffer.current),
     };
     const {
       success: updateLocationInfoSuccess,
@@ -110,7 +125,6 @@ const BlankLocationDataFormModal = (props) => {
   const handleCloseUnsavedModal = () => setShowUnsavedModal(false);
 
   const handleInnerCloseModal = () => {
-    resetBuffer();
     resetUnsaved();
     props.onHide();
   };
@@ -160,7 +174,7 @@ const BlankLocationDataFormModal = (props) => {
                         readOnly={props.modalConfig[field].mutable}
                         chosenOption={props.data[field]}
                         error={locationInfoError[field]}
-                        onChangeUnsaved={handleChangeUnsaved}
+                        updated={unsaved[field]}
                         onChangeValue={handleChangeValue}
                       />
                     ) : (
@@ -173,7 +187,7 @@ const BlankLocationDataFormModal = (props) => {
                         blank={props.modalConfig[field].blank}
                         value={props.data[field]}
                         error={locationInfoError[field]}
-                        onChangeUnsaved={handleChangeUnsaved}
+                        updated={unsaved[field]}
                         onChangeValue={handleChangeValue}
                       />
                     )}
@@ -218,25 +232,42 @@ const LocationAdminDataFormModal = (props) => {
   const [locationInfoError, setLocationInfoError] = useState(
     objectSetAll(locationData, "")
   );
+  const forceUpdate = useForceUpdate();
 
-  const { formBuffer, setFormBuffer, resetBuffer } =
-    useContext(FormBufferContext);
-  useLayoutEffect(() => {
-    setFormBuffer((formBuffer) => locationData);
-  }, []);
+  const formBuffer = useRef(locationData);
+
+  // useLayoutEffect(() => {
+  //   const newBuffer = Object.keys(unsaved).reduce(
+  //     (prevBuffer, currKey) => (
+  //       (prevBuffer[currKey] = unsaved[currKey]
+  //         ? formBuffer[currKey]
+  //         : props.modalConfig[currKey].blank
+  //         ? ""
+  //         : props.data[currKey]),
+  //       prevBuffer
+  //     ),
+  //     {}
+  //   );
+  //   formBuffer.current = { ...newBuffer };
+  //   forceUpdate();
+  // }, [props.data]);
 
   useLayoutEffect(() => {
-    const newBuffer = Object.keys(unsaved).reduce(
-      (prevBuffer, currKey) => (
-        (prevBuffer[currKey] = unsaved[currKey]
-          ? formBuffer[currKey]
-          : props.data[currKey]),
-        prevBuffer
-      ),
-      {}
-    );
-    setFormBuffer(newBuffer);
-  }, [props.data]);
+    if (formBuffer.current) {
+      console.log(formBuffer.current);
+      const newUnsaved = Object.keys(formBuffer.current).reduce(
+        (obj, key) => (
+          (obj[key] = props.modalConfig[key].blank
+            ? formBuffer.current[key] !== ""
+            : formBuffer.current[key] !== props.data[key]),
+          obj
+        ),
+        {}
+      );
+      console.log("new unsaved", newUnsaved);
+      setUnsaved(newUnsaved);
+    }
+  }, [formBuffer.current]);
 
   const { fetchFactory, fetchState } = useContext(FetchStateContext);
   const updateFetch = fetchFactory(
@@ -264,16 +295,12 @@ const LocationAdminDataFormModal = (props) => {
     setUnsaved(resetUnsaved);
   };
 
-  const handleChangeUnsaved = (field, changed) => {
-    const newUnsaved = { ...unsaved };
-    newUnsaved[field] = changed;
-    setUnsaved(newUnsaved);
-  };
-
   const handleChangeValue = (field, changedBuffer) => {
-    const newBuffer = { ...formBuffer };
+    const newBuffer = { ...formBuffer.current };
     newBuffer[field] = changedBuffer;
-    setFormBuffer(newBuffer);
+    formBuffer.current = newBuffer;
+    forceUpdate();
+    console.log("new formBuffer value", formBuffer.current);
   };
 
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
@@ -292,7 +319,7 @@ const LocationAdminDataFormModal = (props) => {
       },
       body: JSON.stringify({
         oldName: locationData.name,
-        newData: formBuffer,
+        newData: formBuffer.current,
       }),
     };
     const {
@@ -334,7 +361,7 @@ const LocationAdminDataFormModal = (props) => {
         username: user.username,
       },
       body: JSON.stringify({
-        name: formBuffer.name,
+        name: formBuffer.current.name,
       }),
     };
     const { success: deleteLocationSuccess, fetching: deleteLocationFetching } =
@@ -345,7 +372,6 @@ const LocationAdminDataFormModal = (props) => {
   };
 
   const handleInnerCloseModal = () => {
-    resetBuffer();
     resetUnsaved();
     props.onHide();
   };
@@ -394,9 +420,11 @@ const LocationAdminDataFormModal = (props) => {
                       <SelectFormModalRow
                         key={`${field}`}
                         field={field}
+                        readOnly={props.modalConfig[field].mutable}
                         options={props.modalConfig[field].selectOptions}
                         chosenOption={props.data[field]}
-                        onChangeUnsaved={handleChangeUnsaved}
+                        error={locationInfoError[field]}
+                        updated={unsaved[field]}
                         onChangeValue={handleChangeValue}
                       />
                     ) : (
@@ -408,7 +436,8 @@ const LocationAdminDataFormModal = (props) => {
                         placeholder={camelToCapitalize(field)}
                         blank={props.modalConfig[field].blank}
                         value={props.data[field]}
-                        onChangeUnsaved={handleChangeUnsaved}
+                        error={locationInfoError[field]}
+                        updated={unsaved[field]}
                         onChangeValue={handleChangeValue}
                       />
                     )}

@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const WebSocketContext = createContext({});
 
 const WebSocketProvider = (props) => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, setUser } = useContext(AuthContext);
   const [webSocket, setWebSocket] = useState(null);
 
   useEffect(() => {
@@ -24,6 +24,23 @@ const WebSocketProvider = (props) => {
             weatherLoc: true,
           },
         });
+        if (!user.isAdmin) {
+          socket.on("updatedUserDatum", (newUserDatum) => {
+            setUser({
+              ...user,
+              username: newUserDatum.username,
+              viewMode: newUserDatum.viewMode,
+              email: newUserDatum.email,
+              favouriteLocation: newUserDatum.favouriteLocation.map(
+                (geolocationObj) => geolocationObj.name
+              ),
+            });
+          });
+          socket.on("deleteUser", (message) => {
+            logout();
+          });
+        }
+        socket.io.on("reconnect", () => console.log("socket reconnected!"));
         socket.onAny((eventName) => console.log(eventName));
         socket.io.on("error", (message) => console.log(message));
 
@@ -38,40 +55,6 @@ const WebSocketProvider = (props) => {
       }
     }
   }, [user.authenticated]);
-
-  useEffect(() => {
-    if (webSocket) {
-      const updateUserDataHandler = (newUserDatum) => {
-        const newUserObj = JSON.parse(newUserDatum);
-        user.setUser({
-          ...user,
-          username: newUserObj.username,
-          viewMode: newUserObj.viewMode,
-          email: newUserObj.email,
-          favouriteLocation: newUserObj.favouriteLocation.map(
-            (geolocationObj) => geolocationObj.name
-          ),
-        });
-      };
-      const deleteUserHandler = () => {
-        logout();
-      };
-      const unregisterUpdateUserData = registerMessageListener(
-        webSocket,
-        "updateUserDatum",
-        updateUserDataHandler
-      );
-      const unregisterDeleteUser = registerMessageListener(
-        webSocket,
-        "deleteUser",
-        deleteUserHandler
-      );
-      return () => {
-        unregisterUpdateUserData();
-        unregisterDeleteUser();
-      };
-    }
-  }, [webSocket]);
 
   return (
     <WebSocketContext.Provider value={{ webSocket }}>

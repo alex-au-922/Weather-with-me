@@ -25,14 +25,14 @@ const Home = () => {
     <>
       {user.isAdmin ? (
         <NavBar renderButton={adminRenderButton} buttonOnClick={() => {}}>
-          <AdminView user={user} />
+          <AdminView/>
         </NavBar>
       ) : (
         <NavBar
           renderButton={userRenderButton}
           buttonOnClick={toggleShowFavourite}
         >
-          <UserView user={user} showFavourite={showFavourite} />
+          <UserView showFavourite={showFavourite} />
         </NavBar>
       )}
     </>

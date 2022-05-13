@@ -28,7 +28,7 @@ import CreateButton from "../../../utils/gui/create";
 import parseCommentDataFrontendView from "../../../utils/data/comments";
 import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
 import { WebSocketContext } from "../../../middleware/websocket";
-
+import { AuthContext } from "../../../middleware/auth";
 // a component that fetchs all the user and weather data at the top level
 // then pass the data to the lower level view
 // listen to update of user and weather data on respective websockets
@@ -38,7 +38,8 @@ const AdminView = (props) => {
   const [logLists, setLogLists] = useState(null);
   const [commentLists, setCommentLists] = useState(null);
   const [table, setTable] = useState("User");
-  const { username } = props.user;
+  const { user } = useContext(AuthContext);
+  const { username } = user;
   const { webSocket } = useContext(WebSocketContext);
   const { fetchFactory } = useContext(FetchStateContext);
   const dataFetch = fetchFactory(
@@ -73,12 +74,6 @@ const AdminView = (props) => {
     renderModal: renderModals(BlankLocationDataFormModal),
     data: { name: "", latitude: "", longitude: "" },
     modalConfigs: locationModalOptions,
-  };
-
-  const addLogButtonOptions = {
-    renderModal: renderModals(BlankLogDataFormModal),
-    data: { method: "", userAgent: "", date: "", ip: "" },
-    modalConfigs: logModalOptions,
   };
 
   const renderAddButton = (addButtonOptions) => {

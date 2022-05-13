@@ -23,8 +23,16 @@ const defaultMapOptions = {
 const WeatherContent = (weatherData) => {
   return `<ul style = "list-style: none;">
         <li>Location: ${weatherData.name}</li>
-        <li>Temperature: ${weatherData.temperature == null ? null : weatherData.temperature + "°C"}</li>
-        <li>Relative Humidity: ${weatherData.relativeHumidity == null ? null : weatherData.relativeHumidity + "%"}</li>
+        <li>Temperature: ${
+          weatherData.temperature == null
+            ? null
+            : weatherData.temperature + "°C"
+        }</li>
+        <li>Relative Humidity: ${
+          weatherData.relativeHumidity == null
+            ? null
+            : weatherData.relativeHumidity + "%"
+        }</li>
         <li>Updated Time: ${weatherData.time}</li>
     </ul>`;
 };
@@ -42,11 +50,11 @@ const Marker = (props) => {
 
   const handleMouseOver = () => {
     infoWindow.infoWindow.setContent(infoWindow.content);
-    infoWindow.infoWindow.open(props.googleMap, marker.marker);
+    infoWindow.infoWindow.open(props.googleMap, marker);
   };
 
   const handleMouseOut = () => {
-    infoWindow.infoWindow.close(props.googleMap, marker.marker);
+    infoWindow.infoWindow.close(props.googleMap, marker);
   };
 
   useEffect(() => {
@@ -56,7 +64,6 @@ const Marker = (props) => {
       else if (props.visible && !props.isFavourite && !props.showFavourite)
         visibility = true;
       else visibility = false;
-      console.log(`${props.data.name}`, visibility);
       const newOption = {
         position: new props.google.maps.LatLng(
           props.data.latitude,
@@ -64,11 +71,6 @@ const Marker = (props) => {
         ),
         optimized: false,
         visible: visibility,
-        icon: !props.isFavourite
-          ? {
-              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-            }
-          : null,
       };
       setMarkerOption(newOption);
     }

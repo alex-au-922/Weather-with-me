@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FormRowHeader,
   FormSelectWithError,
@@ -11,7 +11,7 @@ const renderModals = (ModalComponent) => {
     if (modalConfig !== undefined && modalConfig !== null) {
       return (
         <ModalComponent
-          key={uniqueKey}
+          key={`${uniqueKey}, modals`}
           modalConfig={modalConfig}
           data={data}
           show={show}
@@ -26,34 +26,21 @@ const renderModals = (ModalComponent) => {
 const InputFormModalRow = (props) => {
   const originalValue = props.blank ? "" : props.value;
   const [updateValue, setUpdateValue] = useState(originalValue);
-  const [valueChanged, setValueChanged] = useState(
-    updateValue === originalValue
-  );
+
   const handleChangeValue = (event) => {
     const newValue = event.target.value;
     setUpdateValue(newValue);
     props.onChangeValue(props.field, newValue);
   };
 
-  useEffect(() => {
-    setValueChanged(updateValue !== originalValue);
-  }, [updateValue]);
-
-  useEffect(() => {
-    props.onChangeUnsaved(props.field, valueChanged);
-  }, [valueChanged]);
-
   return (
     <>
-      <FormRowHeader
-        field={props.field}
-        updated={updateValue !== originalValue}
-      />
+      <FormRowHeader field={props.field} updated={props.updated} />
       <FormInputWithError
         error={props.error ?? ""}
         type={props.type}
         placeholder={props.placeholder}
-        value={updateValue}
+        value={updateValue ?? ""}
         readOnly={!props.mutable}
         onChange={handleChangeValue}
       />
@@ -64,9 +51,6 @@ const InputFormModalRow = (props) => {
 const SelectFormModalRow = (props) => {
   const originalValue = props.chosenOption;
   const [updateValue, setUpdateValue] = useState(originalValue);
-  const [valueChanged, setValueChanged] = useState(
-    updateValue === originalValue
-  );
 
   const handleChangeValue = (event) => {
     const newValue = event.target.value;
@@ -74,19 +58,11 @@ const SelectFormModalRow = (props) => {
     props.onChangeValue(props.field, newValue);
   };
 
-  useEffect(() => {
-    setValueChanged(updateValue !== originalValue);
-  }, [updateValue]);
-
-  useEffect(() => {
-    props.onChangeUnsaved(props.field, valueChanged);
-  }, [valueChanged]);
-
   return (
     <>
       <FormRowHeader
         originalBlank={false}
-        updated={updateValue !== props.chosenOption}
+        updated={props.updated}
         field={props.field}
       />
       <FormSelectWithError

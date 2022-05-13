@@ -30,14 +30,14 @@ const emitUserUpdate = async (userId = undefined) => {
   // }
   // const result = await getLatestUserData();
   // sendData("user")("updatedUserData", result)(true, undefined);
-  eventEmitter.emit("userUpdate");
+  eventEmitter.emit("userUpdate", userId);
 };
 
 const emitDeleteUser = async (userId) => {
   // sendData("user")("deleteUser")(false, userId);
   // const result = await getLatestUserData();
   // sendData("user")("updatedUserData", result)(true, undefined);
-  eventEmitter.emit("deleteUser");
+  eventEmitter.emit("deleteUser", userId);
 };
 
 //TODO: update all people connected to the channel

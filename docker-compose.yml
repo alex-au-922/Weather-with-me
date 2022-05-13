@@ -66,7 +66,7 @@ services:
       - ${BACKEND_REAL_WS_HOST_PORT}:${BACKEND_VIRTUAL_WS_HOST_PORT}
     restart: ${RESTART_POLICY}
     tty: true
-    command: npm run start
+    command: npm run dev
 
   database:
     image: mongodb-database

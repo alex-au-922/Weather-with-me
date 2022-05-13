@@ -17,9 +17,10 @@ import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/tab
 import SwitchComponents from "../switchView";
 import parseCommentDataFrontendView from "../../../utils/data/comments";
 import { WebSocketContext } from "../../../middleware/websocket";
-
+import { AuthContext } from "../../../middleware/auth";
 const UserView = (props) => {
-  const { username, favouriteLocation } = props.user;
+  const { user } = useContext(AuthContext);
+  const { username, favouriteLocation } = user;
   const [favouriteDataList, setFavouriteDataList] = useState(null);
   const [weatherDataList, setWeatherDataList] = useState(null);
   const [bufferWeatherDataList, setBufferWeatherDataList] = useState(null);
@@ -45,6 +46,8 @@ const UserView = (props) => {
     buttonName: view,
     options: ["Map", "Table", "Favourite"],
   };
+
+  //   useEffect(() => {}, [user.username, user.favouriteLocation]);
 
   const renderSwitchView = (switchViewOptions) => {
     if (switchViewOptions !== undefined && switchViewOptions !== null) {

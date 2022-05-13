@@ -99,10 +99,12 @@ router.put("/", async (req, res, next) => {
         throw new LocationNameError("Location doest not exist!");
       const { locationId } = existLocation;
       if (action === "add") {
-        newUserInfo.favouriteLocation = [
-          ...currentFavouriteLocations,
-          locationId,
-        ];
+        if (currentFavouriteLocations.indexOf(locationId) === -1)
+          newUserInfo.favouriteLocation = [
+            ...currentFavouriteLocations,
+            locationId,
+          ];
+        else newUserInfo.favouriteLocation = currentFavouriteLocations;
       } else if (action === "delete") {
         newUserInfo.favouriteLocation = currentFavouriteLocations.filter(
           (currLocationId) =>

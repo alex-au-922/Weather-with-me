@@ -33,7 +33,7 @@ const updateLocationComment = async (locationId, userId, message) => {
       userId,
       locationId,
       createTime: Date.now(),
-      message
+      message,
     };
     await LocationComment.create(newComment);
     return true;
@@ -43,17 +43,40 @@ const updateLocationComment = async (locationId, userId, message) => {
 };
 
 const getLocationComment = async () => {
-  try{
+  try {
     const weatherDB = await connectWeatherDB();
     const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
     const userDB = await connectUserDB();
     const User = userDB.model("User", userSchema);
     const LocationComment = weatherDB.model(
-      "LocationComment", 
+      "LocationComment",
       locationCommentSchema
     );
-    const result = await LocationComment.find().populate("userId", "username", User).populate("locationId", "name", GeoLocation);
+    const result = await LocationComment.find()
+      .populate("userId", "username", User)
+      .populate("locationId", "name", GeoLocation);
     return result;
+  } catch (error) {
+    throw new DatabaseError(error);
+  }
+};
+
+const deleteComment = async (locationId = null, userId = null) => {
+  try {
+    console.log("locationId", locationId, "userId", userId);
+    const weatherDB = await connectWeatherDB();
+    const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
+    const userDB = await connectUserDB();
+    const User = userDB.model("User", userSchema);
+    const LocationComment = weatherDB.model(
+      "LocationComment",
+      locationCommentSchema
+    );
+    let filterQuery = {};
+    if (locationId !== null) filterQuery.locationId = locationId;
+    if (userId !== null) filterQuery.userId = userId;
+    await LocationComment.deleteMany(filterQuery);
+    return true;
   } catch (error) {
     throw new DatabaseError(error);
   }
@@ -83,3 +106,4 @@ exports.latitudeCheck = latitudeCheck;
 exports.longitudeCheck = longitudeCheck;
 exports.updateLocationComment = updateLocationComment;
 exports.getLocationComment = getLocationComment;
+exports.deleteComment = deleteComment;

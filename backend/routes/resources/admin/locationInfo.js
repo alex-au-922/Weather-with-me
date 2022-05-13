@@ -8,6 +8,7 @@ const {
   updateLocation,
   latitudeCheck,
   longitudeCheck,
+  deleteComment,
 } = require("../../../databaseUtils/weatherDatabase/updateLocation");
 const {
   addNewLocation,
@@ -45,6 +46,7 @@ router.put("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { oldName, newData } = req.body;
+    console.log("new location data", newData);
     const existLocation = await findLocationInfoByName(oldName);
     if (existLocation === null)
       throw new LocationNameError("Location to be updated not found!");
@@ -68,6 +70,7 @@ router.put("/", async (req, res, next) => {
     response.success = true;
     res.send(JSON.stringify(response));
     await emitWeatherLocUpdate();
+    await emitCommentUpdate();
   } catch (error) {
     next(error);
   }
@@ -97,15 +100,18 @@ router.delete("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { name } = req.body;
+    console.log("location to be deleted", name);
     const existLocation = await findLocationInfoByName(name);
     if (existLocation === null)
       throw new LocationNameError("Location to be deleted not found!");
     const locationId = existLocation.locationId;
     await deleteWeatherWithLocationId(locationId);
+    await deleteComment(locationId);
     await deleteLocation(locationId);
     response.success = true;
     res.send(JSON.stringify(response));
     await emitWeatherLocUpdate();
+    await emitCommentUpdate();
   } catch (error) {
     next(error);
   }

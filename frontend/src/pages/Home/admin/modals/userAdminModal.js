@@ -1,5 +1,11 @@
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
-import React, { useState, useEffect, useContext, useLayoutEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { InputFormModalRow, SelectFormModalRow } from ".";
 import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
@@ -10,10 +16,7 @@ import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import { objectSetAll } from "../../../../utils/object";
 import checkString from "../../../../utils/input/checkString";
 import validateEmail from "../../../../utils/input/checkEmail";
-import {
-  FormBufferContext,
-  FormBufferProvider,
-} from "../contexts/formBufferProvider";
+import useForceUpdate from "../../../../utils/forceUpdate";
 
 const BlankUserDataFormModal = (props) => {
   const { user } = useContext(AuthContext);
@@ -23,24 +26,41 @@ const BlankUserDataFormModal = (props) => {
     objectSetAll(props.data, "")
   );
 
-  const { formBuffer, resetBuffer } = useContext(FormBufferContext);
+  const formBuffer = useRef(props.data);
+  const forceUpdate = useForceUpdate();
 
   useLayoutEffect(() => {
-    formBuffer.current = objectSetAll(props.data);
-  }, []);
-
-  useLayoutEffect(() => {
-    const newBuffer = Object.keys(unsaved).reduce(
-      (prevBuffer, currKey) => (
-        (prevBuffer[currKey] = unsaved[currKey]
-          ? formBuffer[currKey]
-          : props.data[currKey]),
-        prevBuffer
-      ),
-      {}
-    );
-    formBuffer.current = newBuffer;
+    const newBuffer = Object.keys(props.data)
+      .filter((field) => props.modalConfig[field])
+      .reduce(
+        (prevBuffer, currKey) => (
+          (prevBuffer[currKey] = unsaved[currKey]
+            ? formBuffer.current[currKey]
+            : props.modalConfig[currKey].blank
+            ? ""
+            : props.data[currKey]),
+          prevBuffer
+        ),
+        {}
+      );
+    formBuffer.current = { ...newBuffer };
+    forceUpdate();
   }, [props.data]);
+
+  useLayoutEffect(() => {
+    if (formBuffer.current) {
+      const newUnsaved = Object.keys(unsaved).reduce(
+        (obj, key) => (
+          (obj[key] = props.modalConfig[key].blank
+            ? formBuffer.current[key] !== ""
+            : formBuffer.current[key] !== props.data[key]),
+          obj
+        ),
+        {}
+      );
+      setUnsaved(newUnsaved);
+    }
+  }, [formBuffer.current]);
 
   const { fetchFactory } = useContext(FetchStateContext);
   const createFetch = fetchFactory(
@@ -49,20 +69,16 @@ const BlankUserDataFormModal = (props) => {
       error: true,
       loading: true,
     },
-    `Successfully created user ${formBuffer?.username}!`,
+    `Successfully created user ${formBuffer.current?.username}!`,
     false,
     ["UsernameError", "PasswordError", "EmailError"]
   );
-  const handleChangeUnsaved = (field, changed) => {
-    const newUnsaved = { ...unsaved };
-    newUnsaved[field] = changed;
-    setUnsaved(newUnsaved);
-  };
 
   const handleChangeValue = (field, changedBuffer) => {
-    const newFormBuffer = { ...formBuffer };
+    const newFormBuffer = { ...formBuffer.current };
     newFormBuffer[field] = changedBuffer;
     formBuffer.current = newFormBuffer;
+    forceUpdate();
   };
 
   const resetUnsaved = () => {
@@ -89,7 +105,7 @@ const BlankUserDataFormModal = (props) => {
       return;
     }
 
-    if (formBuffer.email) {
+    if (formBuffer.email && unsaved.email) {
       const { success: emailCheckSuccess, error: emailCheckError } =
         validateEmail(formBuffer.current.email);
       if (!emailCheckSuccess) {
@@ -140,7 +156,6 @@ const BlankUserDataFormModal = (props) => {
   const handleCloseUnsavedModal = () => setShowUnsavedModal(false);
 
   const handleInnerCloseModal = () => {
-    resetBuffer();
     resetUnsaved();
     props.onHide();
   };
@@ -188,7 +203,7 @@ const BlankUserDataFormModal = (props) => {
                         readOnly={props.modalConfig[field].mutable}
                         chosenOption={formBuffer.current[field]}
                         error={userInfoError[field]}
-                        onChangeUnsaved={handleChangeUnsaved}
+                        updated={unsaved[field]}
                         onChangeValue={handleChangeValue}
                       />
                     ) : (
@@ -201,7 +216,7 @@ const BlankUserDataFormModal = (props) => {
                         blank={props.modalConfig[field].blank}
                         value={formBuffer.current[field]}
                         error={userInfoError[field]}
-                        onChangeUnsaved={handleChangeUnsaved}
+                        updated={unsaved[field]}
                         onChangeValue={handleChangeValue}
                       />
                     )}
@@ -239,41 +254,57 @@ const UserDataFormModal = (props) => {
   const [unsaved, setUnsaved] = useState(
     Object.keys(props.data).reduce((obj, key) => ((obj[key] = false), obj), {})
   );
-  const { formBuffer, resetBuffer } = useContext(FormBufferContext);
-  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
-  useLayoutEffect(() => {
-    const newBuffer = Object.keys(props.data)
+  const formBuffer = useRef(
+    Object.keys(props.data)
       .filter((field) => props.modalConfig[field])
       .reduce(
         (obj, key) => (
           (obj[key] = props.modalConfig[key].blank ? "" : props.data[key]), obj
         ),
         {}
-      );
-    formBuffer.current = { ...formBuffer.current, ...newBuffer };
-  }, [props.data]);
-
-  useEffect(() => {
-    // return () => {
-    //   const newBuffer = Object.keys(unsaved).reduce(
-    //     (prevBuffer, currKey) => (
-    //       (prevBuffer[currKey] = unsaved[currKey]
-    //         ? formBuffer[currKey]
-    //         : props.data[currKey]),
-    //       prevBuffer
-    //     ),
-    //     {}
-    //   );
-    //   console.log(newBuffer);
-    //   setFormBuffer(newBuffer);
-    // };
-  }, [props.data]);
-
+      )
+  );
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userInfoError, setUserInfoError] = useState(
     Object.keys(props.data).reduce((obj, key) => ((obj[key] = ""), obj), {})
   );
+  const forceUpdate = useForceUpdate();
+
+  useLayoutEffect(() => {
+    const newBuffer = Object.keys(props.data)
+      .filter((field) => props.modalConfig[field])
+      .reduce(
+        (prevBuffer, currKey) => (
+          (prevBuffer[currKey] = unsaved[currKey]
+            ? formBuffer.current[currKey]
+            : props.modalConfig[currKey].blank
+            ? ""
+            : props.data[currKey]),
+          prevBuffer
+        ),
+        {}
+      );
+    formBuffer.current = { ...newBuffer };
+    forceUpdate();
+  }, [props.data]);
+
+  useLayoutEffect(() => {
+    if (formBuffer.current) {
+      console.log(formBuffer.current);
+      const newUnsaved = Object.keys(formBuffer.current).reduce(
+        (obj, key) => (
+          (obj[key] = props.modalConfig[key].blank
+            ? formBuffer.current[key] !== ""
+            : formBuffer.current[key] !== props.data[key]),
+          obj
+        ),
+        {}
+      );
+      console.log("new unsaved", newUnsaved);
+      setUnsaved(newUnsaved);
+    }
+  }, [formBuffer.current]);
 
   const { fetchFactory } = useContext(FetchStateContext);
   const updateFetch = fetchFactory(
@@ -301,16 +332,18 @@ const UserDataFormModal = (props) => {
   };
 
   const handleSaveChange = async () => {
-    const { success: usernameCheckSuccess, error: usernameCheckError } =
-      checkString(formBuffer.current.username);
-    if (!usernameCheckSuccess) {
-      const newUserInfoError = objectSetAll(userInfoError, "");
-      newUserInfoError.username = usernameCheckError;
-      setUserInfoError(newUserInfoError);
-      return;
+    if (unsaved.username) {
+      const { success: usernameCheckSuccess, error: usernameCheckError } =
+        checkString(formBuffer.current.username);
+      if (!usernameCheckSuccess) {
+        const newUserInfoError = objectSetAll(userInfoError, "");
+        newUserInfoError.username = usernameCheckError;
+        setUserInfoError(newUserInfoError);
+        return;
+      }
     }
 
-    if (formBuffer.current.password) {
+    if (formBuffer.current.password && unsaved.password) {
       const { success: passwordCheckSuccess, error: passwordCheckError } =
         checkString(formBuffer.current.password);
       if (!passwordCheckSuccess) {
@@ -320,7 +353,7 @@ const UserDataFormModal = (props) => {
         return;
       }
     }
-    if (formBuffer.current.email) {
+    if (formBuffer.current.email && unsaved.email) {
       const { success: emailCheckSuccess, error: emailCheckError } =
         validateEmail(formBuffer.current.email);
       if (!emailCheckSuccess) {
@@ -391,16 +424,11 @@ const UserDataFormModal = (props) => {
     }
   };
 
-  const handleChangeUnsaved = (field, changed) => {
-    const newUnsaved = { ...unsaved };
-    newUnsaved[field] = changed;
-    setUnsaved(newUnsaved);
-  };
-
   const handleChangeValue = (field, changedBuffer) => {
-    const newFormBuffer = { ...formBuffer };
+    const newFormBuffer = { ...formBuffer.current };
     newFormBuffer[field] = changedBuffer;
-    formBuffer.current = { ...formBuffer.current, ...newFormBuffer };
+    formBuffer.current = newFormBuffer;
+    forceUpdate();
   };
 
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
@@ -410,7 +438,6 @@ const UserDataFormModal = (props) => {
   const handleCloseDeleteModal = () => setShowDeleteModal(false);
 
   const handleInnerCloseModal = () => {
-    resetBuffer();
     resetUnsaved();
     props.onHide();
   };
@@ -462,9 +489,9 @@ const UserDataFormModal = (props) => {
                         field={field}
                         options={props.modalConfig[field].selectOptions}
                         readOnly={props.modalConfig[field].mutable}
-                        chosenOption={props.data[field]}
+                        chosenOption={formBuffer.current[field]}
                         error={userInfoError[field]}
-                        onChangeUnsaved={handleChangeUnsaved}
+                        updated={unsaved[field]}
                         onChangeValue={handleChangeValue}
                       />
                     ) : (
@@ -475,9 +502,9 @@ const UserDataFormModal = (props) => {
                         mutable={props.modalConfig[field].mutable}
                         placeholder={camelToCapitalize(field)}
                         blank={props.modalConfig[field].blank}
-                        value={props.data[field]}
+                        value={formBuffer.current[field]}
                         error={userInfoError[field]}
-                        onChangeUnsaved={handleChangeUnsaved}
+                        updated={unsaved[field]}
                         onChangeValue={handleChangeValue}
                       />
                     )}

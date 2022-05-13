@@ -11,7 +11,6 @@ const insertRequestLogToDB = async function (req, res, next) {
       date: Date(Date.now()),
       ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
     };
-    console.log(requestLogInfo);
     const loggerDB = await connectLoggerDB();
     const newRequestLog = loggerDB.model("RequestLog", requestLogSchema);
     const result = await newRequestLog.create(requestLogInfo);
