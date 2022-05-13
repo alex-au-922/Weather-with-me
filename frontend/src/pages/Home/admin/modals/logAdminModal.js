@@ -227,41 +227,41 @@ const LogAdminDataFormModal = (props) => {
         }}
       >
         <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-            User Data
-          </Modal.Title>
+          <Modal.Title id="contained-modal-title-vcenter">Log Data</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            {Object.keys(props.data).map((field) => {
-              return (
-                <>
-                  {props.modalConfig[field].type === "select" ? (
-                    <SelectFormModalRow
-                      key={`${field}`}
-                      field={field}
-                      options={props.modalConfig[field].selectOptions}
-                      chosenOption={props.data[field]}
-                      onChangeUnsaved={handleChangeUnsaved}
-                      onChangeValue={handleChangeValue}
-                    />
-                  ) : (
-                    <InputFormModalRow
-                      key={`${field}`}
-                      field={field}
-                      type={props.modalConfig[field].type}
-                      mutable={props.modalConfig[field].unmutable}
-                      placeholder={camelToCapitalize(field)}
-                      blank={props.modalConfig[field].blank}
-                      value={props.data[field]}
-                      onChangeUnsaved={handleChangeUnsaved}
-                      onChangeValue={handleChangeValue}
-                    />
-                  )}
-                  <div className="mb-2" />
-                </>
-              );
-            })}
+            {Object.keys(props.data)
+              .filter((key) => props.modalConfig[key].display)
+              .map((field) => {
+                return (
+                  <>
+                    {props.modalConfig[field].type === "select" ? (
+                      <SelectFormModalRow
+                        key={`${field}`}
+                        field={field}
+                        options={props.modalConfig[field].selectOptions}
+                        chosenOption={props.data[field]}
+                        onChangeUnsaved={handleChangeUnsaved}
+                        onChangeValue={handleChangeValue}
+                      />
+                    ) : (
+                      <InputFormModalRow
+                        key={`${field}`}
+                        field={field}
+                        type={props.modalConfig[field].type}
+                        mutable={props.modalConfig[field].unmutable}
+                        placeholder={camelToCapitalize(field)}
+                        blank={props.modalConfig[field].blank}
+                        value={props.data[field]}
+                        onChangeUnsaved={handleChangeUnsaved}
+                        onChangeValue={handleChangeValue}
+                      />
+                    )}
+                    <div className="mb-2" />
+                  </>
+                );
+              })}
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -288,26 +288,31 @@ const logModalOptions = {
     mutable: false,
     blank: false,
     type: "text",
+    display: false,
   },
   method: {
     mutable: false,
     blank: false,
     type: "text",
+    display: true,
   },
   userAgent: {
     mutable: false,
     blank: false,
-    type: "text",
+    type: "textarea",
+    display: true,
   },
   date: {
     mutable: false,
     blank: false,
     type: "text",
+    display: true,
   },
   ip: {
     mutable: false,
     blank: false,
     type: "text",
+    display: true,
   },
 };
 

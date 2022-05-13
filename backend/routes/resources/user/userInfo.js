@@ -16,12 +16,43 @@ const {
   LocationNameError,
 } = require("../../../errorConfig");
 const {
-  default: getFavouriteLocations,
+  getUserFavouriteLocations,
 } = require("../../../databaseUtils/userDatabase/getFavouriteLocations");
 const {
   findLocationInfoByName,
 } = require("../../../generalUtils/location/locationName");
 const router = express.Router();
+
+// router.get("/:location", async (req, res, next) => {
+//   const location = req.params;
+//   const locId = findLocationInfoByName(location).locationId;
+//   const response = res.locals.response;
+//   try {
+//     if (location === undefined) {
+//       const weatherResults = await getLatestWeatherData();
+//       const geolocationResults = await getLatestGeoLocationData();
+//       const newLatestWeatherData = geoLocationToWeather(
+//         geolocationResults,
+//         weatherResults
+//       );
+//       response.success = true;
+//       response.result = newLatestWeatherData;
+//       res.send(JSON.stringify(response));
+//     } else {
+//       const backupWeatherResults = await getLatestBackupData(locId);
+//       const geolocationResults = await getLatestGeoLocationData();
+//       const newLatestBackupWeatherData = geoLocationToWeather(
+//         geolocationResults,
+//         backupWeatherResults
+//       );
+//       response.success = true;
+//       response.result = newLatestBackupWeatherData;
+//       res.send(JSON.stringify(response));
+//     }
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 router.get("/", async (req, res, next) => {
   try {
@@ -60,7 +91,7 @@ router.put("/", async (req, res, next) => {
     }
     if (favouriteLocation) {
       const { name: amendedLocation, action } = favouriteLocation;
-      const currentFavouriteLocations = await getFavouriteLocations(
+      const currentFavouriteLocations = await getUserFavouriteLocations(
         decryptedUserId
       );
       const existLocation = await findLocationInfoByName(amendedLocation);
@@ -75,7 +106,7 @@ router.put("/", async (req, res, next) => {
       } else if (action === "delete") {
         newUserInfo.favouriteLocation = currentFavouriteLocations.filter(
           (currLocationId) =>
-            locationId.toString() !== currLocationId.toString()
+            locationId.toString() !== currLocationId._id.toString()
         );
       }
     }

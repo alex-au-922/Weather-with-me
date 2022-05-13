@@ -7,6 +7,8 @@ const weatherSchema = require("../../backendConfig.js").databaseConfig
   .weatherSchema;
 const geolocationSchema = require("../../backendConfig").databaseConfig
   .geolocationSchema;
+const backupWeatherSchema = require("../../backendConfig.js").databaseConfig
+  .backupWeatherSchema;
 
 const getLatestData = async () => {
   try {
@@ -14,6 +16,20 @@ const getLatestData = async () => {
     const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
     const Weather = weatherDB.model("Weather", weatherSchema);
     const result = await Weather.find().populate("locationId");
+    return result;
+  } catch (error) {
+    throw new DatabaseError(error);
+  }
+};
+
+const getLatestBackUpData = async (locId) => {
+  try {
+    const weatherDB = await connectWeatherDB();
+    const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
+    const BackupWeather = weatherDB.model("BackupWeather", backupWeatherSchema);
+    const result = await BackupWeather.find({
+      locationId: ObjectId(locId),
+    }).populate("locationId");
     return result;
   } catch (error) {
     throw new DatabaseError(error);
@@ -56,3 +72,4 @@ const geoLocationToWeather = (geolocationResults, weatherResults) => {
 exports.getLatestData = getLatestData;
 exports.getLatestGeoLocationData = getLatestGeoLocationData;
 exports.geoLocationToWeather = geoLocationToWeather;
+exports.getLatestBackUpData = getLatestBackUpData;

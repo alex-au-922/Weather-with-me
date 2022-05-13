@@ -48,8 +48,7 @@ const ResourceManagementTableRow = (props) => {
           key={index}
           onClick={props.renderModals ? handleShowModal : () => {}}
         >
-          {fieldName !== "time" ? props.data[fieldName] : (props.data[fieldName] == null ? null : new Date(props.data[fieldName]).toString())}
-          {/* {props.data[fieldName]} */}
+          {props.data[fieldName]}
         </td>
       ))}
     </tr>

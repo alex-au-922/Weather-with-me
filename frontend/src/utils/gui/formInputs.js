@@ -4,7 +4,11 @@ import camelToCapitalize from "../input/camelToCapitalize";
 const FormInputWithError = ({ error, ...styles }) => {
   return (
     <>
-      <Form.Control {...styles} isInvalid={error} />
+      {styles.type === "textarea" ? (
+        <Form.Control {...styles} isInvalid={error} as="textarea" />
+      ) : (
+        <Form.Control {...styles} isInvalid={error} />
+      )}
       {error && (
         <Form.Control.Feedback
           type="invalid"

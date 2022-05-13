@@ -17,18 +17,9 @@ import { FetchStateContext } from "../../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
 import { useReducer } from "react";
-import { FavouriteLocation } from "../button/favouriteLocation";
+import { FavouriteLocationWeatherUserModal } from "../button/favouriteLocationWeatherUserModal";
 import { registerWindowListener } from "../../../../utils/listeners/windowListener.js";
 
-const formatTimeString = (timeString) => {
-  var date = new Date(Date.parse(timeString));
-  const year = date.getFullYear().toString();
-  const month = date.getMonth().toString();
-  const day = date.getDate().toString();
-  const hours = date.getHours().toString().padStart(2, 0);
-  const minutes = date.getMinutes().toString().padStart(2, 0);
-  return year + "/" + month + "/" + day + "  " + hours + ":" + minutes;
-};
 
 const CommentCard = (props) => {
   return (
@@ -38,8 +29,8 @@ const CommentCard = (props) => {
           <p style={{fontStyle: "italic", fontWeight: 'bold', fontSize: "1.2em"}}>{props.commenter}</p>
         </Card.Title>
         <Card.Text>{props.comment}</Card.Text>
-        <div style={{ position: "absolute", bottom: 0, right: "1%" }}>
-          <small className="text-muted">{formatTimeString(props.time)}</small>
+        <div style={{position: "absolute", bottom: 0, right: "1%"}}>
+          <small className="text-muted" style={{ fontStyle: 'italic', fontSize: '0.7em' }}>{props.time}</small>
         </div>
       </Card.Body>
     </Card>
@@ -94,13 +85,6 @@ const WeatherUserLocationViewModal = (props) => {
     return registerWindowListener("keyup", enterKeyHandler);
   }, [buffers[props.uniqueKey]]);
 
-  const handleClick = () => {
-    //toggleShowFavourite();
-    // console.log(props.onClick());
-    console.log(props);
-    console.log(user);
-  };
-
   const handleSubmit = async (event) => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
     const payload = {
@@ -125,6 +109,14 @@ const WeatherUserLocationViewModal = (props) => {
     }
   };
 
+  const checkFavouriteLocation = () => {
+    const check =  user.favouriteLocation.filter(
+      (currLocName) =>
+        currLocName === props.data.name
+    )
+    return (check.length > 0);
+  }
+
   return (
     <Modal
       show={props.show}
@@ -133,7 +125,7 @@ const WeatherUserLocationViewModal = (props) => {
       dialogClassName="modal-90w"
       aria-labelledby="contained-modal-title-vcenter"
       backdrop="static"
-      animation={false}
+      animation={false} 
     >
       <div className="row">
         <div
@@ -167,7 +159,7 @@ const WeatherUserLocationViewModal = (props) => {
                 <h1 style={{fontFamily: 'Trebuchet MS', color: 'black'}}>Comments</h1>
               </Container>
             <div style={{position: 'absolute', display: 'flex', right: "5%"}}>
-              <FavouriteLocation></FavouriteLocation>
+              <FavouriteLocationWeatherUserModal isFavourite={checkFavouriteLocation()} name={props.data.name}></FavouriteLocationWeatherUserModal>
             </div>
           </Modal.Header>
           <Modal.Body
