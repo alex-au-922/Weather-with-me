@@ -106,7 +106,8 @@ const WeatherUserLocationViewModal = (props) => {
 
   const checkFavouriteLocation = () => {
     const check =  user.favouriteLocation.filter(
-      (currLocName) => currLocName === props.data.name
+      (currLocName) =>
+        currLocName === props.data.name
     )
     return (check.length > 0);
   }
@@ -119,7 +120,7 @@ const WeatherUserLocationViewModal = (props) => {
       dialogClassName="modal-90w"
       aria-labelledby="contained-modal-title-vcenter"
       backdrop="static"
-      animation={false}
+      animation={false} 
     >
       <div className="row">
         <div

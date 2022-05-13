@@ -9,6 +9,7 @@ import { AuthContext } from "../../../../middleware/auth";
 import { FormBufferContext } from "../contexts/formBufferProvider";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
+import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
 
 const BlankLocationDataFormModal = (props) => {
   const { user } = useContext(AuthContext);
@@ -404,7 +405,7 @@ const LocationAdminDataFormModal = (props) => {
                         field={field}
                         type={props.modalConfig[field].type}
                         mutable={props.modalConfig[field].mutable}
-                        placeholder={getTitleHeader(field)}
+                        placeholder={camelToCapitalize(field)}
                         blank={props.modalConfig[field].blank}
                         value={props.data[field]}
                         onChangeUnsaved={handleChangeUnsaved}
