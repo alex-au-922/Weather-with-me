@@ -1,6 +1,7 @@
 import { useState, createContext, useRef } from "react";
 import { SuccessModal, ErrorModal } from "../utils/gui/modals";
 import { objectSetAll } from "../utils/object";
+import { LoadingSpinner } from "../utils/gui/modals";
 const FetchStateContext = createContext({});
 
 const FetchStateProvider = (props) => {
@@ -112,7 +113,7 @@ const FetchStateProvider = (props) => {
         errorType={fetchErrorInfo.errorType}
         errorMessage={fetchErrorInfo.errorMessage}
       />
-      {/* <LoadingModal show={fetching.current} /> */}
+      <LoadingSpinner show={fetching.current}></LoadingSpinner>
       {props.children}
     </FetchStateContext.Provider>
   );
