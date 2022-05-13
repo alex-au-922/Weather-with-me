@@ -20,6 +20,7 @@ const {
 const getLatestUserData =
   require("../../../databaseUtils/userDatabase/getLatestData").getLatestData;
 const { emitUserUpdate, emitDeleteUser } = require("../../_emitEvent");
+const xss = require("xss");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
@@ -37,13 +38,15 @@ router.put("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { oldUsername, newData } = req.body;
-    const { userId } = await findUserInfoByUsername(oldUsername);
+    const parsedOldUsername = xss(oldUsername);
+    const parsedNewData = xss(newData);
+    const { userId } = await findUserInfoByUsername(parsedOldUsername);
     const {
       username: newUsername,
       password: newPassword,
       email: newEmail,
       viewMode: newViewMode,
-    } = newData;
+    } = parsedNewData;
 
     let newUserInfo = {};
     if (oldUsername !== newUsername) {
@@ -88,7 +91,8 @@ router.delete("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { username } = req.body;
-    const existsUser = await findUserInfoByUsername(username);
+    const parsedUsername = xss(username);
+    const existsUser = await findUserInfoByUsername(parsedUsername);
     if (existsUser === null) throw UnauthorizationError("Unauthorized Action!");
     const userId = existsUser.userId;
     await deleteUser(userId);

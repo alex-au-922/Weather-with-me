@@ -23,6 +23,7 @@ const {
 } = require("../../../databaseUtils/weatherDatabase/deleteLocation");
 const { emitWeatherLocUpdate } = require("../../_emitEvent");
 const router = express.Router();
+const xss = require("xss");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -45,15 +46,17 @@ router.put("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { oldName, newData } = req.body;
-    const existLocation = await findLocationInfoByName(oldName);
+    const parsedOldName = xss(oldName);
+    const parsedNewData = xss(newData);
+    const existLocation = await findLocationInfoByName(parsedOldName);
     if (existLocation === null)
       throw new LocationNameError("Location to be updated not found!");
     const {
       name: newLocationName,
       latitude: newLocationLatitude,
       longitude: newLocationLongitude,
-    } = newData;
-    if (oldName !== newLocationName) {
+    } = parsedNewData;
+    if (parsedOldName !== newLocationName) {
       //check the new location name hasn't been taken
       const locationNameUnique = await uniqueLocationName(newLocationName);
       if (!locationNameUnique)
@@ -76,7 +79,8 @@ router.post("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const newLocationData = req.body;
-    const { name, latitude, longitude } = newLocationData;
+    const parsednNewLocationData = xss(newLocationData);
+    const { name, latitude, longitude } = parsednNewLocationData;
     if (!name) throw new LocationNameError("Invalid location name!");
     const newLocationNameUnique = await uniqueLocationName(name);
     if (!newLocationNameUnique)
@@ -97,7 +101,8 @@ router.delete("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { name } = req.body;
-    const existLocation = await findLocationInfoByName(name);
+    const parsedName = xss(name);
+    const existLocation = await findLocationInfoByName(parsedName);
     if (existLocation === null)
       throw new LocationNameError("Location to be deleted not found!");
     const locationId = existLocation.locationId;

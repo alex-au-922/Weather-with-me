@@ -12,22 +12,25 @@ const issueNewRefreshToken =
   require("../generalUtils/userCreds/refreshToken").issueNewRefreshToken;
 const { signNewAccessToken } = require("../generalUtils/userCreds/accessToken");
 const { emitUserUpdate } = require("./_emitEvent");
+const xss = require("xss");
 
 router.post("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { username, password, email, viewMode } = req.body;
-    const newUsernameUnique = await uniqueUsername(username);
+    const parsedUsername = xss(username);
+    const parsedEmail = xss(email);
+    const newUsernameUnique = await uniqueUsername(parsedUsername);
     if (!newUsernameUnique) throw new UsernameError("Username already exists!");
     const hashedPassword = await passwordHash(password);
     if (email) {
-      const existUser = await findUserInfoByEmail(email);
+      const existUser = await findUserInfoByEmail(parsedEmail);
       if (existUser !== null) throw new EmailError("Email already exists!");
     }
     const newUser = {
-      username: username,
+      username: parsedUsername,
       password: hashedPassword,
-      email: email || "",
+      email: parsedEmail || "",
       role: "user",
       viewMode: viewMode || "default",
       favouriteLocataion: [],

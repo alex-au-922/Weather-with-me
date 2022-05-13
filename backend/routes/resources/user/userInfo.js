@@ -21,6 +21,7 @@ const {
 const {
   findLocationInfoByName,
 } = require("../../../generalUtils/location/locationName");
+const xss = require("xss");
 const router = express.Router();
 
 // router.get("/:location", async (req, res, next) => {
@@ -77,6 +78,8 @@ router.put("/", async (req, res, next) => {
     const response = res.locals.response;
     const decryptedUserId = res.locals.decryptedUserId;
     const { password, viewMode, email, favouriteLocation } = req.body;
+    const parsedEmail = xss(email);
+    const parsedFavouriteLocation = xss(favouriteLocation);
     let newUserInfo = {};
     if (password) {
       const hashedPassword = await passwordHash(password);
@@ -84,13 +87,13 @@ router.put("/", async (req, res, next) => {
     }
     if (viewMode) newUserInfo.viewMode = viewMode;
     if (email) {
-      const existUser = await findUserInfoByEmail(email);
+      const existUser = await findUserInfoByEmail(parsedEmail);
       if (existUser !== null && existUser.userId !== decryptedUserId)
         throw new EmailError("Email already exists!");
       newUserInfo.email = email;
     }
     if (favouriteLocation) {
-      const { name: amendedLocation, action } = favouriteLocation;
+      const { name: amendedLocation, action } = parsedFavouriteLocation;
       const currentFavouriteLocations = await getUserFavouriteLocations(
         decryptedUserId
       );

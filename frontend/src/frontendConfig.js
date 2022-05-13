@@ -1,6 +1,6 @@
-// const BACKEND_WEBSERVER_HOST = "http://localhost:10083";
+const BACKEND_WEBSERVER_HOST = "http://localhost:10083";
 // const BACKEND_WS_HOST = "http://localhost:10083";
-const BACKEND_WEBSERVER_HOST = "http://52.76.77.52:8001";
+//const BACKEND_WEBSERVER_HOST = "http://52.76.77.52:8001";
 const BACKEND_WS_HOST = BACKEND_WEBSERVER_HOST;
 
 const REDIRECT_TIME = 3000;

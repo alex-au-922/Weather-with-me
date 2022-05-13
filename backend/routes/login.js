@@ -9,6 +9,7 @@ const checkUserCredentials =
   require("../generalUtils/userCreds/username").checkUserCredentials;
 const issueNewRefreshToken =
   require("../generalUtils/userCreds/refreshToken").issueNewRefreshToken;
+const xss = require("xss");
 
 router.get("/", tokenAuthentication);
 
@@ -16,7 +17,8 @@ router.post("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { username, password } = req.body;
-    const user = await checkUserCredentials("username", username);
+    const parsedUsername = xss(username);
+    const user = await checkUserCredentials("username", parsedUsername);
     if (user === null) throw new UsernameError("Username does not exist!");
     const passwordCorrect = await comparePassword(password, user.password);
     if (!passwordCorrect) throw new PasswordError("Password incorrect!");
