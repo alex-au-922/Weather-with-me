@@ -6,7 +6,6 @@ import GOOGLE_API_KEY from "../../../keys/googleAPI";
 import { objectEqual } from "../../../utils/object";
 import { AuthContext } from "../../../middleware/auth";
 import useForceUpdate from "../../../utils/forceUpdate";
-import TimeSeries from "./plotGraph";
 
 const loader = new Loader({
   apiKey: GOOGLE_API_KEY,
@@ -24,11 +23,29 @@ const defaultMapOptions = {
 const WeatherContent = (weatherData) => {
   return `<ul style = "list-style: none;">
         <li>Location: ${weatherData.name}</li>
-        <li>Temperature: ${weatherData.temperature == null ? null : weatherData.temperature + "°C"}</li>
-        <li>Relative Humidity: ${weatherData.relativeHumidity == null ? null : weatherData.relativeHumidity + "%"}</li>
-        <li>Ten minute maximum gust: ${(weatherData.tenMinMaxGust == null)  ? null : weatherData.tenMinMaxGust + " km/h"}</li>
-        <li>Ten minute mean wind speed: ${(weatherData.tenMinMeanWindSpeed == null ) ? null : weatherData.tenMinMeanWindSpeed + " km/h" }</li>
-        <li>Ten minute mean wind direction: ${weatherData.tenMinMeanWindDir}</li>
+        <li>Temperature: ${
+          weatherData.temperature == null
+            ? null
+            : weatherData.temperature + "°C"
+        }</li>
+        <li>Relative Humidity: ${
+          weatherData.relativeHumidity == null
+            ? null
+            : weatherData.relativeHumidity + "%"
+        }</li>
+        <li>Ten minute maximum gust: ${
+          weatherData.tenMinMaxGust == null
+            ? null
+            : weatherData.tenMinMaxGust + " km/h"
+        }</li>
+        <li>Ten minute mean wind speed: ${
+          weatherData.tenMinMeanWindSpeed == null
+            ? null
+            : weatherData.tenMinMeanWindSpeed + " km/h"
+        }</li>
+        <li>Ten minute mean wind direction: ${
+          weatherData.tenMinMeanWindDir
+        }</li>
         <li>Updated Time: ${new Date(weatherData.time).toString()}</li>
     </ul>`;
 };
@@ -197,7 +214,6 @@ const MapView = (props) => {
 
   return (
     <>
-      {/* <TimeSeries /> */}
       <TableTitleBar
         dataList={props.weatherList}
         filteredDataList={filteredWeatherList}

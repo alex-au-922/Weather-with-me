@@ -57,7 +57,7 @@ const createSocketServer = (server) => {
   io = new Server(server, {
     cors: {
       origin: "http://52.76.77.52:8000",
-      // origin: "http://localhost:10084",
+      // origin: "http://localhost:3000",
       methods: ["GET", "POST"],
     },
   });

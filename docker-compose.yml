@@ -22,7 +22,7 @@ services:
     ports:
       - ${FRONTEND_REAL_HOST_PORT}:${FRONTEND_VIRTUAL_HOST_PORT}
     restart: ${RESTART_POLICY}
-    # command: npm start
+    # command: serve -s build
 
   backend:
     image: node-backend
@@ -66,7 +66,7 @@ services:
       - ${BACKEND_REAL_WS_HOST_PORT}:${BACKEND_VIRTUAL_WS_HOST_PORT}
     restart: ${RESTART_POLICY}
     tty: true
-    command: npm run dev
+    command: npm run start
 
   database:
     image: mongodb-database
