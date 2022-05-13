@@ -1,4 +1,6 @@
 import { Modal, Button } from "react-bootstrap";
+import { useState } from "react";
+import "./index.css";
 
 const BasicInfoModal = (props) => {
   return (
@@ -23,6 +25,18 @@ const BasicInfoModal = (props) => {
     </Modal>
   );
 };
+
+const LoadingSpinner = (props) => {
+  if (!props.show) {
+    return <div></div>
+  }
+  return (
+    <div className="row">
+        <div className="loader"></div>
+    </div>
+  );
+};
+
 const ActionAlertModal = (props) => {
   return (
     <BasicInfoModal
@@ -132,4 +146,4 @@ const SuccessModal = (props) => {
   );
 };
 
-export { UnsavedModal, DeleteModal, ErrorModal, SuccessModal };
+export { UnsavedModal, DeleteModal, ErrorModal, SuccessModal, LoadingSpinner };
