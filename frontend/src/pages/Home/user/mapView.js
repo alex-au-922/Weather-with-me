@@ -31,10 +31,8 @@ const WeatherContent = (weatherData) => {
 };
 
 const Marker = (props) => {
-  const [marker, setMarker] = useState({
-    marker: null,
-    option: null,
-  });
+  const [marker, setMarker] = useState(null);
+  const [markerOption, setMarkerOption] = useState(null);
   const [infoWindow, setInfoWindow] = useState({
     infoWindow: null,
     content: null,
@@ -59,6 +57,7 @@ const Marker = (props) => {
       else if (props.visible && !props.isFavourite && !props.showFavourite)
         visibility = true;
       else visibility = false;
+      console.log(`${props.data.name}`, visibility);
       const newOption = {
         position: new props.google.maps.LatLng(
           props.data.latitude,
@@ -72,10 +71,7 @@ const Marker = (props) => {
             }
           : null,
       };
-      setMarker({
-        ...marker,
-        option: newOption,
-      });
+      setMarkerOption(newOption);
     }
   }, [
     props.google,
@@ -86,46 +82,40 @@ const Marker = (props) => {
   ]);
   useEffect(() => {
     if (props.googleMap && props.data) {
-      if (marker.option?.visible) {
-        if (marker.marker === null) {
-          setMarker({
-            ...marker,
-            marker: new props.google.maps.Marker(marker.option),
-          });
+      if (markerOption?.visible) {
+        if (marker === null) {
+          setMarker(new props.google.maps.Marker(markerOption));
           setInfoWindow({
             infoWindow: new props.google.maps.InfoWindow(),
             content: WeatherContent(props.data),
           });
         }
       } else {
-        marker.marker?.setMap(null);
-        setMarker({
-          ...marker,
-          marker: null,
-        });
+        marker?.setMap(null);
+        setMarker(null);
       }
     }
-  }, [props.googleMap, props.data, marker.option]);
+  }, [props.googleMap, props.data, markerOption]);
 
   useEffect(() => {
-    if (marker.marker) {
-      marker.marker.setMap(props.googleMap);
+    if (marker) {
+      marker.setMap(props.googleMap);
       const unregisterMouseOver = registerMarkerListener(
         props.google,
-        marker.marker,
+        marker,
         "mouseover",
         handleMouseOver
       );
       const unregisterMouseOut = registerMarkerListener(
         props.google,
-        marker.marker,
+        marker,
         "mouseout",
         handleMouseOut
       );
 
       const unregisterMouseClick = registerMarkerListener(
         props.google,
-        marker.marker,
+        marker,
         "click",
         handleShowModal
       );
@@ -136,7 +126,7 @@ const Marker = (props) => {
         unregisterMouseClick();
       };
     }
-  }, [marker.marker]);
+  }, [marker]);
   return (
     <>
       {showModal &&

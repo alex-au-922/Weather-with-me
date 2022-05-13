@@ -6,6 +6,8 @@ import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./middleware/auth";
 import { FetchStateProvider } from "./middleware/fetch";
 import { WebSocketProvider } from "./middleware/websocket";
+import { FormBufferProvider } from "./pages/Home/admin/contexts/formBufferProvider";
+import { CommentBufferProvider } from "./pages/Home/user/contexts/commentBufferProvider";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -13,7 +15,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <FetchStateProvider>
         <AuthProvider>
           <WebSocketProvider>
-            <App />
+            <FormBufferProvider>
+              <CommentBufferProvider>
+                <App />
+              </CommentBufferProvider>
+            </FormBufferProvider>
           </WebSocketProvider>
         </AuthProvider>
       </FetchStateProvider>

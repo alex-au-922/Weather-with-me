@@ -22,22 +22,20 @@ const Home = () => {
   const adminRenderButton = renderButton(RefreshWeather);
 
   return (
-    <FormBufferProvider>
-      <CommentBufferProvider>
-        {user.isAdmin ? (
-          <NavBar renderButton={adminRenderButton} buttonOnClick={() => {}}>
-            <AdminView user={user} />
-          </NavBar>
-        ) : (
-          <NavBar
-            renderButton={userRenderButton}
-            buttonOnClick={toggleShowFavourite}
-          >
-            <UserView user={user} showFavourite={showFavourite} />
-          </NavBar>
-        )}
-      </CommentBufferProvider>
-    </FormBufferProvider>
+    <>
+      {user.isAdmin ? (
+        <NavBar renderButton={adminRenderButton} buttonOnClick={() => {}}>
+          <AdminView user={user} />
+        </NavBar>
+      ) : (
+        <NavBar
+          renderButton={userRenderButton}
+          buttonOnClick={toggleShowFavourite}
+        >
+          <UserView user={user} showFavourite={showFavourite} />
+        </NavBar>
+      )}
+    </>
   );
 };
 

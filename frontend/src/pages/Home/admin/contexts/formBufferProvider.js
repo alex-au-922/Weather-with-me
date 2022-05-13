@@ -1,15 +1,15 @@
-import { createContext, useState } from "react";
+import { createContext, useRef } from "react";
 
 const FormBufferContext = createContext({});
 
 const FormBufferProvider = (props) => {
-  const [formBuffer, setFormBuffer] = useState({});
+  const formBuffer = useRef({});
   const resetBuffer = () => {
-    setFormBuffer({});
+    formBuffer.current = {};
   };
   return (
     <FormBufferContext.Provider
-      value={{ formBuffer, setFormBuffer, resetBuffer }}
+      value={{ formBuffer, resetBuffer }}
     >
       {props.children}
     </FormBufferContext.Provider>

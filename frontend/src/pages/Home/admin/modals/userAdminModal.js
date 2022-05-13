@@ -1,5 +1,5 @@
 import camelToCapitalize from "../../../../utils/input/camelToCapitalize";
-import React, { useState, useContext, useLayoutEffect } from "react";
+import React, { useState, useEffect, useContext, useLayoutEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { InputFormModalRow, SelectFormModalRow } from ".";
 import { DeleteModal, UnsavedModal } from "../../../../utils/gui/modals";
@@ -10,7 +10,10 @@ import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import { objectSetAll } from "../../../../utils/object";
 import checkString from "../../../../utils/input/checkString";
 import validateEmail from "../../../../utils/input/checkEmail";
-import { FormBufferContext } from "../contexts/formBufferProvider";
+import {
+  FormBufferContext,
+  FormBufferProvider,
+} from "../contexts/formBufferProvider";
 
 const BlankUserDataFormModal = (props) => {
   const { user } = useContext(AuthContext);
@@ -20,11 +23,10 @@ const BlankUserDataFormModal = (props) => {
     objectSetAll(props.data, "")
   );
 
-  const { formBuffer, setFormBuffer, resetBuffer } =
-    useContext(FormBufferContext);
+  const { formBuffer, resetBuffer } = useContext(FormBufferContext);
 
   useLayoutEffect(() => {
-    setFormBuffer((formBuffer) => objectSetAll(props.data));
+    formBuffer.current = objectSetAll(props.data);
   }, []);
 
   useLayoutEffect(() => {
@@ -37,7 +39,7 @@ const BlankUserDataFormModal = (props) => {
       ),
       {}
     );
-    setFormBuffer(newBuffer);
+    formBuffer.current = newBuffer;
   }, [props.data]);
 
   const { fetchFactory } = useContext(FetchStateContext);
@@ -60,7 +62,7 @@ const BlankUserDataFormModal = (props) => {
   const handleChangeValue = (field, changedBuffer) => {
     const newFormBuffer = { ...formBuffer };
     newFormBuffer[field] = changedBuffer;
-    setFormBuffer(newFormBuffer);
+    formBuffer.current = newFormBuffer;
   };
 
   const resetUnsaved = () => {
@@ -70,7 +72,7 @@ const BlankUserDataFormModal = (props) => {
 
   const handleCreateUser = async () => {
     const { success: usernameCheckSuccess, error: usernameCheckError } =
-      checkString(formBuffer.username);
+      checkString(formBuffer.current.username);
     if (!usernameCheckSuccess) {
       const newUserInfoError = objectSetAll(userInfoError, "");
       newUserInfoError.username = usernameCheckError;
@@ -79,7 +81,7 @@ const BlankUserDataFormModal = (props) => {
     }
 
     const { success: passwordCheckSuccess, error: passwordCheckError } =
-      checkString(formBuffer.password);
+      checkString(formBuffer.current.password);
     if (!passwordCheckSuccess) {
       const newUserInfoError = objectSetAll(userInfoError, "");
       newUserInfoError.password = passwordCheckError;
@@ -89,7 +91,7 @@ const BlankUserDataFormModal = (props) => {
 
     if (formBuffer.email) {
       const { success: emailCheckSuccess, error: emailCheckError } =
-        validateEmail(formBuffer.email);
+        validateEmail(formBuffer.current.email);
       if (!emailCheckSuccess) {
         const newUserInfoError = objectSetAll(userInfoError, "");
         newUserInfoError.email = emailCheckError;
@@ -105,7 +107,7 @@ const BlankUserDataFormModal = (props) => {
         authorization: localStorage.getItem("accessToken"),
         username: user.username,
       },
-      body: JSON.stringify(formBuffer),
+      body: JSON.stringify(formBuffer.current),
     };
     const {
       success: updateUserInfoSuccess,
@@ -184,7 +186,7 @@ const BlankUserDataFormModal = (props) => {
                         field={field}
                         options={props.modalConfig[field].selectOptions}
                         readOnly={props.modalConfig[field].mutable}
-                        chosenOption={props.data[field]}
+                        chosenOption={formBuffer.current[field]}
                         error={userInfoError[field]}
                         onChangeUnsaved={handleChangeUnsaved}
                         onChangeValue={handleChangeValue}
@@ -197,7 +199,7 @@ const BlankUserDataFormModal = (props) => {
                         mutable={props.modalConfig[field].mutable}
                         placeholder={camelToCapitalize(field)}
                         blank={props.modalConfig[field].blank}
-                        value={props.data[field]}
+                        value={formBuffer.current[field]}
                         error={userInfoError[field]}
                         onChangeUnsaved={handleChangeUnsaved}
                         onChangeValue={handleChangeValue}
@@ -237,8 +239,7 @@ const UserDataFormModal = (props) => {
   const [unsaved, setUnsaved] = useState(
     Object.keys(props.data).reduce((obj, key) => ((obj[key] = false), obj), {})
   );
-  const { formBuffer, setFormBuffer, resetBuffer } =
-    useContext(FormBufferContext);
+  const { formBuffer, resetBuffer } = useContext(FormBufferContext);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
@@ -251,20 +252,23 @@ const UserDataFormModal = (props) => {
         ),
         {}
       );
-    setFormBuffer((formBuffer) => newBuffer);
-  }, []);
+    formBuffer.current = { ...formBuffer.current, ...newBuffer };
+  }, [props.data]);
 
-  useLayoutEffect(() => {
-    const newBuffer = Object.keys(unsaved).reduce(
-      (prevBuffer, currKey) => (
-        (prevBuffer[currKey] = unsaved[currKey]
-          ? formBuffer[currKey]
-          : props.data[currKey]),
-        prevBuffer
-      ),
-      {}
-    );
-    setFormBuffer(newBuffer);
+  useEffect(() => {
+    // return () => {
+    //   const newBuffer = Object.keys(unsaved).reduce(
+    //     (prevBuffer, currKey) => (
+    //       (prevBuffer[currKey] = unsaved[currKey]
+    //         ? formBuffer[currKey]
+    //         : props.data[currKey]),
+    //       prevBuffer
+    //     ),
+    //     {}
+    //   );
+    //   console.log(newBuffer);
+    //   setFormBuffer(newBuffer);
+    // };
   }, [props.data]);
 
   const [userInfoError, setUserInfoError] = useState(
@@ -298,7 +302,7 @@ const UserDataFormModal = (props) => {
 
   const handleSaveChange = async () => {
     const { success: usernameCheckSuccess, error: usernameCheckError } =
-      checkString(formBuffer.username);
+      checkString(formBuffer.current.username);
     if (!usernameCheckSuccess) {
       const newUserInfoError = objectSetAll(userInfoError, "");
       newUserInfoError.username = usernameCheckError;
@@ -306,9 +310,9 @@ const UserDataFormModal = (props) => {
       return;
     }
 
-    if (formBuffer.password) {
+    if (formBuffer.current.password) {
       const { success: passwordCheckSuccess, error: passwordCheckError } =
-        checkString(formBuffer.password);
+        checkString(formBuffer.current.password);
       if (!passwordCheckSuccess) {
         const newUserInfoError = objectSetAll(userInfoError, "");
         newUserInfoError.password = passwordCheckError;
@@ -316,9 +320,9 @@ const UserDataFormModal = (props) => {
         return;
       }
     }
-    if (formBuffer.email) {
+    if (formBuffer.current.email) {
       const { success: emailCheckSuccess, error: emailCheckError } =
-        validateEmail(formBuffer.email);
+        validateEmail(formBuffer.current.email);
       if (!emailCheckSuccess) {
         const newUserInfoError = objectSetAll(userInfoError, "");
         newUserInfoError.email = emailCheckError;
@@ -337,7 +341,7 @@ const UserDataFormModal = (props) => {
       },
       body: JSON.stringify({
         oldUsername: username,
-        newData: formBuffer,
+        newData: formBuffer.current,
       }),
     };
     const {
@@ -396,7 +400,7 @@ const UserDataFormModal = (props) => {
   const handleChangeValue = (field, changedBuffer) => {
     const newFormBuffer = { ...formBuffer };
     newFormBuffer[field] = changedBuffer;
-    setFormBuffer(newFormBuffer);
+    formBuffer.current = { ...formBuffer.current, ...newFormBuffer };
   };
 
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);
@@ -454,7 +458,7 @@ const UserDataFormModal = (props) => {
                   <>
                     {props.modalConfig[field].type === "select" ? (
                       <SelectFormModalRow
-                        key={`${field}`}
+                        key={`${props.uniqueKey} ${field}`}
                         field={field}
                         options={props.modalConfig[field].selectOptions}
                         readOnly={props.modalConfig[field].mutable}
@@ -465,7 +469,7 @@ const UserDataFormModal = (props) => {
                       />
                     ) : (
                       <InputFormModalRow
-                        key={`${field}`}
+                        key={`${props.uniqueKey} ${field}`}
                         field={field}
                         type={props.modalConfig[field].type}
                         mutable={props.modalConfig[field].mutable}
