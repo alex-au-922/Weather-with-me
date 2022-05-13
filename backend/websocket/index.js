@@ -8,20 +8,38 @@ const { Server } = require("socket.io");
 const logger = require("../generalUtils/getLogger").getLogger();
 
 let io;
+let sendData;
 const socketClients = {};
 
 const registerSendData = (socketClientsInfo) => {
   //usage: sendData(channel)(event, data, <userId>)
   const sendData =
     (channel) =>
-    (event, data, userId = null) => {
+    (event, data) =>
+    (admin = true, userId = null) => {
       if (userId === null)
-        //value is the object of all connection details
-        //whether the user subscribed to that channel
-        io.sockets.in(channel).emit(event, data);
-      else {
-        if (socketClientsInfo[userId][channel])
-          socketClientsInfo[userId].socket.emit(event, data);
+        if (admin)
+          //value is the object of all connection details
+          //whether the user subscribed to that channel
+          io.sockets.in(channel).emit(event, data);
+        else {
+          Object.values(socketClients)
+            .filter(({ role }) => role !== "admin")
+            .forEach(({ socket }) => socket.to(channel).emit(event, data));
+        }
+      else if (userId === undefined) {
+        if (admin) {
+          Object.values(socketClients)
+            .filter(({ role }) => role === "admin")
+            .forEach(({ socket }) => socket.to(channel).emit(event, data));
+        }
+      } else {
+        socketClientsInfo[userId].socket.to(channel).emit(event, data);
+        if (admin) {
+          Object.values(socketClients)
+            .filter(({ role }) => role === "admin")
+            .forEach(({ socket }) => socket.to(channel).emit(event, data));
+        }
       }
     };
 
@@ -38,7 +56,8 @@ Data Channels:
 const createSocketServer = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "http://52.76.77.52:*",
+      // origin: "http://52.76.77.52:8000",
+      origin: "http://localhost:10084",
       methods: ["GET", "POST"],
     },
   });
@@ -69,6 +88,7 @@ const createSocketServer = (server) => {
       if (subscribedChannels.weatherLoc) socket.join("weatherLoc");
       if (subscribedChannels.log) socket.join("log");
       if (subscribedChannels.comment) socket.join("comment");
+      socket.join("system");
 
       socketClients[userId] = {
         userAgent: clientUserAgent,
@@ -102,3 +122,4 @@ const createSocketServer = (server) => {
 
 exports.createSocketServer = createSocketServer;
 exports.socketClients = socketClients;
+exports.sendData = sendData;

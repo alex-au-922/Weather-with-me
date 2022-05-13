@@ -9,7 +9,7 @@ const {
   findLocationInfoByName,
 } = require("../../../generalUtils/location/locationName");
 const usernameCheck = require("../../middleware/resourceAuth/usernameCheck");
-
+const { emitCommentUpdate } = require("../../_emitEvent");
 const router = express.Router();
 
 router.use(usernameCheck);
@@ -27,6 +27,7 @@ router.post("/", async (req, res, next) => {
     //TODO: update the location comment
     response.success = true;
     res.send(JSON.stringify(response));
+    await emitCommentUpdate();
   } catch (error) {
     next(error);
   }
@@ -44,4 +45,3 @@ router.get("/", async (req, res, next) => {
 });
 
 module.exports = router;
-

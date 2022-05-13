@@ -1,14 +1,13 @@
 const express = require("express");
+const { emitCrawlLatestWeather } = require("../../_emitEvent");
 const router = express.Router();
-const getLatestLogData =
-  require("../../../databaseUtils/logDatabase/getLatestData").getLatestData;
 
-router.get("/", async (req, res, next) => {
+router.post("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
-    await getLatestLogData();
     response.success = true;
     res.send(JSON.stringify(response));
+    await emitCrawlLatestWeather();
   } catch (error) {
     next(error);
   }

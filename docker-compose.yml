@@ -87,6 +87,19 @@ services:
       - 37017:27017
     container_name: mongodb-database
 
+  webserver:
+    image: webserver
+    build:
+      context: ./webserver
+      dockerfile: Dockerfile
+      args:
+        - IMAGE_NAME=${WEBSERVER_IMAGE}
+        - IMAGE_VERSION=${WEBSERVER_VERSION}
+        - IMAGE_TAG=${WEBSERVER_TAG}
+    container_name: webserver
+    restart: ${RESTART_POLICY}
+    network_mode: host
+
   database-client:
     image: mongodb-database-client
     build:

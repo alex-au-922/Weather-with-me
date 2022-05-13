@@ -11,7 +11,7 @@ const passwordHash = require("../generalUtils/userCreds/password").passwordHash;
 const issueNewRefreshToken =
   require("../generalUtils/userCreds/refreshToken").issueNewRefreshToken;
 const { signNewAccessToken } = require("../generalUtils/userCreds/accessToken");
-const { eventEmitter } = require("./_emitEvent");
+const { emitUserUpdate } = require("./_emitEvent");
 
 router.post("/", async (req, res, next) => {
   try {
@@ -35,13 +35,13 @@ router.post("/", async (req, res, next) => {
     const userId = await addNewUser(newUser);
     const newRefreshToken = await issueNewRefreshToken(userId);
     const newAccessToken = signNewAccessToken(userId);
-    eventEmitter.emit("updateUserData");
     response.success = true;
     response.result = {
       refreshToken: newRefreshToken,
       accessToken: newAccessToken,
     };
     res.send(JSON.stringify(response));
+    await emitUserUpdate();
   } catch (error) {
     next(error);
   }

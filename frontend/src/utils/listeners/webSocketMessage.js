@@ -1,7 +1,7 @@
-const registerMessageListener = (webSocket, handleFunction) => {
-  if (webSocket !== null && webSocket !== undefined) {
-    webSocket.addEventListener("message", handleFunction);
-    return () => webSocket.removeEventListener("message", handleFunction);
+const registerMessageListener = (socket, event, handleFunction) => {
+  if (socket !== null && socket !== undefined) {
+    socket.on(event, handleFunction);
+    return () => socket.off(event, handleFunction);
   }
 };
 

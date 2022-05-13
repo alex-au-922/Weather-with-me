@@ -33,11 +33,10 @@ import { WebSocketContext } from "../../../middleware/websocket";
 // then pass the data to the lower level view
 // listen to update of user and weather data on respective websockets
 const AdminView = (props) => {
-  const [dataLists, setDataLists] = useState({
-    User: null,
-    Location: null,
-    Log: null,
-  });
+  const [userLists, setUserLists] = useState(null);
+  const [locationLists, setLocationLists] = useState(null);
+  const [logLists, setLogLists] = useState(null);
+  const [commentLists, setCommentLists] = useState(null);
   const [table, setTable] = useState("User");
   const { username } = props.user;
   const { webSocket } = useContext(WebSocketContext);
@@ -56,7 +55,7 @@ const AdminView = (props) => {
   const switchViewOptions = {
     handleSelect: handleTableSelect,
     buttonName: table,
-    options: Object.keys(dataLists),
+    options: ["User", "Location", "Log"],
   };
 
   const renderSwitchView = (switchViewOptions) => {
@@ -99,9 +98,7 @@ const AdminView = (props) => {
 
   const updateUserData = (resultJson) => {
     const newUserList = parseUserDataFrontendView(resultJson);
-    setDataLists((dataLists) => {
-      return { ...dataLists, User: newUserList };
-    });
+    setUserLists(newUserList);
   };
 
   const updateWeatherData = (weatherJson, commentJson) => {
@@ -109,16 +106,12 @@ const AdminView = (props) => {
       weatherJson,
       commentJson
     );
-    setDataLists((dataLists) => {
-      return { ...dataLists, Location: newWeatherList };
-    });
+    setLocationLists(newWeatherList);
   };
 
   const updateLogData = (resultJson) => {
     const newLogList = parseLogDataFrontendView(resultJson);
-    setDataLists((dataLists) => {
-      return { ...dataLists, Log: newLogList };
-    });
+    setLogLists(newLogList);
   };
 
   useEffect(() => {
@@ -139,12 +132,54 @@ const AdminView = (props) => {
   }, []);
 
   useEffect(() => {
-    //user data update
-    const handler = (event) => {
-      console.log(JSON.parse(event.data));
-    };
-    return registerMessageListener(webSocket, handler);
-  }, [webSocket]);
+    if (webSocket) {
+      const userDataHandler = (newUserData) => {
+        updateUserData(newUserData);
+      };
+      return () =>
+        registerMessageListener(webSocket, "updatedUserData", userDataHandler);
+    }
+  }, [webSocket, userLists]);
+  useEffect(() => {
+    if (webSocket) {
+      const weatherDataHandler = (newWeatherJson) => {
+        updateWeatherData(newWeatherJson, commentLists);
+      };
+      return registerMessageListener(
+        webSocket,
+        "updatedWeatherData",
+        weatherDataHandler
+      );
+    }
+  }, [webSocket, locationLists]);
+
+  useEffect(() => {
+    if (webSocket) {
+      const commentDataHandler = (newCommentData) => {
+        const newCommentJson = parseCommentDataFrontendView(newCommentData);
+        setCommentLists(newCommentJson);
+        updateWeatherData(locationLists, newCommentJson);
+      };
+      return registerMessageListener(
+        webSocket,
+        "updatedCommentData",
+        commentDataHandler
+      );
+    }
+  }, [webSocket, commentLists]);
+
+  useEffect(() => {
+    if (webSocket) {
+      const logDataHandler = (newLogData) => {
+        updateLogData(newLogData);
+      };
+      return registerMessageListener(
+        webSocket,
+        "updateLogData",
+        logDataHandler
+      );
+    }
+  }, [webSocket, logLists]);
 
   const fetchComments = async () => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
@@ -157,7 +192,13 @@ const AdminView = (props) => {
       },
     };
     const { success, result, fetching } = await dataFetch(url, payload);
-    if (success && !fetching) return parseCommentDataFrontendView(result);
+    if (!fetching) {
+      if (success) {
+        const commentJson = parseCommentDataFrontendView(result);
+        setCommentLists(commentJson);
+        return commentJson;
+      }
+    }
   };
 
   const fetchWeatherData = async () => {
@@ -211,7 +252,7 @@ const AdminView = (props) => {
         key="user"
         name="User"
         dataUniqueKey={"username"}
-        dataList={dataLists.User}
+        dataList={userLists}
         switchViewOptions={switchViewOptions}
         renderSwitchView={renderSwitchView}
         modalConfig={userModalOptions}
@@ -224,7 +265,7 @@ const AdminView = (props) => {
         key="location"
         name="Location"
         dataUniqueKey={"name"}
-        dataList={dataLists.Location}
+        dataList={locationLists}
         switchViewOptions={switchViewOptions}
         renderSwitchView={renderSwitchView}
         modalConfig={locationModalOptions}
@@ -238,20 +279,18 @@ const AdminView = (props) => {
         key="log"
         name="Log"
         dataUniqueKey={"_id"}
-        dataList={dataLists.Log}
+        dataList={logLists}
         switchViewOptions={switchViewOptions}
         renderSwitchView={renderSwitchView}
         modalConfig={logModalOptions}
         renderModals={renderLogModal}
         options={["method", "userAgent", "date", "ip"]}
         optionsType={{
-          name: String,
+          method: String,
           userAgent: String,
           date: String,
           ip: String,
         }}
-        renderAddButton={renderAddButton}
-        addButtonOptions={addLogButtonOptions}
       />
     </SwitchComponents>
   );

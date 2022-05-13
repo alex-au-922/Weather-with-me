@@ -70,6 +70,7 @@ const AuthProvider = (props) => {
       isAdmin: null,
       viewMode: null,
       email: null,
+      favouriteLocation: [],
       authenticated: false,
     });
     navigate("/login");
@@ -82,6 +83,7 @@ const AuthProvider = (props) => {
         fetching,
         login,
         logout,
+        setUser,
       }}
     >
       {props.children}

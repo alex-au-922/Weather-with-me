@@ -54,22 +54,24 @@ const Marker = (props) => {
 
   useEffect(() => {
     if (props.google !== null && props.data) {
+      let visibility;
+      if (props.visible && props.isFavourite) visibility = true;
+      else if (props.visible && !props.isFavourite && !props.showFavourite)
+        visibility = true;
+      else visibility = false;
       const newOption = {
         position: new props.google.maps.LatLng(
           props.data.latitude,
           props.data.longitude
         ),
         optimized: false,
+        visible: visibility,
+        icon: !props.isFavourite
+          ? {
+              url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+            }
+          : null,
       };
-      if (!props.isFavourite) {
-        if (props.showFavourite) newOption.visible = false;
-        else newOption.visible = props.visible;
-        newOption.icon = {
-          url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-        };
-      } else {
-        newOption.visible = true;
-      }
       setMarker({
         ...marker,
         option: newOption,
@@ -83,8 +85,8 @@ const Marker = (props) => {
     props.showFavourite,
   ]);
   useEffect(() => {
-    if (marker.option?.visible) {
-      if (props.googleMap !== null && marker.option) {
+    if (props.googleMap && props.data) {
+      if (marker.option?.visible) {
         if (marker.marker === null) {
           setMarker({
             ...marker,
@@ -95,51 +97,46 @@ const Marker = (props) => {
             content: WeatherContent(props.data),
           });
         }
+      } else {
+        marker.marker?.setMap(null);
+        setMarker({
+          ...marker,
+          marker: null,
+        });
       }
-    } else {
-      marker.marker?.setMap(null);
-      setMarker({
-        ...marker,
-        marker: null,
-      });
     }
   }, [props.googleMap, props.data, marker.option]);
 
   useEffect(() => {
-    if (props.visible) {
-      if (marker.marker) {
-        marker.marker.setMap(props.googleMap);
-        const unregisterMouseOver = registerMarkerListener(
-          props.google,
-          marker.marker,
-          "mouseover",
-          handleMouseOver
-        );
-        const unregisterMouseOut = registerMarkerListener(
-          props.google,
-          marker.marker,
-          "mouseout",
-          handleMouseOut
-        );
+    if (marker.marker) {
+      marker.marker.setMap(props.googleMap);
+      const unregisterMouseOver = registerMarkerListener(
+        props.google,
+        marker.marker,
+        "mouseover",
+        handleMouseOver
+      );
+      const unregisterMouseOut = registerMarkerListener(
+        props.google,
+        marker.marker,
+        "mouseout",
+        handleMouseOut
+      );
 
-        const unregisterMouseClick = registerMarkerListener(
-          props.google,
-          marker.marker,
-          "click",
-          handleShowModal
-        );
+      const unregisterMouseClick = registerMarkerListener(
+        props.google,
+        marker.marker,
+        "click",
+        handleShowModal
+      );
 
-        return () => {
-          unregisterMouseOver();
-          unregisterMouseOut();
-          unregisterMouseClick();
-        };
-      }
-    } else {
-      console.log("remove due to visibility!");
-      marker.marker?.setMap(null);
+      return () => {
+        unregisterMouseOver();
+        unregisterMouseOut();
+        unregisterMouseClick();
+      };
     }
-  }, [marker.marker, props.visible]);
+  }, [marker.marker]);
   return (
     <>
       {showModal &&
@@ -170,7 +167,7 @@ const Map = (props) => {
 
   useEffect(() => {
     forceUpdate();
-  }, [props.data]);
+  }, [props.filteredWeatherList]);
   return (
     <div ref={ref} style={{ width: "100vw", height: "100vh" }}>
       {props.weatherList?.map((weatherData) => (
@@ -207,7 +204,7 @@ const MapView = (props) => {
 
   return (
     <>
-      <TimeSeries/>
+      {/* <TimeSeries /> */}
       <TableTitleBar
         dataList={props.weatherList}
         filteredDataList={filteredWeatherList}

@@ -21,7 +21,6 @@ const {
 const {
   findLocationInfoByName,
 } = require("../../../generalUtils/location/locationName");
-
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
@@ -81,9 +80,9 @@ router.put("/", async (req, res, next) => {
       }
     }
     await updateUser(decryptedUserId, newUserInfo);
-    emitUserUpdate(ip);
     response.success = true;
     res.send(JSON.stringify(response));
+    await emitUserUpdate(decryptedUserId);
   } catch (error) {
     next(error);
   }

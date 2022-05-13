@@ -21,6 +21,7 @@ const {
   deleteLocation,
   deleteWeatherWithLocationId,
 } = require("../../../databaseUtils/weatherDatabase/deleteLocation");
+const { emitWeatherLocUpdate } = require("../../_emitEvent");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
@@ -62,9 +63,11 @@ router.put("/", async (req, res, next) => {
     if (!validLatitude) throw new ValueError("Invalid latitude!");
     const validLongitude = longitudeCheck(newLocationLongitude);
     if (!validLongitude) throw new ValueError("Invalid longitude!");
+    const { locationId } = existLocation;
     await updateLocation(locationId, newData);
     response.success = true;
     res.send(JSON.stringify(response));
+    await emitWeatherLocUpdate();
   } catch (error) {
     next(error);
   }
@@ -85,6 +88,7 @@ router.post("/", async (req, res, next) => {
     await addNewLocation(newLocationData);
     response.success = true;
     res.send(JSON.stringify(response));
+    await emitWeatherLocUpdate();
   } catch (error) {
     next(error);
   }
@@ -101,6 +105,7 @@ router.delete("/", async (req, res, next) => {
     await deleteLocation(locationId);
     response.success = true;
     res.send(JSON.stringify(response));
+    await emitWeatherLocUpdate();
   } catch (error) {
     next(error);
   }

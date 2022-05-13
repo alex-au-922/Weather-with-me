@@ -1,4 +1,10 @@
-import { useContext, useEffect, useState, useRef } from "react";
+import {
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import { registerMessageListener } from "../../../utils/listeners/webSocketMessage";
 import parseWeatherDataFrontendView from "../../../utils/data/weather";
 import MapView from "./mapView";
@@ -14,10 +20,10 @@ import { WebSocketContext } from "../../../middleware/websocket";
 
 const UserView = (props) => {
   const { username, favouriteLocation } = props.user;
-  const [dataLists, setDataLists] = useState({
-    favourite: null,
-    weather: null,
-  });
+  const [favouriteDataList, setFavouriteDataList] = useState(null);
+  const [weatherDataList, setWeatherDataList] = useState(null);
+  const [bufferWeatherDataList, setBufferWeatherDataList] = useState(null);
+  const [bufferCommentDataList, setBufferCommentDataList] = useState(null);
   const [showDataList, setShowDataList] = useState(null);
   const [view, setView] = useState("Map");
   const { fetchFactory } = useContext(FetchStateContext);
@@ -47,11 +53,53 @@ const UserView = (props) => {
   };
 
   useEffect(() => {
-    const handler = (event) => {
-      console.log(JSON.parse(event.data));
+    if (weatherDataList !== null) {
+      setFavouriteDataList(
+        weatherDataList.filter(
+          (weather) => favouriteLocation.indexOf(weather.name) !== -1
+        )
+      );
+    }
+  }, [weatherDataList]);
+
+  useLayoutEffect(() => {
+    if (bufferCommentDataList !== null && bufferWeatherDataList !== null) {
+      console.log("update weather list now !~");
+      const newWeatherDataList = parseWeatherDataFrontendView(
+        bufferWeatherDataList,
+        bufferCommentDataList
+      );
+      setWeatherDataList(newWeatherDataList);
+    }
+  }, [bufferCommentDataList, bufferWeatherDataList]);
+
+  useEffect(() => {
+    const commentDataHandler = (newCommentData) => {
+      const newCommentJson = {
+        ...parseCommentDataFrontendView(newCommentData),
+      };
+      setBufferCommentDataList(newCommentJson);
+      //   updateWeatherData(weatherDataList.current, newCommentJson);
     };
-    return registerMessageListener(webSocket, handler);
-  }, [webSocket]);
+    return registerMessageListener(
+      webSocket,
+      "updatedCommentData",
+      commentDataHandler
+    );
+  }, [webSocket, bufferCommentDataList]);
+
+  useEffect(() => {
+    const weatherDataHandler = (newWeatherData) => {
+      const newBufferWeatherDataList = [...newWeatherData];
+      setBufferWeatherDataList(newBufferWeatherDataList);
+      //   updateWeatherData(newWeatherData, commentDataList.current);
+    };
+    return registerMessageListener(
+      webSocket,
+      "updatedWeatherData",
+      weatherDataHandler
+    );
+  }, [webSocket, bufferWeatherDataList]);
 
   const fetchComments = async () => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
@@ -64,7 +112,14 @@ const UserView = (props) => {
       },
     };
     const { success, result, fetching } = await dataFetch(url, payload);
-    if (success && !fetching) return parseCommentDataFrontendView(result);
+    if (!fetching) {
+      if (success) {
+        const commentJson = parseCommentDataFrontendView(result);
+        const newCommentJson = { ...commentJson };
+        setBufferCommentDataList(newCommentJson);
+        return commentJson;
+      }
+    }
   };
 
   const fetchWeatherData = async () => {
@@ -78,31 +133,22 @@ const UserView = (props) => {
       },
     };
     const { success, result, fetching } = await dataFetch(url, payload);
-    if (success && !fetching) return result;
+    if (success && !fetching) {
+      setBufferWeatherDataList(result);
+      return result;
+    }
   };
 
   const mergeWeather = async () => {
     const weatherJson = await fetchWeatherData();
     const commentJson = await fetchComments();
-    if (weatherJson !== undefined && commentJson !== undefined)
-      updateWeatherData(weatherJson, commentJson);
+    setBufferWeatherDataList(weatherJson);
+    setBufferCommentDataList(commentJson);
   };
 
-  const updateWeatherData = (weatherJson, commentJson) => {
-    const newWeatherList = parseWeatherDataFrontendView(
-      weatherJson,
-      commentJson
-    );
-    setDataLists((dataLists) => {
-      return {
-        ...dataLists,
-        favourite: newWeatherList.filter(
-          (weather) => favouriteLocation.indexOf(weather.name) !== -1
-        ),
-        weather: newWeatherList,
-      };
-    });
-  };
+  useEffect(() => {
+    console.log("new weather list", weatherDataList);
+  }, [weatherDataList]);
 
   useEffect(() => {
     //initial fetch weather data
@@ -112,15 +158,16 @@ const UserView = (props) => {
   }, []);
 
   useEffect(() => {
+    console.log("show data list");
     if (props.showFavourite) {
-      const newShowDataList = dataLists.weather?.filter(
+      const newShowDataList = weatherDataList?.filter(
         (weather) => favouriteLocation.indexOf(weather.name) !== -1
       );
       setShowDataList(newShowDataList);
     } else {
-      setShowDataList(dataLists.weather);
+      setShowDataList(weatherDataList);
     }
-  }, [dataLists.weather, props.showFavourite, favouriteLocation]);
+  }, [weatherDataList, props.showFavourite, favouriteLocation]);
 
   const renderWeatherModal = renderModals(WeatherUserLocationViewModal);
 
@@ -128,7 +175,7 @@ const UserView = (props) => {
     <SwitchComponents active={view}>
       <MapView
         name="Map"
-        weatherList={dataLists.weather}
+        weatherList={weatherDataList}
         showFavourite={props.showFavourite}
         switchViewOptions={switchViewOptions}
         renderModals={renderWeatherModal}
@@ -190,7 +237,7 @@ const UserView = (props) => {
       <ResourceManagementTable
         name="Favourite"
         dataUniqueKey={"name"}
-        dataList={dataLists.favourite}
+        dataList={favouriteDataList}
         switchViewOptions={switchViewOptions}
         renderSwitchView={renderSwitchView}
         // modalConfig={weatherModalOptions}

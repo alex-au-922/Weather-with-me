@@ -19,7 +19,7 @@ const {
 } = require("../../../databaseUtils/userDatabase/deleteUser");
 const getLatestUserData =
   require("../../../databaseUtils/userDatabase/getLatestData").getLatestData;
-const { eventEmitter } = require("../../_emitEvent");
+const { emitUserUpdate, emitDeleteUser } = require("../../_emitEvent");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
@@ -68,9 +68,9 @@ router.put("/", async (req, res, next) => {
 
     newUserInfo.viewMode = newViewMode;
     await updateUser(userId, newUserInfo);
-    eventEmitter.emit("updateUserData");
     response.success = true;
     res.send(JSON.stringify(response));
+    await emitUserUpdate(userId);
   } catch (error) {
     next(error);
   }
@@ -95,6 +95,7 @@ router.delete("/", async (req, res, next) => {
     response.success = true;
     res.status(HTTP_STATUS.success.ok.status);
     res.send(JSON.stringify(response));
+    await emitDeleteUser(userId);
   } catch (error) {
     next(error);
   }

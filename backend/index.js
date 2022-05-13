@@ -18,8 +18,21 @@ const {
   getLatestGeoLocationData,
   geoLocationToWeather,
 } = require("./databaseUtils/weatherDatabase/getLatestData");
+const getLatestUserData =
+  require("./databaseUtils/userDatabase/getLatestData").getLatestData;
+const { eventEmitter, emitWeatherLocUpdate } = require("./routes/_emitEvent");
+const {
+  checkUserCredentialsById,
+} = require("./generalUtils/userCreds/username");
+const getLatestLogData =
+  require("./databaseUtils/logDatabase/getLatestData").getLatestData;
 
+const {
+  getLocationComment,
+} = require("./databaseUtils/weatherDatabase/updateLocation");
 api(app);
+
+process.setMaxListeners(0);
 
 const server = http.createServer(app);
 
@@ -31,14 +44,41 @@ const sendData = createSocketServer(server);
 
 const updateWeatherData = async () => {
   await updateWeather();
+  await emitWeatherLocUpdate();
+};
+
+eventEmitter.on("crawlNewWeather", updateWeatherData);
+eventEmitter.on("weatherLocUpdate", async () => {
   const weatherResults = await getLatestWeatherData();
   const geolocationResults = await getLatestGeoLocationData();
   const newLatestWeatherData = geoLocationToWeather(
     geolocationResults,
     weatherResults
   );
-  sendData("weatherLoc")("weather", JSON.stringify(newLatestWeatherData));
-};
+  sendData("weatherLoc")("updatedWeatherData", newLatestWeatherData)();
+});
+eventEmitter.on("userUpdate", async (admin = true, userId = undefined) => {
+  if (userId !== undefined) {
+    const existsUser = await checkUserCredentialsById(userId);
+    sendData("user")("updatedUserDatum", existsUser)(false, userId);
+  }
+  const result = await getLatestUserData();
+  sendData("user")("updatedUserData", result)(admin, undefined);
+});
+eventEmitter.on("deleteUser", async (admin = true, userId) => {
+  sendData("user")("deleteUser")(false, userId);
+  const result = await getLatestUserData();
+  sendData("user")("updatedUserData", result)(admin, undefined);
+});
+eventEmitter.on("logUpdate", async () => {
+  const result = await getLatestLogData();
+  sendData("log")("updatedLogData", result)();
+});
+eventEmitter.on("commentUpdate", async () => {
+  const result = await getLocationComment();
+  console.log("update comment!");
+  sendData("comment")("updatedCommentData", result)();
+});
 
 const updateBackUpWeatherData = async () => {
   await updateBackUpWeather();
@@ -52,5 +92,3 @@ const updateBackUpWeatherData = async () => {
     fetchAPIConfig.meanWeatherData.fetchDuration
   );
 })();
-
-exports.sendData = sendData;

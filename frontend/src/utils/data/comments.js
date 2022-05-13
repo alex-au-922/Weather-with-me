@@ -1,17 +1,21 @@
 const parseCommentDataFrontendView = (commentJson) => {
-    const parsedCommentObj = {};
-    commentJson.map((obj) => {
-      if (!(obj.locationId.name in parsedCommentObj)) {
-        parsedCommentObj[obj.locationId.name] = [];
-      }
-      parsedCommentObj[obj.locationId.name].push({
-        "username": obj.userId.username,
-        "message": obj.message,
-        "createTime": obj.createTime
-      });
-    });
-    return parsedCommentObj;
-  };
-  
-  export default parseCommentDataFrontendView;
-  
+  const parsedCommentObj = {};
+  const flattenedJson = commentJson.map((obj) => {
+    const newCommentObj = {};
+    newCommentObj.username = obj.userId.username;
+    newCommentObj.message = obj.message;
+    newCommentObj.createTime = obj.createTime;
+    newCommentObj.name = obj.locationId.name;
+    return newCommentObj;
+  });
+  const uniqueLocation = new Array(
+    ...new Set(flattenedJson.map((obj) => obj.name))
+  );
+  uniqueLocation.forEach((location) => {
+    parsedCommentObj[location] = flattenedJson.filter(
+      (obj) => obj.name === location
+    );
+  });
+  return parsedCommentObj;
+};
+export default parseCommentDataFrontendView;

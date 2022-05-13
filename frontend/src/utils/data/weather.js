@@ -6,7 +6,7 @@ const parseWeatherDataFrontendView = (weatherJson, parsedCommentObj) => {
     newWeatherObject["name"] = obj.locationId.name;
     newWeatherObject["latitude"] = obj.locationId.latitude;
     newWeatherObject["longitude"] = obj.locationId.longitude;
-    newWeatherObject["time"] = new Date(obj.time).toISOString();
+    newWeatherObject["time"] = new Date(obj.time).toISOString() ?? null;
     newWeatherObject["temperature"] = obj.temperature ?? null;
     newWeatherObject["tenMinMaxGust"] = obj.tenMinMaxGust ?? null;
     newWeatherObject["tenMinMeanWindDir"] = obj.tenMinMeanWindDir ?? null;

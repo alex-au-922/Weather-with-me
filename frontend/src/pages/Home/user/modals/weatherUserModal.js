@@ -42,19 +42,20 @@ const CommentCard = (props) => {
           {props.commenter}
         </Card.Title>
         <Card.Text>{props.comment}</Card.Text>
-        <div style={{position: "absolute", bottom: 0, right: "1%"}}>
+        <div style={{ position: "absolute", bottom: 0, right: "1%" }}>
           <small className="text-muted">{formatTimeString(props.time)}</small>
         </div>
       </Card.Body>
     </Card>
   );
-}; 
+};
 
 const WeatherUserLocationViewModal = (props) => {
   const { user } = useContext(AuthContext);
   const [unsaved, setUnsaved] = useState(
     Object.keys(props.data).reduce((obj, key) => ((obj[key] = false), obj), {})
   );
+  const ref = useRef(null);
   const [value, setValue] = useState(props.data);
   const { buffers, setBuffers } = useContext(CommentBufferContext);
   const { fetchFactory } = useContext(FetchStateContext);
@@ -78,6 +79,10 @@ const WeatherUserLocationViewModal = (props) => {
       setBuffers(newBuffers);
     }
   }, []);
+
+  useEffect(() => {
+    ref.current.scrollIntoView();
+  }, [props.data.comments]);
 
   const handleInputChange = (event) => {
     const newBuffers = { ...buffers };
@@ -193,6 +198,7 @@ const WeatherUserLocationViewModal = (props) => {
                     comment={commentData.message}
                   ></CommentCard>
                 ))}
+                <div ref={ref} />
               </div>
             </Container>
             <Container
