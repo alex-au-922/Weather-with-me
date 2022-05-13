@@ -17,7 +17,7 @@ import { FetchStateContext } from "../../../../middleware/fetch";
 import { BACKEND_WEBSERVER_HOST } from "../../../../frontendConfig";
 import resourceFetch from "../../../../utils/authUtils/resourceFetch";
 import { useReducer } from "react";
-import { FavouriteLocation } from "../button/favouriteLocation";
+import { FavouriteLocationWeatherUserModal } from "../button/favouriteLocationWeatherUserModal";
 import { registerWindowListener } from "../../../../utils/listeners/windowListener.js";
 
 
@@ -154,7 +154,7 @@ const WeatherUserLocationViewModal = (props) => {
                 <h1 style={{fontFamily: 'Trebuchet MS', color: 'black'}}>Comments</h1>
               </Container>
             <div style={{position: 'absolute', display: 'flex', right: "5%"}}>
-              <FavouriteLocation isFavourite={checkFavouriteLocation()} name={props.data.name}></FavouriteLocation>
+              <FavouriteLocationWeatherUserModal isFavourite={checkFavouriteLocation()} name={props.data.name}></FavouriteLocationWeatherUserModal>
             </div>
           </Modal.Header>
           <Modal.Body

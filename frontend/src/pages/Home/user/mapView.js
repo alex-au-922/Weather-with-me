@@ -207,7 +207,7 @@ const MapView = (props) => {
 
   return (
     <>
-      {/* <TimeSeries/> */}
+      <TimeSeries/>
       <TableTitleBar
         dataList={props.weatherList}
         filteredDataList={filteredWeatherList}
