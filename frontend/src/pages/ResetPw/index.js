@@ -125,35 +125,54 @@ const ResetPassword = () => {
 const ResetPasswordInput = (props) => {
   const { userInfo, setUserInfo, error, handleSetNewPw } = props;
   return (
-    <Card style={{ width: "18rem" }}>
-      <Card.Body>
-        <Card.Title>Input your </Card.Title>
-        <Form>
-          <Form.Control
-            type="text"
-            isInvalid={error.password}
-            placeholder="Password"
-            onChange={(event) =>
-              setUserInfo({ ...userInfo, password: event.target.value })
-            }
-          />
-          <Form.Control
-            type="text"
-            isInvalid={error.confirmedPassword}
-            placeholder="Confirmed Password"
-            onChange={(event) =>
-              setUserInfo({
-                ...userInfo,
-                confirmedPassword: event.target.value,
-              })
-            }
-          />
-        </Form>
-        <Button variant="primary" onClick={handleSetNewPw}>
-          Set New Password
-        </Button>
-      </Card.Body>
-    </Card>
+    <div className="d-flex justify-content-center" style={{ height: "100vh" }}>
+      <div className="d-flex align-items-center">
+        <Card style={{ width: "25rem", height: "20rem" }}>
+          <Card.Body>
+            <div
+              style={{ height: "20%", marginBottom: "5%" }}
+              className="d-flex justify-content-center align-items-center"
+            >
+              <Card.Title style={{ fontSize: "25px" }}>Input your </Card.Title>
+            </div>
+            <Form style={{ height: "60%" }}>
+              <div style={{ height: "50%" }}>
+                <Form.Control
+                  type="text"
+                  isInvalid={error.password}
+                  placeholder="Password"
+                  onChange={(event) =>
+                    setUserInfo({ ...userInfo, password: event.target.value })
+                  }
+                />
+              </div>
+              <div style={{ height: "50%" }}>
+                <Form.Control
+                  type="text"
+                  isInvalid={error.confirmedPassword}
+                  placeholder="Confirmed Password"
+                  onChange={(event) =>
+                    setUserInfo({
+                      ...userInfo,
+                      confirmedPassword: event.target.value,
+                    })
+                  }
+                />
+              </div>
+            </Form>
+            <div style={{ height: "20%" }}>
+              <Button
+                style={{ width: "100%", height: "70%" }}
+                variant="primary"
+                onClick={handleSetNewPw}
+              >
+                Set New Password
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
+      </div>
+    </div>
   );
 };
 

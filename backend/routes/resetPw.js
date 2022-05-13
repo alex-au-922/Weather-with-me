@@ -14,6 +14,7 @@ const { passwordHash } = require("../generalUtils/userCreds/password");
 const { updateUser } = require("../databaseUtils/userDatabase/updateUser");
 const { findUserByHash } = require("../databaseUtils/userDatabase/resetPw");
 const { dateExpired } = require("../generalUtils/time/offsetTime");
+const xss = require("xss");
 // const userHashCheck = require("./middleware/resourceAuth/userHashCheck");
 const router = express.Router();
 
@@ -21,9 +22,10 @@ router.post("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { email } = req.body;
+    const parsedEmail = xss(email);
     response.success = true;
     res.send(JSON.stringify(response));
-    const existUser = await findUserInfoByEmail(email);
+    const existUser = await findUserInfoByEmail(parsedEmail);
     if (existUser === null) throw new EmailError("User does not exist!");
     const { userId, username } = existUser;
     const randomUserString = randomString(12);
