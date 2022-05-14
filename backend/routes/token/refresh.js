@@ -26,7 +26,6 @@ router.get("/", async (req, res, next) => {
       accessToken: newAccessToken,
     };
     response.success = true;
-    console.log(response);
     res.send(JSON.stringify(response));
   } catch (error) {
     next(error);

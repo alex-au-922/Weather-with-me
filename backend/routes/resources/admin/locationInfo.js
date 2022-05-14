@@ -48,7 +48,6 @@ router.put("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { oldName, newData } = req.body;
-    console.log(oldName, newData);
     const parsedOldName = xss(oldName);
     const parsedNewData = objectXss(newData);
     const existLocation = await findLocationInfoByName(parsedOldName);

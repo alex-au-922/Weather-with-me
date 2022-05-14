@@ -25,7 +25,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-lightsail_bitnami.pem
+*lightsail_bitnami.pem*
+*.pdf
 
 .env
 

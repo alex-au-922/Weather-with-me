@@ -46,20 +46,6 @@ const Marker = (props) => {
     content: null,
   });
 
-  const handleMouseOver = () => {
-    infoWindow.infoWindow.setContent(infoWindow.content);
-    infoWindow.infoWindow.open(props.googleMap, marker.marker);
-  };
-
-  const handleMouseOut = () => {
-    infoWindow.infoWindow.close(props.googleMap, marker.marker);
-  };
-
-  const handleMouseClick = () => {
-    //TODO: change the handle mouse click to render a consistent data view
-    console.log(marker.option);
-  };
-
   useEffect(() => {
     if (props.google !== null && props.data) {
       setMarker({
@@ -116,7 +102,6 @@ const Map = (props) => {
       };
       setGoogleMap(new props.google.maps.Map(ref.current, defaultMapOptions));
     }
-    return () => console.log("removed map!");
   }, [ref, props.google, googleMap]);
   return (
     <div ref={ref} style={{ width: "100%", height: "100%" }}>

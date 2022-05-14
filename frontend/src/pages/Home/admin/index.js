@@ -254,7 +254,6 @@ const AdminView = (props) => {
         },
       };
       const { success, result, fetching } = await dataFetch(url, payload);
-      console.log("log data", result);
       if (success && !fetching) updateLogData(result);
     })();
   }, []);

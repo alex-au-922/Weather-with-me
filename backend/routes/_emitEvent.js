@@ -70,9 +70,6 @@ const emitLogUpdate = async () => {
 //TODO: update all people connected to the channel
 //TODO: comment
 const emitCommentUpdate = async () => {
-  // const result = await getLocationComment();
-  // console.log("update comment!");
-  // sendData("comment")("updatedCommentData", result)();
   eventEmitter.emit("commentUpdate");
 };
 

@@ -66,8 +66,6 @@ const Login = () => {
       } else if (loginErrorType === "PasswordError") {
         setError({ ...bufferError, password: loginErrorMessage });
         return;
-      } else {
-        console.log(loginErrorType, loginErrorMessage);
       }
     } else {
       const { refreshToken, accessToken } = loginResult;

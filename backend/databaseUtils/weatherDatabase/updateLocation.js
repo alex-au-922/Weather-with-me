@@ -63,7 +63,6 @@ const getLocationComment = async () => {
 
 const deleteComment = async (locationId = null, userId = null) => {
   try {
-    console.log("locationId", locationId, "userId", userId);
     const weatherDB = await connectWeatherDB();
     const GeoLocation = weatherDB.model("GeoLocation", geolocationSchema);
     const userDB = await connectUserDB();

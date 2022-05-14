@@ -55,7 +55,6 @@ eventEmitter.on("weatherLocUpdate", async () => {
     geolocationResults,
     weatherResults
   );
-  console.log("sending the latest weather data!");
   sendData("weatherLoc")("updatedWeatherData", newLatestWeatherData)(
     true,
     null
@@ -80,7 +79,6 @@ eventEmitter.on("logUpdate", async () => {
 });
 eventEmitter.on("commentUpdate", async () => {
   const result = await getLocationComment();
-  console.log("update comment!");
   sendData("comment")("updatedCommentData", result)(true, null);
 });
 

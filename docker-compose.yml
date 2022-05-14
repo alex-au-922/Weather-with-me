@@ -38,6 +38,7 @@ services:
       - ./backend/websocket:${APP_HOME}/websocket
     ports:
       - ${BACKEND_REAL_WEBSERVER_LOCAL_HOST_PORT}:${BACKEND_VIRTUAL_WEBSERVER_HOST_PORT}
+      - 8000:8000
     restart: ${RESTART_POLICY}
     tty: true
     command: npm run start

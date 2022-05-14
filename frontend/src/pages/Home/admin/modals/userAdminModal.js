@@ -293,7 +293,6 @@ const UserDataFormModal = (props) => {
 
   useLayoutEffect(() => {
     if (formBuffer.current) {
-      console.log(formBuffer.current);
       const newUnsaved = Object.keys(formBuffer.current).reduce(
         (obj, key) => (
           (obj[key] = props.modalConfig[key].blank
@@ -303,7 +302,6 @@ const UserDataFormModal = (props) => {
         ),
         {}
       );
-      console.log("new unsaved", newUnsaved);
       setUnsaved(newUnsaved);
     }
   }, [formBuffer.current]);

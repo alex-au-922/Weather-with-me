@@ -145,7 +145,6 @@ const Map = (props) => {
       // set google map
       setGoogleMap(new props.google.maps.Map(ref.current, defaultMapOptions));
     }
-    return () => console.log("removed map!");
   }, [ref, props.google, googleMap]);
 
   useEffect(() => {

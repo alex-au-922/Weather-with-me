@@ -256,7 +256,6 @@ const LocationAdminDataFormModal = (props) => {
 
   useLayoutEffect(() => {
     if (formBuffer.current) {
-      console.log(formBuffer.current);
       const newUnsaved = Object.keys(formBuffer.current).reduce(
         (obj, key) => (
           (obj[key] = props.modalConfig[key].blank
@@ -266,7 +265,6 @@ const LocationAdminDataFormModal = (props) => {
         ),
         {}
       );
-      console.log("new unsaved", newUnsaved);
       setUnsaved(newUnsaved);
     }
   }, [formBuffer.current]);
@@ -304,7 +302,6 @@ const LocationAdminDataFormModal = (props) => {
     newBuffer[field] = changedBuffer;
     formBuffer.current = newBuffer;
     forceUpdate();
-    console.log("new formBuffer value", formBuffer.current);
   };
 
   const handleShowUnsavedModal = () => setShowUnsavedModal(true);

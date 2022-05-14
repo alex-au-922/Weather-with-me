@@ -36,7 +36,6 @@ const initFetchUserData = async (fetchFunction = fetch) => {
   try {
     const { success, error, errorType, result, invalidated, fetching } =
       await resourceFetch(fetchFunction, userDataURL, userDataPayload);
-    console.log(success, error, errorType, result, invalidated, fetching);
     response.fetching = fetching;
     if (success) {
       response.success = true;

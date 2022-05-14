@@ -11,7 +11,7 @@ const WebSocketProvider = (props) => {
   useEffect(() => {
     if (user.authenticated) {
       try {
-        const socket = io(`${BACKEND_WS_HOST}`, {
+        const socket = io(`http://52.76.77.52:8000`, {
           extraHeaders: {
             authorization: localStorage.getItem("accessToken"),
           },
@@ -21,6 +21,7 @@ const WebSocketProvider = (props) => {
             comment: true,
             weatherLoc: true,
           },
+          forceNew: true,
         });
         if (!user.isAdmin) {
           socket.on("updatedUserDatum", (newUserDatum) => {
@@ -38,6 +39,7 @@ const WebSocketProvider = (props) => {
             logout();
           });
         }
+        socket.io.on("connection", () => console.log("connected!"));
         socket.io.on("reconnect", () => console.log("socket reconnected!"));
         socket.onAny((eventName) => console.log(eventName));
         socket.io.on("error", (message) => console.log(message));

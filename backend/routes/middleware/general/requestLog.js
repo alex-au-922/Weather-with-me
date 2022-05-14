@@ -5,7 +5,6 @@ const { emitLogUpdate } = require("../../_emitEvent.js");
 
 const insertRequestLogToDB = async function (req, res, next) {
   try {
-    console.log(req.baseUrl + req.path);
     const requestLogInfo = {
       method: req.method,
       userAgent: req.headers["user-agent"],

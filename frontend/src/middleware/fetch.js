@@ -65,7 +65,6 @@ const FetchStateProvider = (props) => {
       if (!fetching.current) {
         if (!parallelFetch) fetching.current = true;
         if (showConfig.loading) setShowLoading(true);
-        console.log(url, payload);
         const fetchResult = await fetch(url, payload);
         const { success, error, errorType, result } = await fetchResult.json();
         fetching.current = false;

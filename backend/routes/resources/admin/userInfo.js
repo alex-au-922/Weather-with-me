@@ -46,7 +46,6 @@ router.put("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { oldUsername, newData } = req.body;
-    console.log(newData);
     const parsedOldUsername = xss(oldUsername);
     const parsedNewData = objectXss(newData);
     const { userId } = await findUserInfoByUsername(parsedOldUsername);
@@ -67,7 +66,6 @@ router.put("/", async (req, res, next) => {
 
     if (newEmail) {
       const existsEmail = await findUserInfoByEmail(newEmail);
-      console.log(existsEmail);
       if (
         existsEmail !== null &&
         existsEmail.userId.toString() !== userId.toString()

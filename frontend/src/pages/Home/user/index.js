@@ -149,10 +149,6 @@ const UserView = (props) => {
   };
 
   useEffect(() => {
-    console.log("new weather list", weatherDataList);
-  }, [weatherDataList]);
-
-  useEffect(() => {
     //initial fetch weather data
     (async () => {
       await mergeWeather();
@@ -160,7 +156,6 @@ const UserView = (props) => {
   }, []);
 
   useEffect(() => {
-    console.log("show data list");
     if (props.showFavourite) {
       const newShowDataList = weatherDataList?.filter(
         (weather) => favouriteLocation.indexOf(weather.name) !== -1

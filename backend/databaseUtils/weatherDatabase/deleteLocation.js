@@ -19,7 +19,6 @@ const deleteWeatherWithLocationId = async (geolocationId) => {
   const existsWeatherData = await Weather.findOne({
     locationId: ObjectId(geolocationId),
   });
-  console.log(existsWeatherData);
   if (existsWeatherData === null) return true;
   await Weather.deleteMany({ locationId: ObjectId(geolocationId) });
   return true;

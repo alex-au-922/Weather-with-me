@@ -7,7 +7,6 @@ router.get("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const result = await getLatestLogData();
-    console.log("result", result);
     response.success = true;
     response.result = result;
     res.send(JSON.stringify(response));

@@ -15,37 +15,35 @@ const registerSendData = (socketClientsInfo) => {
   //usage: sendData(channel)(event, data, <userId>)
   const sendData = (channel) => (event, data) => (admin, userId) => {
     if (channel === "user" && event === "deleteUser")
-      console.log(`delete user ${userId}!`);
-    if (userId === null) {
-      if (admin)
-        //value is the object of all connection details
-        //whether the user subscribed to that channel
-        io.sockets.in(channel).emit(event, data);
-      else {
-        Object.values(socketClients)
-          .filter(({ role }) => role !== "admin")
-          .forEach(({ socket }) => {
-            console.log("not send to admin!");
-            socket.to(channel).emit(event, data);
-          });
+      if (userId === null) {
+        if (admin)
+          //value is the object of all connection details
+          //whether the user subscribed to that channel
+          io.sockets.in(channel).emit(event, data);
+        else {
+          Object.values(socketClients)
+            .filter(({ role }) => role !== "admin")
+            .forEach(({ socket }) => {
+              socket.to(channel).emit(event, data);
+            });
+        }
+      } else if (userId === -1) {
+        if (admin) {
+          Object.values(socketClients)
+            .filter(({ role }) => role === "admin")
+            .forEach(({ socket }) => {
+              socket.emit(event, data);
+            });
+        }
+      } else {
+        if (socketClientsInfo[userId]?.channels[channel])
+          socketClientsInfo[userId].socket.emit(event, data);
+        if (admin) {
+          Object.values(socketClients)
+            .filter(({ role }) => role === "admin")
+            .forEach(({ socket }) => socket.to(channel).emit(event, data));
+        }
       }
-    } else if (userId === -1) {
-      if (admin) {
-        Object.values(socketClients)
-          .filter(({ role }) => role === "admin")
-          .forEach(({ socket }) => {
-            socket.emit(event, data);
-          });
-      }
-    } else {
-      if (socketClientsInfo[userId]?.channels[channel])
-        socketClientsInfo[userId].socket.emit(event, data);
-      if (admin) {
-        Object.values(socketClients)
-          .filter(({ role }) => role === "admin")
-          .forEach(({ socket }) => socket.to(channel).emit(event, data));
-      }
-    }
   };
 
   return sendData;
@@ -61,7 +59,7 @@ Data Channels:
 const createSocketServer = (server) => {
   io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_HOST,
+      origin: "http://52.76.77.52",
       methods: ["GET", "POST"],
     },
   });

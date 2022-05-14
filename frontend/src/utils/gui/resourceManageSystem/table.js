@@ -122,13 +122,6 @@ const OptionsFilterModal = (props) => {
 };
 
 const ResourceManagementTable = (props) => {
-  const [rendering, setRendering] = useState(false);
-  const [dummyValues, setDummyValues] = useState(
-    new Array(
-      50,
-      props.options.reduce((obj, key) => ((obj[key] = ""), obj), {})
-    )
-  );
   const [filteredDataList, setFilteredDataList] = useState(props.dataList);
 
   const [displayOptions, setDisplayOptions] = useState(props.options);
@@ -149,7 +142,7 @@ const ResourceManagementTable = (props) => {
     setChangedOrderKey(tableOption);
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (filteredDataList) {
       const newFilteredDataList = sortOnKey(
         filteredDataList,
@@ -158,13 +151,8 @@ const ResourceManagementTable = (props) => {
       );
       setFilteredDataList(newFilteredDataList);
       forceUpdate();
-      setRendering(false);
     }
   }, [filteredDataList, optionsDescending]);
-
-  // useEffect(() => {
-  //   setFilteredDataList(props.data);
-  // }, []);
 
   return (
     <>
