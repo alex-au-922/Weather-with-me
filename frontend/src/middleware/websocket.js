@@ -1,28 +1,48 @@
-import { useState, createContext, useEffect } from "react";
-import { BACKEND_USERWS_HOST, BACKEND_WEATHERWS_HOST } from "../frontendConfig";
+import { useState, createContext, useContext, useEffect } from "react";
+import { BACKEND_WS_HOST } from "../frontendConfig";
+import { AuthContext } from "./auth";
+import { io } from "socket.io-client";
+const WebSocketContext = createContext({});
 
-const WeatherWebSocketContext = createContext({});
-
-const UserWebSocketContext = createContext({});
-
-const WeatherWebSocketProvider = (props) => {
+const WebSocketProvider = (props) => {
+  const { user, logout, setUser } = useContext(AuthContext);
   const [webSocket, setWebSocket] = useState(null);
-  const [connect, setConnect] = useState(false);
 
   useEffect(() => {
-    if (connect) {
+    if (user.authenticated) {
       try {
-        const newWebSocket = new WebSocket(
-          `${BACKEND_WEATHERWS_HOST}/websockets/weather`
-        );
-        newWebSocket.onopen = () => {
-          console.log("open connection");
-          console.log(newWebSocket);
-        };
-        newWebSocket.onclose = () => {
-          console.log("close connection!");
-        };
-        setWebSocket(newWebSocket);
+        const socket = io(`${BACKEND_WS_HOST}`, {
+          extraHeaders: {
+            authorization: localStorage.getItem("accessToken"),
+          },
+          query: {
+            user: true,
+            log: user.isAdmin,
+            comment: true,
+            weatherLoc: true,
+          },
+        });
+        if (!user.isAdmin) {
+          socket.on("updatedUserDatum", (newUserDatum) => {
+            setUser({
+              ...user,
+              username: newUserDatum.username,
+              viewMode: newUserDatum.viewMode,
+              email: newUserDatum.email,
+              favouriteLocation: newUserDatum.favouriteLocation.map(
+                (geolocationObj) => geolocationObj.name
+              ),
+            });
+          });
+          socket.on("deleteUser", (message) => {
+            logout();
+          });
+        }
+        socket.io.on("reconnect", () => console.log("socket reconnected!"));
+        socket.onAny((eventName) => console.log(eventName));
+        socket.io.on("error", (message) => console.log(message));
+
+        setWebSocket(socket);
       } catch (error) {
         console.log(error);
       }
@@ -32,69 +52,13 @@ const WeatherWebSocketProvider = (props) => {
         setWebSocket(null);
       }
     }
-  }, [connect]);
-
-  const connectWebSocket = () => {
-    setConnect(true);
-  };
-  const disconnectWebSocket = () => {
-    setConnect(false);
-  };
+  }, [user.authenticated]);
 
   return (
-    <WeatherWebSocketContext.Provider
-      value={{ webSocket, connectWebSocket, disconnectWebSocket }}
-    >
+    <WebSocketContext.Provider value={{ webSocket }}>
       {props.children}
-    </WeatherWebSocketContext.Provider>
+    </WebSocketContext.Provider>
   );
 };
 
-const UserWebSocketProvider = (props) => {
-  const [webSocket, setWebSocket] = useState(null);
-  const [connect, setConnect] = useState(false);
-
-  useEffect(() => {
-    if (connect) {
-      try {
-        const newWebSocket = new WebSocket(
-          `${BACKEND_USERWS_HOST}/websockets/user`
-        );
-        newWebSocket.onopen = () => {
-          console.log("open connection");
-          console.log(newWebSocket);
-        };
-        setWebSocket(newWebSocket);
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      if (webSocket) {
-        webSocket.close();
-        setWebSocket(null);
-      }
-    }
-  }, [connect]);
-
-  const connectWebSocket = () => {
-    setConnect(true);
-  };
-  const disconnectWebSocket = () => {
-    setConnect(false);
-  };
-
-  return (
-    <UserWebSocketContext.Provider
-      value={{ webSocket, connectWebSocket, disconnectWebSocket }}
-    >
-      {props.children}
-    </UserWebSocketContext.Provider>
-  );
-};
-
-export {
-  WeatherWebSocketContext,
-  WeatherWebSocketProvider,
-  UserWebSocketContext,
-  UserWebSocketProvider,
-};
+export { WebSocketContext, WebSocketProvider };

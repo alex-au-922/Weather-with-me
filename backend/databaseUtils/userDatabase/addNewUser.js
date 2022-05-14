@@ -1,16 +1,15 @@
-const logger = require("../../generalUtils/getLogger").getLogger();
+const { DatabaseError } = require("../../errorConfig");
 const userSchema = require("../../backendConfig.js").databaseConfig.userSchema;
 const { connectUserDB } = require("../../generalUtils/database");
 
 const addNewUser = async (newUser) => {
-  const userDB = await connectUserDB();
   try {
-    const User = userDB.model("User", userSchema);
-    const result = await User.create(newUser);
+    const userDB = await connectUserDB();
+    const UserModel = userDB.model("User", userSchema);
+    const result = await UserModel.create(newUser);
     return result._id;
   } catch (error) {
-    logger.error(error);
-    return null;
+    throw new DatabaseError("Cannot create new user to database!");
   }
 };
 

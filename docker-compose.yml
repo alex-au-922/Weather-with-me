@@ -1,30 +1,5 @@
 version: "3.7"
 services:
-  frontend:
-    image: react-frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - IMAGE_NAME=${FRONTEND_IMAGE}
-        - IMAGE_VERSION=${FRONTEND_NODE_VERSION}
-        - IMAGE_TAG=${FRONTEND_NODE_TAG}
-        - HOME=${APP_HOME}
-        - NPM_VERSION=${FRONTEND_NPM_VERSION}
-    container_name: react-frontend
-    environment:
-      - BACKEND_WEBSERVER_HOST=${BACKEND_WEBSERVER_HOST}
-      - BACKEND_USERWS_HOST=${BACKEND_USERWS_HOST}
-      - BACKEND_WEATHERWS_HOST=${BACKEND_WEATHERWS_HOST}
-    volumes:
-      - ./frontend/public:${APP_HOME}/public
-      - ./frontend/src:${APP_HOME}/src
-      - ./frontend/build:${APP_HOME}/build
-    ports:
-      - ${FRONTEND_REAL_HOST_PORT}:${FRONTEND_VIRTUAL_HOST_PORT}
-    restart: ${RESTART_POLICY}
-    command: npm start
-
   backend:
     image: node-backend
     build:
@@ -42,32 +17,30 @@ services:
       - DATABASE_ADMIN_PASSWORD=${DATABASE_ADMIN_PASSWORD}
       - WEATHER_DATABASE_NAME=${WEATHER_DATABASE_NAME}
       - USER_DATABASE_NAME=${USER_DATABASE_NAME}
+      - LOGGER_DATABASE_NAME=${LOGGER_DATABASE_NAME}
       - DATABASE_PORT=${DATABASE_VIRTUAL_HOST_PORT}
       - DATABASE_HOST=database
       - WEBSER_PORT=${BACKEND_VIRTUAL_WEBSERVER_HOST_PORT}
-      - USERWS_PORT=${BACKEND_VIRTUAL_USERWS_HOST_PORT}
-      - WEATHERWS_PORT=${BACKEND_VIRTUAL_WEATHERWS_HOST_PORT}
-      - JWT_SECRET=testing!
+      - JWT_SECRET=${JWT_SECRET}
       - SMTP_EMAIL=${SMTP_EMAIL}
       - SMTP_EMAIL_PW=${SMTP_EMAIL_PW}
       - FRONTEND_HOST=${FRONTEND_HOST}
     volumes:
       - ./backend/index.js:${APP_HOME}/index.js
       - ./backend/backendConfig.js:${APP_HOME}/backendConfig.js
+      - ./backend/errorConfig.js:${APP_HOME}/errorConfig.js
       - ./backend/generalUtils:${APP_HOME}/generalUtils
       - ./backend/fetcherUtils:${APP_HOME}/fetcherUtils
-      - ./backend/api:${APP_HOME}/api
+      - ./backend/routes:${APP_HOME}/routes
+      - ./backend/apiSpec.json:${APP_HOME}/apiSpec.json
       - ./backend/databaseUtils:${APP_HOME}/databaseUtils
       - ./backend/logs:${APP_HOME}/logs
       - ./backend/websocket:${APP_HOME}/websocket
-      - ./backend/demo.js:${APP_HOME}/demo.js
     ports:
-      - ${BACKEND_REAL_WEBSERVER_HOST_PORT}:${BACKEND_VIRTUAL_WEBSERVER_HOST_PORT}
-      - ${BACKEND_REAL_USERWS_HOST_PORT}:${BACKEND_VIRTUAL_USERWS_HOST_PORT}
-      - ${BACKEND_REAL_WEATHERWS_HOST_PORT}:${BACKEND_VIRTUAL_WEATHERWS_HOST_PORT}
+      - ${BACKEND_REAL_WEBSERVER_LOCAL_HOST_PORT}:${BACKEND_VIRTUAL_WEBSERVER_HOST_PORT}
     restart: ${RESTART_POLICY}
     tty: true
-    command: npm run dev
+    command: npm run start
 
   database:
     image: mongodb-database

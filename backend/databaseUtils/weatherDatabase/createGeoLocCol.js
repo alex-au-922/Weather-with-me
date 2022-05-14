@@ -22,7 +22,6 @@ exports.createLocation = async function () {
       logger.info("The collection geolocations already exists");
     }
   } catch (error) {
-    console.log(error);
     logger.error(error);
   }
 };
@@ -32,7 +31,7 @@ async function cleanGeoLocationJson(geoLocationJson) {
     const newObject = {};
     newObject["name"] = feature.properties["Facility Name"];
     newObject["address"] = feature.properties.Address;
-    const [latitude, longitude] = feature.geometry.coordinates;
+    const [longitude, latitude] = feature.geometry.coordinates;
     newObject["latitude"] = latitude;
     newObject["longitude"] = longitude;
     return newObject;

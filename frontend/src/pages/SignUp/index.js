@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import checkString from "../../utils/input/checkString";
 import { Form, Card, Button } from "react-bootstrap";
-import FormInputWithError from "../../utils/gui/formInputError";
+import { FormInputWithError } from "../../utils/gui/formInputs";
 import { useNavigate } from "react-router-dom";
-import objectSetAll from "../../utils/setAll";
+import { objectSetAll } from "../../utils/object";
+import validateEmail from "../../utils/input/checkEmail";
+import { FetchStateContext } from "../../middleware/fetch";
+import { REDIRECT_TIME } from "../../frontendConfig";
 const SignUp = () => {
   const [userInfo, setUserInfo] = useState({
     username: "",
@@ -18,14 +21,25 @@ const SignUp = () => {
     confirmedPassword: false,
     email: false,
   });
+  const { fetchFactory } = useContext(FetchStateContext);
+  const createFetch = fetchFactory(
+    {
+      success: true,
+      loading: true,
+      error: true,
+    },
+    `Successfully created user ${userInfo.username}!`,
+    null
+  );
 
   const navigate = useNavigate();
   const createNewUser = async () => {
     const bufferError = objectSetAll(error, false);
 
-    const { username, password, confirmedPassword } = userInfo;
+    const { username, password, confirmedPassword, email } = userInfo;
     const usernameCheckResult = checkString(username);
     const passwordCheckResult = checkString(password);
+
     if (!usernameCheckResult.success) {
       setError({ ...bufferError, username: usernameCheckResult.error });
       return;
@@ -41,7 +55,17 @@ const SignUp = () => {
       });
       return;
     }
-    const url = `${BACKEND_WEBSERVER_HOST}/signup`;
+    if (email) {
+      const emailCheckResult = validateEmail(email);
+      if (!emailCheckResult.success) {
+        setError({
+          ...bufferError,
+          email: emailCheckResult.error,
+        });
+        return;
+      }
+    }
+    const url = `${BACKEND_WEBSERVER_HOST}/api/v1/signup`;
     const payload = {
       method: "POST",
       headers: {
@@ -49,20 +73,33 @@ const SignUp = () => {
       },
       body: JSON.stringify(userInfo),
     };
-    const result = await fetch(url, payload);
-    const resultJson = await result.json();
-    if (!resultJson.success) {
-      if (resultJson.errorType === null) {
-        console.log("Unknown error occurs!");
-        return;
+    const {
+      success: signupSuccess,
+      error: signupError,
+      errorType: signupErrorType,
+      fetching: signupFetching,
+      result: signupResult,
+    } = await createFetch(url, payload);
+    if (!signupFetching) {
+      if (!signupSuccess) {
+        if (signupErrorType === "UsernameError") {
+          setError({ ...bufferError, username: signupError });
+          return;
+        } else if (signupErrorType === "PasswordError") {
+          setError({ ...bufferError, password: signupError });
+          return;
+        } else if (signupErrorType === "EmailError") {
+          setError({ ...bufferError, email: signupError });
+          return;
+        }
       } else {
-        setError({ ...bufferError, username: resultJson.error });
-        return;
+        const { refreshToken, accessToken } = signupResult;
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("accessToken", accessToken);
+        setTimeout(() => {
+          navigate("/login");
+        }, REDIRECT_TIME);
       }
-    } else {
-      const token = resultJson.token;
-      localStorage.setItem("token", token);
-      navigate("/signup/success");
     }
   };
 
@@ -117,7 +154,7 @@ const SignUp = () => {
                 onChange={(event) =>
                   setUserInfo({
                     ...userInfo,
-                    confirmedPassword: event.target.value,
+                    email: event.target.value,
                   })
                 }
               />

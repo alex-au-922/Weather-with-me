@@ -1,0 +1,160 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "User API",
+    "description": "Simple RESTful API in Node.js with TypeScript",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:10083/api/v1",
+      "description": "Local server"
+    }
+  ],
+  "host": "http://localhost:10083",
+  "basePath": "/api/v1",
+  "schemes": ["http"],
+  "paths": {
+    "/login": {
+      "get": {
+        "summary": "Login with refresh token",
+        "parameters": {
+          "in": "header",
+          "name": "authentication",
+          "schema": {
+            "type": "string"
+          },
+          "required": true,
+          "description": "Refresh Token for authenticating user"
+        },
+        "description": "Return all existed users.",
+        "responses": {
+          "200": {
+            "description": "Successful login with refresh token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Successful Login"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden login with invalid refresh token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Invalid Refresh Token"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Forbidden login due to internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Internal Server Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Return all users with list.",
+        "description": "Return all existed users.",
+        "responses": {
+          "200": {
+            "description": "A JSON array of user names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/unsuccessful_login"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Successful Login": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "error": {
+            "type": "string",
+            "example": null
+          },
+          "errorType": {
+            "type": "string",
+            "example": null
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "refreshToken": {
+                "type": "string",
+                "example": "123"
+              },
+              "accessToken": {
+                "type": "string",
+                "example": "456"
+              }
+            }
+          }
+        },
+        "required": ["id", "username", "email"]
+      },
+      "Invalid Refresh Token": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "example": "Invalid refresh token!"
+          },
+          "errorType": {
+            "type": "string",
+            "example": "InvalidRefreshTokenError"
+          },
+          "result": {
+            "type": "string",
+            "example": null
+          }
+        },
+        "required": ["id", "username", "email"]
+      },
+      "Internal Server Error": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "example": "Reference error!"
+          },
+          "errorType": {
+            "type": "string",
+            "example": "InternalServerError"
+          },
+          "result": {
+            "type": "string",
+            "example": null
+          }
+        }
+      }
+    }
+  }
+}

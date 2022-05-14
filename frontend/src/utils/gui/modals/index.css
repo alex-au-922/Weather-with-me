@@ -1,0 +1,24 @@
+.modal-90w{
+    min-width: 90% !important;
+}
+
+.loader {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid green;
+    border-radius: 50%;
+    width: 120px !important;
+    height: 120px !important;
+    animation: spin 2s linear infinite;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 1000000;
+    background-color: rgba(0,0,0,.3);
+    box-shadow: 0 0 0 100vmax rgba(0,0,0,.3)
+
+  }
+
+  @keyframes spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }

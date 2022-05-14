@@ -17,12 +17,21 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
+.vscode
+
+keys/
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+lightsail_bitnami.pem
+
 .env
+
+lightsail_bitnami.pem
+
+keys/
 
 */data/*
 */logs/*

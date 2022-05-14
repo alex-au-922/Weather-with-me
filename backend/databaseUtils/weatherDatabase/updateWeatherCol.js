@@ -42,8 +42,7 @@ const updateData = async function (fetchFunction) {
     const transformedData = await transformLocField(weatherDB, weatherData);
     await insertOrUpdateWeatherData(weatherDB, transformedData);
   } catch (error) {
-    console.log(error);
-    logger.error(error);
+    logger.error(error.message);
   }
 };
 

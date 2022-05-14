@@ -1,14 +1,17 @@
 const mongoose = require("mongoose");
-const logger = require("./getLogger").getLogger();
 
 let weatherDB = null;
 let userDB = null;
+let loggerDB = null;
 
 exports.connectWeatherDB = async () =>
   await connectDB(weatherDB, process.env.WEATHER_DATABASE_NAME);
 
 exports.connectUserDB = async () =>
   await connectDB(userDB, process.env.USER_DATABASE_NAME);
+
+exports.connectLoggerDB = async () =>
+  await connectDB(loggerDB, process.env.LOGGER_DATABASE_NAME);
 
 exports.collectionExists = async (db, collectionName) => {
   const result = await db.db.listCollections().toArray();
