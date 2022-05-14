@@ -11,19 +11,17 @@ const FavouriteLocationWeatherUserModal = (props) => {
   const showFavourite = useRef(props.isFavourite);
 
   const { fetchFactory } = useContext(FetchStateContext);
-  const favouriteLocationFetch = fetchFactory(
-    {
-      loading: true,
-      success: false,
-      error: true
-    }
-  )
+  const favouriteLocationFetch = fetchFactory({
+    loading: true,
+    success: false,
+    error: true,
+  });
 
   const handleClick = async () => {
     showFavourite.current = !showFavourite.current;
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/user`;
     const payload = {
-      method: "PUT", 
+      method: "PUT",
       headers: {
         "content-type": "application/json",
         authorization: localStorage.getItem("accessToken"),
@@ -32,11 +30,11 @@ const FavouriteLocationWeatherUserModal = (props) => {
       body: JSON.stringify({
         favouriteLocation: {
           name: props.name,
-          action: showFavourite.current ? "add" : "delete"
-        }
-      })
+          action: showFavourite.current ? "add" : "delete",
+        },
+      }),
     };
-    const { success: submitSuccess, fetching: submitFetching } = 
+    const { success: submitSuccess, fetching: submitFetching } =
       await resourceFetch(favouriteLocationFetch, url, payload);
   };
 
@@ -47,14 +45,14 @@ const FavouriteLocationWeatherUserModal = (props) => {
           data-toggle="tooltip"
           title="Show Normal"
           onClick={handleClick}
-          style={{ color: "#F6BE00", width: "30", height: "30" }}
+          style={{ color: "#F6BE00", width: "24", height: "24" }}
         />
       ) : (
         <StarIcon
           data-toggle="tooltip"
           title="Show Favourite Locations"
           onClick={handleClick}
-          style={{ color: "#777", width: "30", height: "30" }}
+          style={{ color: "#777", width: "24", height: "24" }}
         />
       )}
     </div>

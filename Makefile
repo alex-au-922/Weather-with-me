@@ -14,4 +14,7 @@ local-run-backend-test: up
 down:
 	docker-compose down
 connect:
-	autossh -M 10086 -N -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -R 10083:127.0.0.1:10083 -R 10084:127.0.0.1:3000 -N -i ./lightsail_bitnami.pem bitnami@52.76.77.52
+	autossh -M 10086 -f -N -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -R 10083:127.0.0.1:10083 -R 10084:127.0.0.1:3000 -N -i ./lightsail_bitnami.pem bitnami@52.76.77.52
+frontend-start:
+	cd frontend && serve -s build
+deploy: down build up connect frontend-start
