@@ -1,3 +1,11 @@
+# CSCI2720 Group Project (Group 26)
+
+1. Au Cheuk Ming 1155125363
+2. Chin Wen Jun Cyril 1155104882
+3. Lee Yat 1155126257
+4. Ho Tsz Hin 1155126757
+5. Lee Sheung Chit 1155125027
+
 # Dependencies
 
 1. Download git for configuration management
