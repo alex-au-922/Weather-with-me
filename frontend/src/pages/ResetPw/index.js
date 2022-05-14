@@ -7,14 +7,15 @@ import checkString from "../../utils/input/checkString";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BACKEND_WEBSERVER_HOST, REDIRECT_TIME } from "../../frontendConfig";
 import { objectSetAll } from "../../utils/object";
+import { FormInputWithError } from "../../utils/gui/formInputs";
 
 const ResetPassword = () => {
   const { userHash } = useParams();
   const { fetchFactory } = useContext(FetchStateContext);
   const [validating, setValidating] = useState(true);
   const [userInfo, setUserInfo] = useState({
-    password: null,
-    confirmedPassword: null,
+    password: "",
+    confirmedPassword: "",
   });
   const [error, setError] = useState({
     password: false,
@@ -62,7 +63,7 @@ const ResetPassword = () => {
   }, [validating]);
 
   const handleSetNewPw = async () => {
-    const { username, password, confirmedPassword } = userInfo;
+    const { password, confirmedPassword } = userInfo;
     const passwordCheckResult = checkString(password);
     if (!passwordCheckResult.success) {
       const newError = objectSetAll(error, "");
@@ -83,7 +84,7 @@ const ResetPassword = () => {
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ password }),
     };
     const {
       success: resetSuccess,
@@ -99,6 +100,8 @@ const ResetPassword = () => {
           return;
         }
       } else {
+        const noError = objectSetAll(error, "");
+        setError({ ...noError });
         setTimeout(() => {
           navigate("/login");
         }, REDIRECT_TIME);
@@ -133,30 +136,32 @@ const ResetPasswordInput = (props) => {
               style={{ height: "20%", marginBottom: "5%" }}
               className="d-flex justify-content-center align-items-center"
             >
-              <Card.Title style={{ fontSize: "25px" }}>Input your </Card.Title>
+              <Card.Title style={{ fontSize: "25px" }}>
+                Input your new password
+              </Card.Title>
             </div>
             <Form style={{ height: "60%" }}>
               <div style={{ height: "50%" }}>
-                <Form.Control
-                  type="text"
-                  isInvalid={error.password}
+                <FormInputWithError
+                  type="password"
                   placeholder="Password"
                   onChange={(event) =>
                     setUserInfo({ ...userInfo, password: event.target.value })
                   }
+                  error={error.password}
                 />
               </div>
               <div style={{ height: "50%" }}>
-                <Form.Control
-                  type="text"
-                  isInvalid={error.confirmedPassword}
-                  placeholder="Confirmed Password"
+                <FormInputWithError
+                  type="password"
+                  placeholder="Confirm Password"
                   onChange={(event) =>
                     setUserInfo({
                       ...userInfo,
                       confirmedPassword: event.target.value,
                     })
                   }
+                  error={error.confirmedPassword}
                 />
               </div>
             </Form>

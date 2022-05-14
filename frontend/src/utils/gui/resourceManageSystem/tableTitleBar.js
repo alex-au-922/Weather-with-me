@@ -82,7 +82,7 @@ const TableTitleBar = (props) => {
 
   useEffect(() => {
     const newOptions = props.filteredDataList
-      ?.map((obj) => (obj[searchField.name])) //filter the data to that search field
+      ?.map((obj) => obj[searchField.name]) //filter the data to that search field
       .filter((option) => option) //remove all invalid values (like empty string)
       .reduce((prevOptions, currOption) => {
         //remove duplicated options
@@ -124,35 +124,45 @@ const TableTitleBar = (props) => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "row" }}>
+    <div
+      className="md-12"
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+      }}
+    >
       {props.renderSwitchView(props.switchViewOptions)}
-      <Typeahead
-        id="searchbar"
-        options={searchField.options ?? []}
-        paginate={true}
-        disabled={searchField.name === null}
-        placeholder={
-          getTitleHeader(searchField.name)
-        }
-        onInputChange={handleSearchInputValueChange}
-        onChange={handleSearchSelectedValueChange}
-        ref={searchBarRef.ref}
-        onFocus={() => searchBarRef.setFocused(true)}
-        onBlur={() => searchBarRef.setFocused(false)}
-      />
-      <DropDownButton
-        renderSplitButton={props.renderSplitButton}
-        splitButtonChild={props.splitButtonChild}
-        splitButtonOptions={props.splitButtonOptions}
-        options={props.options}
-        optionsType={props.optionsType}
-        optionsAllowedTypes={props.optionsAllowedTypes}
-        buttonName={
-          getTitleHeader(searchField.name)
-        }
-        handleSelect={handleSearchFieldOptionChange}
-      />
-      {props.renderAddButton && props.renderAddButton(props.addButtonOptions)}
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <Typeahead
+          id="searchbar"
+          options={searchField.options ?? []}
+          paginate={true}
+          disabled={searchField.name === null}
+          placeholder={getTitleHeader(searchField.name)}
+          onInputChange={handleSearchInputValueChange}
+          onChange={handleSearchSelectedValueChange}
+          ref={searchBarRef.ref}
+          onFocus={() => searchBarRef.setFocused(true)}
+          onBlur={() => searchBarRef.setFocused(false)}
+        />
+        <div style={{ width: "3%" }} />
+        <DropDownButton
+          renderSplitButton={props.renderSplitButton}
+          splitButtonChild={props.splitButtonChild}
+          splitButtonOptions={props.splitButtonOptions}
+          options={props.options}
+          optionsType={props.optionsType}
+          optionsAllowedTypes={props.optionsAllowedTypes}
+          buttonName={getTitleHeader(searchField.name)}
+          handleSelect={handleSearchFieldOptionChange}
+        />
+      </div>
+      {props.renderAddButton ? (
+        props.renderAddButton(props.addButtonOptions)
+      ) : (
+        <div style={{ visibility: "hidden" }} />
+      )}
     </div>
   );
 };

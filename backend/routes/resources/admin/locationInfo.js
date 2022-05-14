@@ -25,6 +25,7 @@ const {
 const { emitWeatherLocUpdate, emitCommentUpdate } = require("../../_emitEvent");
 const router = express.Router();
 const xss = require("xss");
+const objectXss = require("../../../databaseUtils/xss");
 
 router.get("/", async (req, res, next) => {
   try {
@@ -47,8 +48,9 @@ router.put("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { oldName, newData } = req.body;
+    console.log(oldName, newData);
     const parsedOldName = xss(oldName);
-    const parsedNewData = xss(newData);
+    const parsedNewData = objectXss(newData);
     const existLocation = await findLocationInfoByName(parsedOldName);
     if (existLocation === null)
       throw new LocationNameError("Location to be updated not found!");
@@ -81,7 +83,7 @@ router.post("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const newLocationData = req.body;
-    const parsednNewLocationData = xss(newLocationData);
+    const parsednNewLocationData = objectXss(newLocationData);
     const { name, latitude, longitude } = parsednNewLocationData;
     if (!name) throw new LocationNameError("Invalid location name!");
     const newLocationNameUnique = await uniqueLocationName(name);

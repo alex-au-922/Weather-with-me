@@ -9,6 +9,8 @@ import { ReactComponent as Filter } from "./filter.svg";
 import { objectSetAll } from "../../object";
 import sortOnKey from "../../sortOnKey";
 import useForceUpdate from "../../forceUpdate";
+import { FullScreenLoading } from "../loading";
+import { LoadingSpinner } from "../modals";
 
 const ResourceMangementTableHeader = (props) => {
   return (
@@ -120,7 +122,13 @@ const OptionsFilterModal = (props) => {
 };
 
 const ResourceManagementTable = (props) => {
-  const [initial, setInitial] = useState(true);
+  const [rendering, setRendering] = useState(false);
+  const [dummyValues, setDummyValues] = useState(
+    new Array(
+      50,
+      props.options.reduce((obj, key) => ((obj[key] = ""), obj), {})
+    )
+  );
   const [filteredDataList, setFilteredDataList] = useState(props.dataList);
 
   const [displayOptions, setDisplayOptions] = useState(props.options);
@@ -141,7 +149,7 @@ const ResourceManagementTable = (props) => {
     setChangedOrderKey(tableOption);
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (filteredDataList) {
       const newFilteredDataList = sortOnKey(
         filteredDataList,
@@ -150,8 +158,13 @@ const ResourceManagementTable = (props) => {
       );
       setFilteredDataList(newFilteredDataList);
       forceUpdate();
+      setRendering(false);
     }
   }, [filteredDataList, optionsDescending]);
+
+  // useEffect(() => {
+  //   setFilteredDataList(props.data);
+  // }, []);
 
   return (
     <>

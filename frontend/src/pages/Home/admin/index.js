@@ -18,7 +18,6 @@ import {
   locationModalOptions,
 } from "./modals/locationAdminModal";
 import {
-  BlankLogDataFormModal,
   LogAdminDataFormModal,
   logModalOptions,
 } from "./modals/logAdminModal";
@@ -29,10 +28,12 @@ import parseCommentDataFrontendView from "../../../utils/data/comments";
 import ResourceManagementTable from "../../../utils/gui/resourceManageSystem/table";
 import { WebSocketContext } from "../../../middleware/websocket";
 import { AuthContext } from "../../../middleware/auth";
+import { FullScreenLoading } from "../../../utils/gui/loading";
 // a component that fetchs all the user and weather data at the top level
 // then pass the data to the lower level view
 // listen to update of user and weather data on respective websockets
 const AdminView = (props) => {
+  const [rendering, setRendering] = useState(false);
   const [userLists, setUserLists] = useState(null);
   const [locationLists, setLocationLists] = useState(null);
   const [bufferLocationLists, setBufferLocationLists] = useState(null);
@@ -50,7 +51,8 @@ const AdminView = (props) => {
       loading: false,
     },
     null,
-    true
+    true,
+    ["InvalidAccessTokenError"]
   );
 
   const handleTableSelect = (event) => setTable(event);
@@ -181,6 +183,12 @@ const AdminView = (props) => {
     }
   }, [webSocket, logLists]);
 
+  useEffect(() => {
+    if (userLists && locationLists && bufferCommentLists && logLists) {
+      setRendering(false);
+    }
+  }, [userLists, locationLists, bufferCommentLists, logLists]);
+
   const fetchComments = async () => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/user/comment`;
     const payload = {
@@ -226,8 +234,6 @@ const AdminView = (props) => {
     if (commentJson !== undefined) setBufferCommentLists(commentJson);
   };
 
-  useLayoutEffect(() => {}, []);
-
   useEffect(() => {
     //initial fetch weather data
     (async () => {
@@ -248,57 +254,65 @@ const AdminView = (props) => {
         },
       };
       const { success, result, fetching } = await dataFetch(url, payload);
+      console.log("log data", result);
       if (success && !fetching) updateLogData(result);
     })();
   }, []);
 
   return (
-    <SwitchComponents active={table}>
-      <ResourceManagementTable
-        key="user"
-        name="User"
-        dataUniqueKey={"username"}
-        dataList={userLists}
-        switchViewOptions={switchViewOptions}
-        renderSwitchView={renderSwitchView}
-        modalConfig={userModalOptions}
-        renderModals={renderUserModal}
-        options={["username", "email", "viewMode"]}
-        renderAddButton={renderAddButton}
-        addButtonOptions={addUserButtonOptions}
-      />
-      <ResourceManagementTable
-        key="location"
-        name="Location"
-        dataUniqueKey={"name"}
-        dataList={locationLists}
-        switchViewOptions={switchViewOptions}
-        renderSwitchView={renderSwitchView}
-        modalConfig={locationModalOptions}
-        renderModals={renderWeatherModal}
-        options={["name", "latitude", "longitude"]}
-        optionsType={{ name: String, latitude: Number, longitude: Number }}
-        renderAddButton={renderAddButton}
-        addButtonOptions={addLocationButtonOptions}
-      />
-      <ResourceManagementTable
-        key="log"
-        name="Log"
-        dataUniqueKey={"_id"}
-        dataList={logLists}
-        switchViewOptions={switchViewOptions}
-        renderSwitchView={renderSwitchView}
-        modalConfig={logModalOptions}
-        renderModals={renderLogModal}
-        options={["method", "userAgent", "date", "ip"]}
-        optionsType={{
-          method: String,
-          userAgent: String,
-          date: String,
-          ip: String,
-        }}
-      />
-    </SwitchComponents>
+    <>
+      {rendering ? (
+        <FullScreenLoading />
+      ) : (
+        <SwitchComponents active={table}>
+          <ResourceManagementTable
+            key="user"
+            name="User"
+            dataUniqueKey={"username"}
+            dataList={userLists}
+            switchViewOptions={switchViewOptions}
+            renderSwitchView={renderSwitchView}
+            modalConfig={userModalOptions}
+            renderModals={renderUserModal}
+            options={["username", "email", "viewMode"]}
+            renderAddButton={renderAddButton}
+            addButtonOptions={addUserButtonOptions}
+          />
+          <ResourceManagementTable
+            key="location"
+            name="Location"
+            dataUniqueKey={"name"}
+            dataList={locationLists}
+            switchViewOptions={switchViewOptions}
+            renderSwitchView={renderSwitchView}
+            modalConfig={locationModalOptions}
+            renderModals={renderWeatherModal}
+            options={["name", "latitude", "longitude"]}
+            optionsType={{ name: String, latitude: Number, longitude: Number }}
+            renderAddButton={renderAddButton}
+            addButtonOptions={addLocationButtonOptions}
+          />
+          <ResourceManagementTable
+            key="log"
+            name="Log"
+            dataUniqueKey={"_id"}
+            dataList={logLists}
+            switchViewOptions={switchViewOptions}
+            renderSwitchView={renderSwitchView}
+            modalConfig={logModalOptions}
+            renderModals={renderLogModal}
+            options={["api", "method", "userAgent", "date", "ip"]}
+            optionsType={{
+              api: String,
+              method: String,
+              userAgent: String,
+              date: String,
+              ip: String,
+            }}
+          />
+        </SwitchComponents>
+      )}
+    </>
   );
 };
 

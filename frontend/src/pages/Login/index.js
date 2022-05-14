@@ -18,7 +18,7 @@ const Login = () => {
     {
       success: false,
       error: true,
-      loading: false,
+      loading: true,
     },
     null,
     false,

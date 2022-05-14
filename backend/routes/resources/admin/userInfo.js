@@ -28,6 +28,7 @@ const xss = require("xss");
 const {
   deleteComment,
 } = require("../../../databaseUtils/weatherDatabase/updateLocation");
+const objectXss = require("../../../databaseUtils/xss");
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
@@ -45,8 +46,9 @@ router.put("/", async (req, res, next) => {
   try {
     const response = res.locals.response;
     const { oldUsername, newData } = req.body;
+    console.log(newData);
     const parsedOldUsername = xss(oldUsername);
-    const parsedNewData = xss(newData);
+    const parsedNewData = objectXss(newData);
     const { userId } = await findUserInfoByUsername(parsedOldUsername);
     const {
       username: newUsername,

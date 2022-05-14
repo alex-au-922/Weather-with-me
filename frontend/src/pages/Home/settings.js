@@ -3,7 +3,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { AuthContext } from "../../middleware/auth";
 import { FetchStateContext } from "../../middleware/fetch";
-import NavBar from "../../components/navbar";
+import NavBar from "../../wrapper/navbar";
 import SwitchButton from "../../utils/gui/switch";
 import { Container } from "react-bootstrap";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
@@ -37,8 +37,8 @@ const Settings = () => {
       loading: true,
     },
     "Successfully updated the email!",
-    null,
-    ["EmailError"]
+    false,
+    ["EmailError", "InvalidAccessTokenError"]
   );
 
   const viewModeUpdateFetch = fetchFactory(
@@ -47,7 +47,9 @@ const Settings = () => {
       error: true,
       loading: true,
     },
-    "Successfully updated the view mode!"
+    "Successfully updated the view mode!",
+    false,
+    ["InvalidAccessTokenError"]
   );
 
   const onChangeEmail = (event) => {

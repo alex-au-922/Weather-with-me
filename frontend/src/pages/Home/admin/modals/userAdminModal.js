@@ -71,7 +71,7 @@ const BlankUserDataFormModal = (props) => {
     },
     `Successfully created user ${formBuffer.current?.username}!`,
     false,
-    ["UsernameError", "PasswordError", "EmailError"]
+    ["UsernameError", "PasswordError", "EmailError", "InvalidAccessTokenError"]
   );
 
   const handleChangeValue = (field, changedBuffer) => {
@@ -175,12 +175,14 @@ const BlankUserDataFormModal = (props) => {
   return (
     <>
       <Modal
+        scrollable={true}
         show={props.show}
         onHide={handleProperCloseModal}
         centered
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         backdrop="static"
+        animation={false}
         style={{
           opacity: props.show ? (showUnsavedModal ? 0.8 : 1) : 0,
         }}
@@ -315,7 +317,7 @@ const UserDataFormModal = (props) => {
     },
     `Successfully updated user ${username} info!`,
     false,
-    ["UsernameError", "PasswordError", "EmailError"]
+    ["UsernameError", "PasswordError", "EmailError", "InvalidAccessTokenError"]
   );
 
   const deleteFetch = fetchFactory(
@@ -324,7 +326,9 @@ const UserDataFormModal = (props) => {
       error: true,
       loading: true,
     },
-    `Successfully deleted user ${username}!`
+    `Successfully deleted user ${username}!`,
+    false,
+    ["InvalidAccessTokenError"]
   );
   const resetUnsaved = () => {
     const resetUnsaved = objectSetAll(props.data, false);
@@ -457,12 +461,14 @@ const UserDataFormModal = (props) => {
   return (
     <>
       <Modal
+        scrollable={true}
         show={props.show}
         onHide={handleProperCloseModal}
         centered
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         backdrop="static"
+        animation={false}
         style={{
           opacity: props.show
             ? showUnsavedModal || showDeleteModal

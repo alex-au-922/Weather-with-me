@@ -5,15 +5,18 @@ import "./index.css";
 const BasicInfoModal = (props) => {
   return (
     <Modal
+      scrollable={true}
       show={props.show}
       onHide={props.onHide}
       centered
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
       backdrop="static"
+      animation={false}
       style={{
         zIndex: 1000000,
       }}
+      {...props.style}
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
@@ -44,6 +47,7 @@ const ActionAlertModal = (props) => {
       onHide={props.onHide}
       title={props.title}
       body={props.body}
+      {...props.style}
     >
       {props.yesPriority ? (
         <>
@@ -88,6 +92,7 @@ const InfoModal = (props) => {
       onHide={props.onHide}
       title={props.title}
       body={props.body}
+      {...props.style}
     >
       <Button active variant="primary" onClick={props.onHide}>
         Close
@@ -106,6 +111,7 @@ const UnsavedModal = (props) => {
       yesButtonVariant={"secondary"}
       yesPriority={false}
       action={props.forceClose}
+      {...props.style}
     />
   );
 };
@@ -120,6 +126,7 @@ const DeleteModal = (props) => {
       yesButtonVariant={"danger"}
       yesPriority={false}
       action={props.delete}
+      {...props.style}
     />
   );
 };
@@ -131,6 +138,7 @@ const ErrorModal = (props) => {
       onHide={props.onHide}
       title={props.errorType}
       body={props.errorMessage}
+      {...props.style}
     />
   );
 };
@@ -142,6 +150,7 @@ const SuccessModal = (props) => {
       onHide={props.onHide}
       title={"Success"}
       body={props.body}
+      {...props.style}
     />
   );
 };

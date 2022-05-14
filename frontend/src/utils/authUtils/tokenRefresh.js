@@ -1,12 +1,12 @@
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 
-const tokensRefresh = async () => {
+const tokensRefresh = async (fetchFunction = fetch) => {
   const response = {
     success: false,
     error: null,
     errorType: null,
     accessToken: null,
-    fetching: null,
+    fetching: false,
   };
 
   // validate refresh token to bypass login
@@ -18,17 +18,17 @@ const tokensRefresh = async () => {
       authentication: localStorage.getItem("refreshToken"),
     },
   };
-  console.log("refreshing token in tokenRefresh!");
   // get the payload from the backend
-  const validateRefreshTokenResult = await fetch(
+  const { success, result, error, errorType, fetching } = await fetchFunction(
     validateRefreshTokenURL,
     validateRefreshTokenPayload
   );
-  console.log("get payload!");
-  const { success, result, error, errorType } =
-    await validateRefreshTokenResult.json();
+  if (fetching) {
+    response.fetching = fetching;
+    return response;
+  }
+
   if (!success) {
-    console.log(success, result, error, errorType);
     response.error = error;
     response.errorType = errorType;
     return response;
@@ -36,8 +36,6 @@ const tokensRefresh = async () => {
   const { refreshToken, accessToken } = result;
   localStorage.setItem("refreshToken", refreshToken);
   localStorage.setItem("accessToken", accessToken);
-  console.log("refreshToken", refreshToken);
-  console.log("accessToken", accessToken);
   response.success = true;
   response.accessToken = accessToken;
   return response;

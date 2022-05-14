@@ -174,6 +174,7 @@ exports.databaseConfig = {
       userAgent: String,
       date: Date,
       ip: String,
+      api: String,
     },
     {
       toJSON: {

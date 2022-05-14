@@ -6,7 +6,7 @@ import { FavouriteLocation } from "./user/button/favouriteLocation";
 import { RefreshWeather } from "./admin/button/refreshWeather";
 import AdminView from "./admin";
 import UserView from "./user";
-import NavBar from "../../components/navbar";
+import NavBar from "../../wrapper/navbar";
 
 const renderButton = (ButtonComponent) => {
   return (onClick) => <ButtonComponent onClick={onClick} />;

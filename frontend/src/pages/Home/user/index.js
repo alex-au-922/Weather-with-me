@@ -35,7 +35,8 @@ const UserView = (props) => {
       error: false,
     },
     null,
-    true
+    true,
+    ["InvalidAccessTokenError"]
   );
   const { webSocket } = useContext(WebSocketContext);
   const handleViewSelect = (event) => {

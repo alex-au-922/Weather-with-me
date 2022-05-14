@@ -2,8 +2,6 @@ import { useState, createContext, useContext, useEffect } from "react";
 import { BACKEND_WS_HOST } from "../frontendConfig";
 import { AuthContext } from "./auth";
 import { io } from "socket.io-client";
-import { registerMessageListener } from "../utils/listeners/webSocketMessage";
-import { useNavigate } from "react-router-dom";
 const WebSocketContext = createContext({});
 
 const WebSocketProvider = (props) => {

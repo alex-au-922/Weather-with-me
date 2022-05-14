@@ -65,7 +65,7 @@ const BlankLocationDataFormModal = (props) => {
     },
     `Successfully created location ${formBuffer.current?.name}!`,
     false,
-    ["LocationNameError", "ValueError"]
+    ["LocationNameError", "ValueError", "InvalidAccessTokenError"]
   );
 
   const handleChangeValue = (field, changedBuffer) => {
@@ -144,12 +144,14 @@ const BlankLocationDataFormModal = (props) => {
   return (
     <>
       <Modal
+        scrollable={true}
         show={props.show}
         onHide={handleProperCloseModal}
         centered
         size="lg"
         aria-labelledby="contained-modal-title-vcenter"
         backdrop="static"
+        animation={false}
         style={{
           opacity: props.show ? (showUnsavedModal ? 0.8 : 1) : 0,
         }}
@@ -278,7 +280,7 @@ const LocationAdminDataFormModal = (props) => {
     },
     `Successfully updated location ${locationName} info!`,
     false,
-    ["LocationNameError", "ValueError"]
+    ["LocationNameError", "ValueError", "InvalidAccessTokenError"]
   );
 
   const deleteFetch = fetchFactory(
@@ -287,7 +289,9 @@ const LocationAdminDataFormModal = (props) => {
       error: true,
       loading: true,
     },
-    `Successfully deleted location ${locationName}!`
+    `Successfully deleted location ${locationName}!`,
+    false,
+    ["InvalidAccessTokenError"]
   );
 
   const resetUnsaved = () => {
@@ -389,6 +393,7 @@ const LocationAdminDataFormModal = (props) => {
   return (
     <>
       <Modal
+        scrollable={true}
         show={props.show}
         onHide={handleProperCloseModal}
         centered
@@ -409,7 +414,7 @@ const LocationAdminDataFormModal = (props) => {
             Weather Data
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{maxHeight: "70vh", overflowY: "auto"}}>
+        <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
           <Form>
             {Object.keys(props.data)
               .filter((field) => props.modalConfig[field])

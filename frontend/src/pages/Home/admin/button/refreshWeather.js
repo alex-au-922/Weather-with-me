@@ -13,7 +13,9 @@ const RefreshWeather = (props) => {
       loading: true,
       error: true,
     },
-    "Successfully updated weather data!"
+    "Successfully updated weather data!",
+    false,
+    ["InvalidAccessTokenError"]
   );
   const handleClick = async () => {
     const url = `${BACKEND_WEBSERVER_HOST}/api/v1/resources/admin/weathers`;

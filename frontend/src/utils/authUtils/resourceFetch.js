@@ -17,6 +17,7 @@ const resourceFetch = async (fetchFunction, ...fetchParams) => {
       result: fetchResult,
       fetching: fetchFetching,
     } = await fetchFunction(...fetchParams);
+
     if (fetchFetching) {
       response.fetching = true;
       return response;
@@ -39,10 +40,7 @@ const resourceFetch = async (fetchFunction, ...fetchParams) => {
       errorType: tokenRefreshErrorType,
       accessToken: refreshedAccessToken,
       fetching: tokenFetching,
-    } = await tokensRefresh();
-    console.log("tokenRefreshSuccess", tokensRefreshSuccess);
-    console.log("Refreshing the token due to expired access token!");
-    console.log(localStorage.getItem("accessToken"));
+    } = await tokensRefresh(fetchFunction);
 
     if (tokenFetching) {
       response.fetching = true;
@@ -58,10 +56,7 @@ const resourceFetch = async (fetchFunction, ...fetchParams) => {
       return response;
     }
 
-    console.log("got new fetch!");
-
-    fetchParams.headers.authorization = refreshedAccessToken;
-    console.log("token refresh", fetchParams);
+    fetchParams[1].headers.authorization = refreshedAccessToken;
 
     const {
       fetching: newFetchFetching,
@@ -70,13 +65,7 @@ const resourceFetch = async (fetchFunction, ...fetchParams) => {
       errorType: newFetchErrorType,
       result: newFetchResult,
     } = await fetchFunction(...fetchParams);
-    console.log(
-      newFetchFetching,
-      newFetchSuccess,
-      newFetchError,
-      newFetchErrorType,
-      newFetchResult
-    );
+
     if (newFetchFetching) {
       response.fetching = true;
       return response;

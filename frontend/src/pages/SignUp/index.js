@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { BACKEND_WEBSERVER_HOST } from "../../frontendConfig";
 import checkString from "../../utils/input/checkString";
 import { Form, Card, Button } from "react-bootstrap";
@@ -6,6 +6,8 @@ import { FormInputWithError } from "../../utils/gui/formInputs";
 import { useNavigate } from "react-router-dom";
 import { objectSetAll } from "../../utils/object";
 import validateEmail from "../../utils/input/checkEmail";
+import { FetchStateContext } from "../../middleware/fetch";
+import { REDIRECT_TIME } from "../../frontendConfig";
 const SignUp = () => {
   const [userInfo, setUserInfo] = useState({
     username: "",
@@ -19,6 +21,16 @@ const SignUp = () => {
     confirmedPassword: false,
     email: false,
   });
+  const { fetchFactory } = useContext(FetchStateContext);
+  const createFetch = fetchFactory(
+    {
+      success: true,
+      loading: true,
+      error: true,
+    },
+    `Successfully created user ${userInfo.username}!`,
+    null
+  );
 
   const navigate = useNavigate();
   const createNewUser = async () => {
@@ -61,29 +73,33 @@ const SignUp = () => {
       },
       body: JSON.stringify(userInfo),
     };
-    const result = await fetch(url, payload);
     const {
       success: signupSuccess,
       error: signupError,
       errorType: signupErrorType,
+      fetching: signupFetching,
       result: signupResult,
-    } = await result.json();
-    if (!signupSuccess) {
-      if (signupErrorType === "UsernameError") {
-        setError({ ...bufferError, username: signupError });
-        return;
-      } else if (signupErrorType === "PasswordError") {
-        setError({ ...bufferError, password: signupError });
-        return;
-      } else if (signupErrorType === "EmailError") {
-        setError({ ...bufferError, email: signupError });
-        return;
+    } = await createFetch(url, payload);
+    if (!signupFetching) {
+      if (!signupSuccess) {
+        if (signupErrorType === "UsernameError") {
+          setError({ ...bufferError, username: signupError });
+          return;
+        } else if (signupErrorType === "PasswordError") {
+          setError({ ...bufferError, password: signupError });
+          return;
+        } else if (signupErrorType === "EmailError") {
+          setError({ ...bufferError, email: signupError });
+          return;
+        }
+      } else {
+        const { refreshToken, accessToken } = signupResult;
+        localStorage.setItem("refreshToken", refreshToken);
+        localStorage.setItem("accessToken", accessToken);
+        setTimeout(() => {
+          navigate("/login");
+        }, REDIRECT_TIME);
       }
-    } else {
-      const { refreshToken, accessToken } = signupResult;
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("accessToken", accessToken);
-      navigate("/signup/success");
     }
   };
 

@@ -22,38 +22,8 @@ const {
   findLocationInfoByName,
 } = require("../../../generalUtils/location/locationName");
 const xss = require("xss");
+const objectXss = require("../../../databaseUtils/xss");
 const router = express.Router();
-
-// router.get("/:location", async (req, res, next) => {
-//   const location = req.params;
-//   const locId = findLocationInfoByName(location).locationId;
-//   const response = res.locals.response;
-//   try {
-//     if (location === undefined) {
-//       const weatherResults = await getLatestWeatherData();
-//       const geolocationResults = await getLatestGeoLocationData();
-//       const newLatestWeatherData = geoLocationToWeather(
-//         geolocationResults,
-//         weatherResults
-//       );
-//       response.success = true;
-//       response.result = newLatestWeatherData;
-//       res.send(JSON.stringify(response));
-//     } else {
-//       const backupWeatherResults = await getLatestBackupData(locId);
-//       const geolocationResults = await getLatestGeoLocationData();
-//       const newLatestBackupWeatherData = geoLocationToWeather(
-//         geolocationResults,
-//         backupWeatherResults
-//       );
-//       response.success = true;
-//       response.result = newLatestBackupWeatherData;
-//       res.send(JSON.stringify(response));
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// });
 
 router.get("/", async (req, res, next) => {
   try {
@@ -74,12 +44,9 @@ router.get("/", async (req, res, next) => {
 router.use(usernameCheck);
 router.put("/", async (req, res, next) => {
   try {
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
     const response = res.locals.response;
     const decryptedUserId = res.locals.decryptedUserId;
     const { password, viewMode, email, favouriteLocation } = req.body;
-    const parsedEmail = xss(email);
-    const parsedFavouriteLocation = xss(favouriteLocation);
     let newUserInfo = {};
     if (password) {
       const hashedPassword = await passwordHash(password);
@@ -87,12 +54,14 @@ router.put("/", async (req, res, next) => {
     }
     if (viewMode) newUserInfo.viewMode = viewMode;
     if (email) {
+      const parsedEmail = xss(email);
       const existUser = await findUserInfoByEmail(parsedEmail);
       if (existUser !== null && existUser.userId !== decryptedUserId)
         throw new EmailError("Email already exists!");
       newUserInfo.email = email;
     }
     if (favouriteLocation) {
+      const parsedFavouriteLocation = objectXss(favouriteLocation);
       const { name: amendedLocation, action } = parsedFavouriteLocation;
       const currentFavouriteLocations = await getUserFavouriteLocations(
         decryptedUserId

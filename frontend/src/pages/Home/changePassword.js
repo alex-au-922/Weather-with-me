@@ -3,7 +3,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import { AuthContext } from "../../middleware/auth";
 import { FetchStateContext } from "../../middleware/fetch";
-import NavBar from "../../components/navbar";
+import NavBar from "../../wrapper/navbar";
 import { Container } from "react-bootstrap";
 import checkString from "../../utils/input/checkString";
 import resourceFetch from "../../utils/authUtils/resourceFetch";
@@ -34,7 +34,7 @@ const ChangePassword = () => {
     },
     "Successfully updated the password!",
     false,
-    ["PasswordError"]
+    ["PasswordError", 'InvalidAccessTokenError']
   );
   useEffect(() => {
     setUnsaved({

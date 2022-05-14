@@ -3,7 +3,6 @@ import Login from "../pages/Login";
 import ResetPassword from "../pages/ResetPw";
 import ResetPasswordEmail from "../pages/ResetPwEmail";
 import SignUp from "../pages/SignUp";
-import SignUpSuccess from "../pages/SignUpSuccess";
 import ChangePassword from "../pages/Home/changePassword";
 import Settings from "../pages/Home/settings";
 
@@ -31,11 +30,6 @@ const routes = [
   {
     path: "/reset/email",
     component: <ResetPasswordEmail />,
-    protected: false,
-  },
-  {
-    path: "/signup/success",
-    component: <SignUpSuccess />,
     protected: false,
   },
   {

@@ -15,9 +15,12 @@ const FavouriteLocationWeatherUserModal = (props) => {
     {
       loading: true,
       success: false,
-      error: true
-    }
-  )
+      error: true,
+    },
+    "",
+    false,
+    ["InvalidAccessTokenError"]
+  );
 
   const handleClick = async () => {
     showFavourite.current = !showFavourite.current;

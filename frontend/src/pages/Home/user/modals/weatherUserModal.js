@@ -46,11 +46,16 @@ const WeatherUserLocationViewModal = (props) => {
   const [value, setValue] = useState(props.data);
   const { buffers, setBuffers } = useContext(CommentBufferContext);
   const { fetchFactory } = useContext(FetchStateContext);
-  const commentFetch = fetchFactory({
-    success: false,
-    error: true,
-    loading: true,
-  });
+  const commentFetch = fetchFactory(
+    {
+      success: false,
+      error: true,
+      loading: true,
+    },
+    "",
+    false,
+    ["InvalidAccessTokenError"]
+  );
   const handleProperCloseModal = () => {
     const formUnsaved = Object.keys(unsaved).reduce(
       (accum, key) => accum || unsaved[key],

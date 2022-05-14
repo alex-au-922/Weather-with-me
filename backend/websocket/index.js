@@ -61,8 +61,7 @@ Data Channels:
 const createSocketServer = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "http://52.76.77.52:8000",
-      // origin: "http://localhost:3000",
+      origin: process.env.FRONTEND_HOST,
       methods: ["GET", "POST"],
     },
   });
@@ -93,7 +92,6 @@ const createSocketServer = (server) => {
       if (subscribedChannels.weatherLoc) socket.join("weatherLoc");
       if (subscribedChannels.log) socket.join("log");
       if (subscribedChannels.comment) socket.join("comment");
-      socket.join("system");
 
       socketClients[userId] = {
         userAgent: clientUserAgent,
